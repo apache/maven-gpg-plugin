@@ -174,7 +174,7 @@ public class SignAndDeployFileMojo
      * Map that contains the layouts.
      */
     @Component( role = ArtifactRepositoryLayout.class )
-    private Map repositoryLayouts;
+    private Map<?, ?> repositoryLayouts;
 
     /**
      * Component used to create an artifact
@@ -455,7 +455,7 @@ public class SignAndDeployFileMojo
             }
         }
 
-        List attachedArtifacts = project.getAttachedArtifacts();
+        List<?> attachedArtifacts = project.getAttachedArtifacts();
 
         for ( Object attachedArtifact : attachedArtifacts )
         {

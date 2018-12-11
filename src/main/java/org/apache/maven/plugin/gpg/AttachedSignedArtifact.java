@@ -56,12 +56,12 @@ public class AttachedSignedArtifact
         delegate.setArtifactId( artifactId );
     }
 
-    public List getAvailableVersions()
+    public List<ArtifactVersion> getAvailableVersions()
     {
         return delegate.getAvailableVersions();
     }
 
-    public void setAvailableVersions( List availableVersions )
+    public void setAvailableVersions( List<ArtifactVersion> availableVersions )
     {
         delegate.setAvailableVersions( availableVersions );
     }
@@ -231,12 +231,12 @@ public class AttachedSignedArtifact
         return delegate.getArtifactHandler();
     }
 
-    public List getDependencyTrail()
+    public List<String> getDependencyTrail() 
     {
         return delegate.getDependencyTrail();
     }
 
-    public void setDependencyTrail( List dependencyTrail )
+    public void setDependencyTrail( List<String> dependencyTrail )
     {
         delegate.setDependencyTrail( dependencyTrail );
     }
@@ -292,9 +292,9 @@ public class AttachedSignedArtifact
     {
         List<ArtifactMetadata> result = new ArrayList<ArtifactMetadata>( delegate.getMetadataList() );
         boolean alreadySigned = false;
-        for ( Iterator i = result.iterator(); i.hasNext() && !alreadySigned; )
+        for ( Iterator<ArtifactMetadata> i = result.iterator(); i.hasNext() && !alreadySigned; )
         {
-            ArtifactMetadata metadata = (ArtifactMetadata) i.next();
+            ArtifactMetadata metadata = i.next();
             alreadySigned = signature.getKey().equals( metadata.getKey() );
         }
         if ( !alreadySigned )
@@ -311,7 +311,6 @@ public class AttachedSignedArtifact
 
     public ArtifactMetadata getMetadata( Class<?> metadataClass )
     {
-        // TODO Auto-generated method stub
         return delegate.getMetadata( metadataClass );
     }
 }

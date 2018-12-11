@@ -121,7 +121,7 @@ public class GpgSignAttachedMojo
         signer.setBuildDirectory( new File( project.getBuild().getDirectory() ) );
         signer.setBaseDirectory( project.getBasedir() );
 
-        List signingBundles = new ArrayList();
+        List<SigningBundle> signingBundles = new ArrayList<SigningBundle>();
 
         if ( !"pom".equals( project.getPackaging() ) )
         {
@@ -135,7 +135,7 @@ public class GpgSignAttachedMojo
 
             if ( file != null && file.isFile() )
             {
-                getLog().debug( "Generating signature for " + file );
+                debug( file );
 
                 File projectArtifactSignature = signer.generateSignatureForArtifact( file );
 
@@ -171,7 +171,7 @@ public class GpgSignAttachedMojo
             throw new MojoExecutionException( "Error copying POM for signing.", e );
         }
 
-        getLog().debug( "Generating signature for " + pomToSign );
+        debug( pomToSign );
 
         File pomSignature = signer.generateSignatureForArtifact( pomToSign );
 
@@ -189,8 +189,8 @@ public class GpgSignAttachedMojo
             Artifact artifact = (Artifact) o;
 
             File file = artifact.getFile();
-
-            getLog().debug( "Generating signature for " + file );
+            
+            debug( file );
 
             File signature = signer.generateSignatureForArtifact( file );
 
@@ -205,13 +205,16 @@ public class GpgSignAttachedMojo
         // Attach all the signatures
         // ----------------------------------------------------------------------------
 
-        for ( Object signingBundle : signingBundles )
+        for ( SigningBundle signingBundle : signingBundles )
         {
-            SigningBundle bundle = (SigningBundle) signingBundle;
-
-            projectHelper.attachArtifact( project, bundle.getExtension() + GpgSigner.SIGNATURE_EXTENSION,
-                                          bundle.getClassifier(), bundle.getSignature() );
+            projectHelper.attachArtifact( project, signingBundle.getExtension() + GpgSigner.SIGNATURE_EXTENSION,
+                   signingBundle.getClassifier(), signingBundle.getSignature() );
         }
+    }
+
+    private void debug( File file )  
+    {
+         getLog().debug( "Generating signature for " + file );
     }
 
     /**

@@ -40,6 +40,8 @@ import org.apache.maven.project.MavenProject;
 public abstract class AbstractGpgSigner
 {
     public static final String SIGNATURE_EXTENSION = ".asc";
+     
+    public static final String GPG_PASSPHRASE = "gpg.passphrase";
 
     protected boolean useAgent;
 
@@ -193,9 +195,9 @@ public abstract class AbstractGpgSigner
             signature = new File( signatureDirectory, file.getName() + SIGNATURE_EXTENSION );
         }
 
-        if ( signature.exists() )
+        if ( signature.exists() && signature.delete() ) 
         {
-            signature.delete();
+                 throw new RuntimeException( "signature could not be deleted" );
         }
 
         // ----------------------------------------------------------------------------
@@ -233,11 +235,11 @@ public abstract class AbstractGpgSigner
 
         if ( project != null )
         {
-            pass = project.getProperties().getProperty( "gpg.passphrase" );
+            pass = project.getProperties().getProperty( GPG_PASSPHRASE );
             if ( pass == null )
             {
                 MavenProject prj2 = findReactorProject( project );
-                pass = prj2.getProperties().getProperty( "gpg.passphrase" );
+                pass = prj2.getProperties().getProperty( GPG_PASSPHRASE );
             }
         }
         if ( pass == null )
@@ -246,7 +248,7 @@ public abstract class AbstractGpgSigner
         }
         if ( project != null )
         {
-            findReactorProject( project ).getProperties().setProperty( "gpg.passphrase", pass );
+            findReactorProject( project ).getProperties().setProperty( GPG_PASSPHRASE, pass );
         }
         return pass;
     }
@@ -326,6 +328,7 @@ public abstract class AbstractGpgSigner
         /**
          * Begin masking until asked to stop.
          */
+        @Override
         public void run()
         {
             // this needs to be high priority to make sure the characters don't
