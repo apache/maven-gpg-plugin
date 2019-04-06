@@ -65,6 +65,12 @@ public class GpgSigner
         {
             cmd.setExecutable( "gpg" + ( Os.isFamily( Os.FAMILY_WINDOWS ) ? ".exe" : "" ) );
         }
+        
+        GpgVersionParser versionParser = GpgVersionParser.parse( executable );
+        
+        GpgVersion gpgVersion = versionParser.getGpgVersion();
+        
+        getLog().debug( gpgVersion.toString() );
 
         if ( args != null )
         {
@@ -80,13 +86,21 @@ public class GpgSigner
             cmd.createArg().setFile( homeDir );
         }
 
-        if ( useAgent )
+        if ( gpgVersion.isBefore( GpgVersion.parse( "2.1" ) ) )
         {
-            cmd.createArg().setValue( "--use-agent" );
+            if ( useAgent )
+            {
+                cmd.createArg().setValue( "--use-agent" );
+            }
+            else
+            {
+                cmd.createArg().setValue( "--no-use-agent" );
+            }
         }
         else
         {
-            cmd.createArg().setValue( "--no-use-agent" );
+            cmd.createArg().setValue( "--pinentry-mode" );
+            cmd.createArg().setValue( "loopback" );
         }
 
         InputStream in = null;
@@ -126,8 +140,16 @@ public class GpgSigner
 
         if ( StringUtils.isNotEmpty( secretKeyring ) )
         {
-            cmd.createArg().setValue( "--secret-keyring" );
-            cmd.createArg().setValue( secretKeyring );
+            if ( gpgVersion.isBefore( GpgVersion.parse( "2.1" ) ) ) 
+            {
+                cmd.createArg().setValue( "--secret-keyring" );
+                cmd.createArg().setValue( secretKeyring );
+            }
+            else
+            {
+                getLog().warn( "'secretKeyring' is an obsolete option and ignored. All secret keys "
+                    + "are stored in the ‘private-keys-v1.d’ directory below the GnuPG home directory." );
+            }
         }
 
         if ( StringUtils.isNotEmpty( publicKeyring ) )

@@ -106,6 +106,13 @@ under the License.
       <artifactId>plexus-sec-dispatcher</artifactId>
       <version>1.4</version>
     </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -129,24 +136,28 @@ under the License.
     <profile>
       <id>run-its</id>
       <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-invoker-plugin</artifactId>
-              <configuration>
-                <settingsFile>src/it/settings.xml</settingsFile>
-                <goals>
-                  <goal>clean</goal>
-                  <goal>install</goal>
-                </goals>
-                <properties>
-                  <gpg.homedir>${project.build.testOutputDirectory}/gnupg</gpg.homedir>
-                </properties>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <configuration>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <pomIncludes>
+                <pomInclude>*</pomInclude>
+              </pomIncludes>
+              <pomExcludes>
+                <pomExclude>alternative-secret-keyring</pomExclude> <!-- not supported with gpg 2.1+ -->
+              </pomExcludes>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+              <properties>
+                <gpg.homedir>${project.build.testOutputDirectory}/gnupg</gpg.homedir>
+              </properties>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>

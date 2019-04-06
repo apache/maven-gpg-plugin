@@ -1,4 +1,6 @@
-/**
+package org.apache.maven.plugin.gpg;
+
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,4 +19,17 @@
  * under the License.
  */
 
-asfMavenTlpPlgnBuild([tmpWs:true])
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+public class GpgVersionTest
+{
+    @Test
+    public void test()
+    {
+        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ) ) );
+        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "2.1" ) ) );
+    }
+
+}
