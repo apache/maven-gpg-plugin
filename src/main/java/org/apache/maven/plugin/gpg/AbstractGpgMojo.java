@@ -102,7 +102,7 @@ public abstract class AbstractGpgMojo
     private boolean defaultKeyring;
 
     /**
-     * <p>The path to a secret keyring to add to the list of keyrings. By default, only the {@code secring.gpg} from 
+     * <p>The path to a secret keyring to add to the list of keyrings. By default, only the {@code secring.gpg} from
      * gpg's home directory is considered. Use this option (in combination with {@link #publicKeyring} and
      * {@link #defaultKeyring} if required) to use a different secret key. <em>Note:</em> Relative paths are resolved
      * against gpg's home directory, not the project base directory.</p>

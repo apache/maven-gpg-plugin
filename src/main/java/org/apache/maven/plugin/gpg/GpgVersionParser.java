@@ -31,20 +31,20 @@ import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
- * 
+ *
  * @author Robert Scholte
  * @since 3.0.0
  */
 public class GpgVersionParser
 {
     private final GpgVersionConsumer consumer;
-    
+
     private GpgVersionParser( GpgVersionConsumer consumer )
     {
         this.consumer = consumer;
-        
+
     }
-    
+
     public static GpgVersionParser parse( String executable )
     {
         Commandline cmd = new Commandline();
@@ -58,11 +58,11 @@ public class GpgVersionParser
             cmd.setExecutable( "gpg" + ( Os.isFamily( Os.FAMILY_WINDOWS ) ? ".exe" : "" ) );
         }
 
-        
+
         cmd.createArg().setValue( "--version" );
-        
+
         GpgVersionConsumer out = new GpgVersionConsumer();
-        
+
         try
         {
            CommandLineUtils.executeCommandLine( cmd, null, out, null );
@@ -71,10 +71,10 @@ public class GpgVersionParser
         {
             // TODO probably a dedicated exception
         }
-        
+
         return new GpgVersionParser( out );
     }
-    
+
     public GpgVersion getGpgVersion()
     {
         return consumer.gpgVersion;
@@ -83,7 +83,7 @@ public class GpgVersionParser
 
     /**
      * Consumes the output of {@code gpg --version}
-     * 
+     *
      * @author Robert Scholte
      * @since 3.0.0
      */
@@ -93,7 +93,7 @@ public class GpgVersionParser
         private final Pattern gpgVersionPattern = Pattern.compile( "gpg \\(GnuPG\\) .+" );
 
         private GpgVersion gpgVersion;
-        
+
         @Override
         public void consumeLine( String line )
             throws IOException

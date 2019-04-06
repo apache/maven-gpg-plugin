@@ -38,7 +38,7 @@ import org.codehaus.plexus.util.SelectorUtils;
 
 /**
  * Sign project artifact, the POM, and attached artifacts with GnuPG for deployment.
- * 
+ *
  * @author Jason van Zyl
  * @author Jason Dillon
  * @author Daniel Kulp
@@ -85,6 +85,7 @@ public class GpgSignAttachedMojo
     @Component
     private MavenProjectHelper projectHelper;
 
+    @Override
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
@@ -121,7 +122,7 @@ public class GpgSignAttachedMojo
         signer.setBuildDirectory( new File( project.getBuild().getDirectory() ) );
         signer.setBaseDirectory( project.getBasedir() );
 
-        List signingBundles = new ArrayList();
+        List<SigningBundle> signingBundles = new ArrayList<>();
 
         if ( !"pom".equals( project.getPackaging() ) )
         {
@@ -205,18 +206,16 @@ public class GpgSignAttachedMojo
         // Attach all the signatures
         // ----------------------------------------------------------------------------
 
-        for ( Object signingBundle : signingBundles )
+        for ( SigningBundle bundle : signingBundles )
         {
-            SigningBundle bundle = (SigningBundle) signingBundle;
-
-            projectHelper.attachArtifact( project, bundle.getExtension() + GpgSigner.SIGNATURE_EXTENSION,
+            projectHelper.attachArtifact( project, bundle.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
                                           bundle.getClassifier(), bundle.getSignature() );
         }
     }
 
     /**
      * Tests whether or not a name matches against at least one exclude pattern.
-     * 
+     *
      * @param name The name to match. Must not be <code>null</code>.
      * @return <code>true</code> when the name matches against at least one exclude pattern, or <code>false</code>
      *         otherwise.

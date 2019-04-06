@@ -65,11 +65,11 @@ public class GpgSigner
         {
             cmd.setExecutable( "gpg" + ( Os.isFamily( Os.FAMILY_WINDOWS ) ? ".exe" : "" ) );
         }
-        
+
         GpgVersionParser versionParser = GpgVersionParser.parse( executable );
-        
+
         GpgVersion gpgVersion = versionParser.getGpgVersion();
-        
+
         getLog().debug( gpgVersion.toString() );
 
         if ( args != null )
@@ -140,7 +140,7 @@ public class GpgSigner
 
         if ( StringUtils.isNotEmpty( secretKeyring ) )
         {
-            if ( gpgVersion.isBefore( GpgVersion.parse( "2.1" ) ) ) 
+            if ( gpgVersion.isBefore( GpgVersion.parse( "2.1" ) ) )
             {
                 cmd.createArg().setValue( "--secret-keyring" );
                 cmd.createArg().setValue( secretKeyring );

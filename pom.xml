@@ -63,6 +63,7 @@ under the License.
 
   <properties>
     <mavenVersion>2.2.1</mavenVersion>
+    <javaVersion>7</javaVersion>
   </properties>
 
   <dependencies>

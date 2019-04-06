@@ -50,7 +50,6 @@ import org.apache.maven.project.artifact.ProjectArtifactMetadata;
 import org.apache.maven.project.validation.ModelValidationResult;
 import org.apache.maven.project.validation.ModelValidator;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
@@ -58,7 +57,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * Signs artifacts and installs the artifact in the remote repository.
- * 
+ *
  * @author Daniel Kulp
  * @since 1.0-beta-4
  */
@@ -174,7 +173,7 @@ public class SignAndDeployFileMojo
      * Map that contains the layouts.
      */
     @Component( role = ArtifactRepositoryLayout.class )
-    private Map repositoryLayouts;
+    private Map<String, ArtifactRepositoryLayout> repositoryLayouts;
 
     /**
      * Component used to create an artifact
@@ -283,6 +282,7 @@ public class SignAndDeployFileMojo
         }
     }
 
+    @Override
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
@@ -304,7 +304,7 @@ public class SignAndDeployFileMojo
             throw new MojoFailureException( file.getPath() + " not found." );
         }
 
-        ArtifactRepositoryLayout layout = (ArtifactRepositoryLayout) repositoryLayouts.get( repositoryLayout );
+        ArtifactRepositoryLayout layout = repositoryLayouts.get( repositoryLayout );
         if ( layout == null )
         {
             throw new MojoFailureException( "Invalid repository layout: " + repositoryLayout );
@@ -479,7 +479,7 @@ public class SignAndDeployFileMojo
     /**
      * Gets the path of the specified artifact within the local repository. Note that the returned path need not exist
      * (yet).
-     * 
+     *
      * @param artifact The artifact whose local repo path should be determined, must not be <code>null</code>.
      * @return The absolute path to the artifact when installed, never <code>null</code>.
      */
@@ -526,7 +526,7 @@ public class SignAndDeployFileMojo
 
     /**
      * Extract the model from the specified POM file.
-     * 
+     *
      * @param pomFile The path of the POM file to parse, must not be <code>null</code>.
      * @return The model from the POM file, never <code>null</code>.
      * @throws MojoExecutionException If the file doesn't exist of cannot be read.
@@ -534,13 +534,9 @@ public class SignAndDeployFileMojo
     private Model readModel( File pomFile )
         throws MojoExecutionException
     {
-        Reader reader = null;
-        try
+        try ( Reader reader = ReaderFactory.newXmlReader( pomFile ) )
         {
-            reader = ReaderFactory.newXmlReader( pomFile );
             final Model model = new MavenXpp3Reader().read( reader );
-            reader.close();
-            reader = null;
             return model;
         }
         catch ( FileNotFoundException e )
@@ -555,15 +551,11 @@ public class SignAndDeployFileMojo
         {
             throw new MojoExecutionException( "Error parsing POM " + pomFile, e );
         }
-        finally
-        {
-            IOUtil.close( reader );
-        }
     }
 
     /**
      * Generates a minimal POM from the user-supplied artifact information.
-     * 
+     *
      * @return The path to the generated POM file, never <code>null</code>.
      * @throws MojoExecutionException If the generation failed.
      */
@@ -571,19 +563,16 @@ public class SignAndDeployFileMojo
         throws MojoExecutionException
     {
         Model model = generateModel();
-
-        Writer fw = null;
-        try
+        
+        try 
         {
             File tempFile = File.createTempFile( "mvndeploy", ".pom" );
             tempFile.deleteOnExit();
 
-            fw = WriterFactory.newXmlWriter( tempFile );
-
-            new MavenXpp3Writer().write( fw, model );
-
-            fw.close();
-            fw = null;
+            try ( Writer fw = WriterFactory.newXmlWriter( tempFile ) )
+            {
+                new MavenXpp3Writer().write( fw, model );
+            }
 
             return tempFile;
         }
@@ -591,15 +580,11 @@ public class SignAndDeployFileMojo
         {
             throw new MojoExecutionException( "Error writing temporary pom file: " + e.getMessage(), e );
         }
-        finally
-        {
-            IOUtil.close( fw );
-        }
     }
 
     /**
      * Validates the user-supplied artifact information.
-     * 
+     *
      * @throws MojoFailureException If any artifact coordinate is invalid.
      */
     private void validateArtifactInformation()

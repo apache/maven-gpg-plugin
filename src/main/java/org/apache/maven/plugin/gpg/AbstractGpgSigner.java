@@ -19,12 +19,8 @@ package org.apache.maven.plugin.gpg;
  * under the License.
  */
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -242,7 +238,7 @@ public abstract class AbstractGpgSigner
         }
         if ( pass == null )
         {
-            pass = readPassword( "GPG Passphrase: " );
+            pass = new String( readPassword( "GPG Passphrase: " ) );
         }
         if ( project != null )
         {
@@ -251,121 +247,9 @@ public abstract class AbstractGpgSigner
         return pass;
     }
 
-    private String readPassword( String prompt )
+    private char[] readPassword( String prompt )
         throws IOException
     {
-        try
-        {
-            return readPasswordJava16( prompt );
-        }
-        catch ( IOException e )
-        {
-            throw e;
-        }
-        catch ( NoSuchMethodException e )
-        {
-            return readPasswordJava15( prompt );
-        }
-        catch ( IllegalAccessException e )
-        {
-            return readPasswordJava15( prompt );
-        }
-        catch ( InvocationTargetException e )
-        {
-            return readPasswordJava15( prompt );
-        }
-    }
-
-    private String readPasswordJava16( String prompt )
-        throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException
-    {
-        Method consoleMethod = System.class.getMethod( "console" );
-        Object console = consoleMethod.invoke( null );
-        if ( console == null )
-        {
-            throw new IllegalAccessException( "console was null" );
-        }
-        Method readPasswordMethod = console.getClass().getMethod( "readPassword", String.class, Object[].class );
-        return new String( (char[]) readPasswordMethod.invoke( console, prompt, null ) );
-    }
-
-    private String readPasswordJava15( String prompt )
-        throws IOException
-    {
-        BufferedReader in = new BufferedReader( new InputStreamReader( System.in ) );
-        while ( System.in.available() != 0 )
-        {
-            // there's some junk already on the input stream, consume it
-            // so we can get the real passphrase
-            System.in.read();
-        }
-
-        System.out.print( prompt );
-        System.out.print( ' ' );
-        MaskingThread thread = new MaskingThread();
-        thread.start();
-        try
-        {
-
-            return in.readLine();
-        }
-        finally
-        {
-            // stop masking
-            thread.stopMasking();
-
-        }
-    }
-
-    // based on ideas from http://java.sun.com/developer/technicalArticles/Security/pwordmask/
-    class MaskingThread
-        extends Thread
-    {
-        private volatile boolean stop;
-
-        /**
-         * Begin masking until asked to stop.
-         */
-        public void run()
-        {
-            // this needs to be high priority to make sure the characters don't
-            // really get to the screen.
-
-            int priority = Thread.currentThread().getPriority();
-            Thread.currentThread().setPriority( Thread.MAX_PRIORITY );
-
-            try
-            {
-                stop = false;
-                while ( !stop )
-                {
-                    // print a backspace + * to overwrite anything they type
-                    System.out.print( "\010*" );
-                    try
-                    {
-                        // attempt masking at this rate
-                        Thread.sleep( 1 );
-                    }
-                    catch ( InterruptedException iex )
-                    {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                }
-            }
-            finally
-            {
-                // restore the original priority
-                Thread.currentThread().setPriority( priority );
-            }
-        }
-
-        /**
-         * Instruct the thread to stop masking.
-         */
-        public void stopMasking()
-        {
-            this.stop = true;
-        }
+        return System.console().readPassword();
     }
 }

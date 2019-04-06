@@ -48,11 +48,13 @@ public class AscArtifactMetadata
         this.isPom = isPom;
     }
 
+    @Override
     public String getBaseVersion()
     {
         return artifact.getBaseVersion();
     }
 
+    @Override
     public Object getKey()
     {
         return "gpg signature " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getType()
@@ -80,16 +82,19 @@ public class AscArtifactMetadata
         return buf.toString();
     }
 
+    @Override
     public String getLocalFilename( ArtifactRepository repository )
     {
         return getFilename();
     }
 
+    @Override
     public String getRemoteFilename()
     {
         return getFilename();
     }
 
+    @Override
     public void merge( ArtifactMetadata metadata )
     {
         AscArtifactMetadata m = (AscArtifactMetadata) metadata;
@@ -99,6 +104,7 @@ public class AscArtifactMetadata
         }
     }
 
+    @Override
     public void storeInLocalRepository( ArtifactRepository localRepository, ArtifactRepository remoteRepository )
         throws RepositoryMetadataStoreException
     {
@@ -116,11 +122,13 @@ public class AscArtifactMetadata
         }
     }
 
+    @Override
     public boolean storedInArtifactVersionDirectory()
     {
         return true;
     }
 
+    @Override
     public String toString()
     {
         return getFilename();

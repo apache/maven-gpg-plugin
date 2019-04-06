@@ -23,19 +23,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 
+ *
  * @author Robert Scholte
  * @since 3.0.0
  */
 public class GpgVersion implements Comparable<GpgVersion>
 {
     private final String rawVersion;
-    
+
     private GpgVersion( String rawVersion )
     {
         this.rawVersion = rawVersion;
     }
-    
+
     public static GpgVersion parse( String rawVersion )
     {
         return new GpgVersion( rawVersion );
@@ -45,51 +45,51 @@ public class GpgVersion implements Comparable<GpgVersion>
     public int compareTo( GpgVersion other )
     {
         Pattern p = Pattern.compile( "([.\\d]+)$" );
-        
+
         String[] thisSegments;
         Matcher m = p.matcher( rawVersion );
         if ( m.find() )
         {
             thisSegments  = m.group( 1 ).split( "\\." );
         }
-        else 
+        else
         {
-          throw new IllegalArgumentException( "Can't parse version of " + this.rawVersion );   
+          throw new IllegalArgumentException( "Can't parse version of " + this.rawVersion );
         }
-        
+
         String[] otherSegments;
         m = p.matcher( other.rawVersion );
         if ( m.find() )
         {
             otherSegments  = m.group( 1 ).split( "\\." );
         }
-        else 
+        else
         {
-          throw new IllegalArgumentException( "Can't parse version of " + other.rawVersion );   
+          throw new IllegalArgumentException( "Can't parse version of " + other.rawVersion );
         }
-        
+
         int minSegments = Math.min( thisSegments.length, otherSegments.length );
-        
+
         for ( int index = 0; index < minSegments; index++ )
         {
             int thisValue = Integer.parseInt( thisSegments[index] );
-            
+
             int otherValue = Integer.parseInt( otherSegments[index] );
-            
+
             int compareValue = Integer.compare( thisValue, otherValue );
-            
+
             if ( compareValue != 0 )
             {
                 return compareValue;
             }
         }
-        
+
         return ( thisSegments.length - otherSegments.length );
     }
 
     /**
      * Verify if this version is before some other version
-     * 
+     *
      * @param other the version to compare with
      * @return {@code true} is this is less than {@code other}, otherwise {@code false}
      */
@@ -100,7 +100,7 @@ public class GpgVersion implements Comparable<GpgVersion>
 
     /**
      * Verify if this version is before some other version
-     * 
+     *
      * @param other the version to compare with
      * @return {@code true}  is this is less than {@code other}, otherwise {@code false}
      */
@@ -111,7 +111,7 @@ public class GpgVersion implements Comparable<GpgVersion>
 
     /**
      * Verify if this version is at least some other version
-     * 
+     *
      * @param other the version to compare with
      * @return  {@code true}  is this is greater than or equal to {@code other}, otherwise {@code false}
      */
@@ -122,7 +122,7 @@ public class GpgVersion implements Comparable<GpgVersion>
 
     /**
      * Verify if this version is at least some other version
-     * 
+     *
      * @param other the version to compare with
      * @return  {@code true} is this is greater than or equal to {@code other}, otherwise {@code false}
      */
@@ -130,11 +130,11 @@ public class GpgVersion implements Comparable<GpgVersion>
     {
         return this.compareTo( parse( other ) ) >= 0;
     }
-    
+
     @Override
     public String toString()
     {
         return rawVersion;
     }
-    
+
 }
