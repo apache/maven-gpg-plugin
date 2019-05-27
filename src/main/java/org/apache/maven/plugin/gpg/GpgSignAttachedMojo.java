@@ -143,6 +143,7 @@ public class GpgSignAttachedMojo
                 if ( projectArtifactSignature != null )
                 {
                     signingBundles.add( new SigningBundle( artifact.getArtifactHandler().getExtension(),
+                                                           artifact.getClassifier(),
                                                            projectArtifactSignature ) );
                 }
             }
