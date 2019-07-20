@@ -90,7 +90,7 @@ public class GpgVersionParser
     static class GpgVersionConsumer
         implements StreamConsumer
     {
-        private final Pattern gpgVersionPattern = Pattern.compile( "gpg \\(GnuPG\\) .+" );
+        private final Pattern gpgVersionPattern = Pattern.compile( "gpg \\(GnuPG.*\\) .+" );
 
         private GpgVersion gpgVersion;
 
