@@ -94,6 +94,11 @@ public class GpgVersionParser
 
         private GpgVersion gpgVersion;
 
+        public GpgVersion getGpgVersion()
+        {
+            return gpgVersion;
+        }
+
         @Override
         public void consumeLine( String line )
             throws IOException
