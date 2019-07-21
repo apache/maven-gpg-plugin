@@ -71,6 +71,11 @@ public class GpgVersionParser
             // TODO probably a dedicated exception
         }
 
+        if ( null == out.gpgVersion )
+        {
+            throw new RuntimeException( "Could not determine version from GnuPG executable " + cmd.getExecutable() );
+        }
+
         return new GpgVersionParser( out.gpgVersion );
     }
 
