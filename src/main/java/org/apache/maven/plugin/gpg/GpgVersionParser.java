@@ -37,12 +37,11 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  */
 public class GpgVersionParser
 {
-    private final GpgVersionConsumer consumer;
+    private final GpgVersion gpgVersion;
 
-    private GpgVersionParser( GpgVersionConsumer consumer )
+    private GpgVersionParser( GpgVersion gpgVersion )
     {
-        this.consumer = consumer;
-
+        this.gpgVersion = gpgVersion;
     }
 
     public static GpgVersionParser parse( String executable )
@@ -72,13 +71,12 @@ public class GpgVersionParser
             // TODO probably a dedicated exception
         }
 
-        return new GpgVersionParser( out );
+        return new GpgVersionParser( out.gpgVersion );
     }
 
     public GpgVersion getGpgVersion()
     {
-        return consumer.gpgVersion;
-
+        return gpgVersion;
     }
 
     /**
