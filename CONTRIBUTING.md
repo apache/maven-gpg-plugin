@@ -72,7 +72,7 @@ Debugging
 
 In case you run into a problem you can debug integration tests by performing the following steps:
 
-+ Run the respective integration test, e.g., `no-main-artifact`, by issueing the following command line
++ Run the respective integration test, e.g., `no-main-artifact`, by issuing the following command line
 
 ```bash
 mvn clean verify -Prun-its -Dinvoker.test=no-main-artifact -Dinvoker.mavenExecutable=mvnDebug
