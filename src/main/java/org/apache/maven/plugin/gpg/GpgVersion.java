@@ -23,6 +23,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Represents the semver value of GPG.
+ * This is in most cases the first line of <code>gpg --version</code>
+ * 
  *
  * @author Robert Scholte
  * @since 3.0.0

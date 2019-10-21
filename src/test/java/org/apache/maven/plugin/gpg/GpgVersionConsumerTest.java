@@ -19,18 +19,22 @@ package org.apache.maven.plugin.gpg;
  * under the License.
  */
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
+import org.apache.maven.plugin.gpg.GpgVersionParser.GpgVersionConsumer;
 import org.junit.Test;
 
-public class GpgVersionTest
+public class GpgVersionConsumerTest
 {
     @Test
     public void test()
+        throws Exception
     {
-        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ) ) );
-        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "2.1" ) ) );
-        assertTrue( GpgVersion.parse( "gpg (GnuPG/MacGPG2) 2.2.10" ).isAtLeast( GpgVersion.parse( "2.2.10" ) ) );
+        GpgVersionConsumer consumer = new GpgVersionConsumer();
+        consumer.consumeLine( "gpg (GnuPG/MacGPG2) 2.2.10" );
+
+        assertThat( consumer.getGpgVersion().toString(), is( "gpg (GnuPG/MacGPG2) 2.2.10" ) );
     }
 
 }

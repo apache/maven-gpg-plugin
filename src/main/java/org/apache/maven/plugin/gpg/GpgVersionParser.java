@@ -31,7 +31,19 @@ import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
- *
+ * Parse the output of <code>gpg --version</code> and exposes these as dedicated objects.
+ * 
+ * Supported:
+ * <ul>
+ *   <li>gpg version, i.e. gpg (GnuPG) 2.2.15</li>
+ * </ul>
+ * Unsupported:
+ * <ul>
+ *   <li>libgcrypt version</li>
+ *   <li>Home</li>
+ *   <li>Supported algorithms (Pubkey, Cipher, Hash, Compression)</li>
+ * </ul>
+ * 
  * @author Robert Scholte
  * @since 3.0.0
  */
@@ -77,7 +89,7 @@ public class GpgVersionParser
 
     public GpgVersion getGpgVersion()
     {
-        return consumer.gpgVersion;
+        return consumer.getGpgVersion();
 
     }
 
@@ -90,7 +102,7 @@ public class GpgVersionParser
     static class GpgVersionConsumer
         implements StreamConsumer
     {
-        private final Pattern gpgVersionPattern = Pattern.compile( "gpg \\(GnuPG\\) .+" );
+        private final Pattern gpgVersionPattern = Pattern.compile( "gpg \\([^)]+\\) .+" );
 
         private GpgVersion gpgVersion;
 
@@ -103,6 +115,11 @@ public class GpgVersionParser
             {
                 gpgVersion = GpgVersion.parse( m.group() );
             }
+        }
+        
+        public GpgVersion getGpgVersion()
+        {
+            return gpgVersion;
         }
     }
 
