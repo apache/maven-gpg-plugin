@@ -149,6 +149,7 @@ mvn release:perform -Darguments=-Dgpg.passphrase=thephrase
   [...]
   <profiles>
     <profile>
+      <id>my_profile_id</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
