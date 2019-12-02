@@ -447,12 +447,8 @@ public class SignAndDeployFileMojo
             }
         }
 
-        List attachedArtifacts = project.getAttachedArtifacts();
-
-        for ( Object attachedArtifact : attachedArtifacts )
+        for ( Artifact attached : project.getAttachedArtifacts() )
         {
-            Artifact attached = (Artifact) attachedArtifact;
-
             fileSig = signer.generateSignatureForArtifact( attached.getFile() );
             attached = new AttachedSignedArtifact( attached, new AscArtifactMetadata( attached, fileSig, false ) );
             try
