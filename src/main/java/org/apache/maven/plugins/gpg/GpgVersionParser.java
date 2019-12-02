@@ -1,4 +1,4 @@
-package org.apache.maven.plugin.gpg;
+package org.apache.maven.plugins.gpg;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one

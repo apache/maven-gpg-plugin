@@ -1,4 +1,4 @@
-package org.apache.maven.plugin.gpg;
+package org.apache.maven.plugins.gpg;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,45 +19,22 @@ package org.apache.maven.plugin.gpg;
  * under the License.
  */
 
-import java.io.File;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
-/** @author Jason van Zyl */
-public class SigningBundle
+import org.apache.maven.plugins.gpg.GpgVersionParser.GpgVersionConsumer;
+import org.junit.Test;
+
+public class GpgVersionConsumerTest
 {
-
-    private String extension;
-
-    private String classifier;
-
-    private File signature;
-
-    public SigningBundle( String extension, File signature )
+    @Test
+    public void test()
+        throws Exception
     {
-        this.extension = extension;
+        GpgVersionConsumer consumer = new GpgVersionConsumer();
+        consumer.consumeLine( "gpg (GnuPG/MacGPG2) 2.2.10" );
 
-        this.signature = signature;
-    }
-
-    public SigningBundle( String extension, String classifier, File signature )
-    {
-        this.extension = extension;
-        this.classifier = classifier;
-        this.signature = signature;
-    }
-
-    public String getExtension()
-    {
-        return extension;
-    }
-
-    public File getSignature()
-    {
-        return signature;
-    }
-
-    public String getClassifier()
-    {
-        return classifier;
+        assertThat( consumer.getGpgVersion().toString(), is( "gpg (GnuPG/MacGPG2) 2.2.10" ) );
     }
 
 }

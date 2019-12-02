@@ -1,4 +1,4 @@
-package org.apache.maven.plugin.gpg;
+package org.apache.maven.plugins.gpg;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -34,12 +34,12 @@ import org.codehaus.plexus.util.FileUtils;
  *
  */
 public class AscArtifactMetadata
-    extends AbstractArtifactMetadata
+    extends AbstractArtifactMetadata implements org.apache.maven.shared.transfer.metadata.ArtifactMetadata  
 {
 
-    File file;
+    private final File file;
 
-    boolean isPom;
+    private final boolean isPom;
 
     public AscArtifactMetadata( Artifact artifact, File file, boolean isPom )
     {
@@ -97,11 +97,21 @@ public class AscArtifactMetadata
     @Override
     public void merge( ArtifactMetadata metadata )
     {
-        AscArtifactMetadata m = (AscArtifactMetadata) metadata;
-        if ( !m.file.equals( file ) )
+        merge( (AscArtifactMetadata) metadata );
+    }
+
+    @Override
+    public void merge( org.apache.maven.repository.legacy.metadata.ArtifactMetadata metadata )
+    {
+        merge( (AscArtifactMetadata) metadata );
+    }
+    
+    private void merge( AscArtifactMetadata metadata )
+    {
+        if ( !metadata.file.equals( file ) )
         {
             throw new IllegalStateException( "Cannot add two different pieces of metadata for: " + getKey() );
-        }
+        } 
     }
 
     @Override
@@ -132,6 +142,12 @@ public class AscArtifactMetadata
     public String toString()
     {
         return getFilename();
+    }
+
+    @Override
+    public File getFile()
+    {
+        return file;
     }
 
 }

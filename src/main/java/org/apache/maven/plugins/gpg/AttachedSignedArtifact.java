@@ -1,4 +1,4 @@
-package org.apache.maven.plugin.gpg;
+package org.apache.maven.plugins.gpg;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -357,12 +357,5 @@ public class AttachedSignedArtifact
     public int compareTo( Artifact o )
     {
         return delegate.compareTo( o );
-    }
-
-    @Override
-    public ArtifactMetadata getMetadata( Class<?> metadataClass )
-    {
-        // TODO Auto-generated method stub
-        return delegate.getMetadata( metadataClass );
     }
 }

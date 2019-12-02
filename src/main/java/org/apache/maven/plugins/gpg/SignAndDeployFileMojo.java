@@ -1,4 +1,4 @@
-package org.apache.maven.plugin.gpg;
+package org.apache.maven.plugins.gpg;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,21 +24,29 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.deployer.ArtifactDeployer;
-import org.apache.maven.artifact.deployer.ArtifactDeploymentException;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadata;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
-import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
+import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
+import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
+import org.apache.maven.model.building.DefaultModelBuildingRequest;
+import org.apache.maven.model.building.ModelBuildingRequest;
+import org.apache.maven.model.building.ModelProblem;
+import org.apache.maven.model.building.ModelProblem.Severity;
+import org.apache.maven.model.building.ModelProblemCollector;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.apache.maven.model.validation.ModelValidator;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -46,9 +54,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.project.artifact.ProjectArtifactMetadata;
-import org.apache.maven.project.validation.ModelValidationResult;
-import org.apache.maven.project.validation.ModelValidator;
+import org.apache.maven.shared.transfer.artifact.deploy.ArtifactDeployer;
+import org.apache.maven.shared.transfer.artifact.deploy.ArtifactDeployerException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
@@ -134,12 +143,6 @@ public class SignAndDeployFileMojo
     private boolean generatePom;
 
     /**
-     * Whether to deploy snapshots with a unique version or not.
-     */
-    @Parameter( property = "uniqueVersion", defaultValue = "true" )
-    private boolean uniqueVersion;
-
-    /**
      * URL where the artifact will be deployed. <br/>
      * ie ( file:///C:/m2-repo or scp://host.com/path/to/repo )
      */
@@ -170,22 +173,10 @@ public class SignAndDeployFileMojo
     private ArtifactRepository localRepository;
 
     /**
-     * Map that contains the layouts.
-     */
-    @Component( role = ArtifactRepositoryLayout.class )
-    private Map<String, ArtifactRepositoryLayout> repositoryLayouts;
-
-    /**
      * Component used to create an artifact
      */
     @Component
     private ArtifactFactory artifactFactory;
-
-    /**
-     * Component used to create a repository
-     */
-    @Component
-    private ArtifactRepositoryFactory repositoryFactory;
 
     /**
      * The component used to validate the user-supplied artifact coordinates.
@@ -200,6 +191,12 @@ public class SignAndDeployFileMojo
      */
     @Parameter( defaultValue = "${project}", readonly = true, required = true )
     private MavenProject project;
+
+    /**
+     * @since 3.0.0
+     */
+    @Parameter( defaultValue = "${session}", readonly = true, required = true )
+    private MavenSession session;
 
     /**
      * Used for attaching the source and javadoc jars to the project.
@@ -304,14 +301,8 @@ public class SignAndDeployFileMojo
             throw new MojoFailureException( file.getPath() + " not found." );
         }
 
-        ArtifactRepositoryLayout layout = repositoryLayouts.get( repositoryLayout );
-        if ( layout == null )
-        {
-            throw new MojoFailureException( "Invalid repository layout: " + repositoryLayout );
-        }
-
-        ArtifactRepository deploymentRepository =
-            repositoryFactory.createDeploymentArtifactRepository( repositoryId, url, layout, uniqueVersion );
+        
+        ArtifactRepository deploymentRepository = createDeploymentArtifactRepository( repositoryId, url );
 
         if ( StringUtils.isEmpty( deploymentRepository.getProtocol() ) )
         {
@@ -325,6 +316,7 @@ public class SignAndDeployFileMojo
         {
             throw new MojoFailureException( "Cannot deploy artifact from the local repository: " + file );
         }
+        artifact.setFile( file );
 
         File fileSig = signer.generateSignatureForArtifact( file );
         ArtifactMetadata metadata = new AscArtifactMetadata( artifact, fileSig, false );
@@ -356,9 +348,9 @@ public class SignAndDeployFileMojo
 
         try
         {
-            deploy( file, artifact, deploymentRepository, localRepository );
+            deploy( artifact, deploymentRepository );
         }
-        catch ( ArtifactDeploymentException e )
+        catch ( ArtifactDeployerException e )
         {
             throw new MojoExecutionException( e.getMessage(), e );
         }
@@ -465,9 +457,9 @@ public class SignAndDeployFileMojo
             attached = new AttachedSignedArtifact( attached, new AscArtifactMetadata( attached, fileSig, false ) );
             try
             {
-                deploy( attached.getFile(), attached, deploymentRepository, localRepository );
+                deploy(  attached, deploymentRepository );
             }
-            catch ( ArtifactDeploymentException e )
+            catch ( ArtifactDeployerException e )
             {
                 throw new MojoExecutionException( "Error deploying attached artifact " + attached.getFile() + ": "
                     + e.getMessage(), e );
@@ -592,12 +584,23 @@ public class SignAndDeployFileMojo
     {
         Model model = generateModel();
 
-        ModelValidationResult result = modelValidator.validate( model );
+        ModelBuildingRequest request = new DefaultModelBuildingRequest()
+                        .setValidationLevel( ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0 );
+                    
+        List<String> result = new ArrayList<>();
 
-        if ( result.getMessageCount() > 0 )
+        SimpleModelProblemCollector problemCollector = new SimpleModelProblemCollector( result );
+
+        modelValidator.validateEffectiveModel( model, request, problemCollector );
+
+        if ( !result.isEmpty() )
         {
-            throw new MojoFailureException( "The artifact information is incomplete or not valid:\n"
-                + result.render( "  " ) );
+            StringBuilder msg = new StringBuilder( "The artifact information is incomplete or not valid:\n" );
+            for ( String e : result )
+            {
+                msg.append( " - " + e + '\n' );
+            }
+            throw new MojoFailureException( msg.toString() );
         }
     }
 
@@ -631,12 +634,14 @@ public class SignAndDeployFileMojo
      * @param localRepository the local repository to install into
      * @throws ArtifactDeploymentException if an error occurred deploying the artifact
      */
-    protected void deploy( File source, Artifact artifact, ArtifactRepository deploymentRepository,
-                           ArtifactRepository localRepository )
-        throws ArtifactDeploymentException
+    protected void deploy( Artifact artifact,
+                           ArtifactRepository deploymentRepository )
+        throws ArtifactDeployerException
     {
+        final ProjectBuildingRequest buildingRequest = session.getProjectBuildingRequest();
+        
         int retryFailedDeploymentCount = Math.max( 1, Math.min( 10, this.retryFailedDeploymentCount ) );
-        ArtifactDeploymentException exception = null;
+        ArtifactDeployerException exception = null;
         for ( int count = 0; count < retryFailedDeploymentCount; count++ )
         {
             try
@@ -647,7 +652,8 @@ public class SignAndDeployFileMojo
                     getLog().info( "Retrying deployment attempt " + ( count + 1 ) + " of " + retryFailedDeploymentCount );
                     // CHECKSTYLE_ON: LineLength
                 }
-                deployer.deploy( source, artifact, deploymentRepository, localRepository );
+                deployer.deploy( buildingRequest, deploymentRepository, Collections.singletonList( artifact ) );
+
                 for ( Object o : artifact.getMetadataList() )
                 {
                     ArtifactMetadata metadata = (ArtifactMetadata) o;
@@ -656,7 +662,7 @@ public class SignAndDeployFileMojo
                 exception = null;
                 break;
             }
-            catch ( ArtifactDeploymentException e )
+            catch ( ArtifactDeployerException e )
             {
                 if ( count + 1 < retryFailedDeploymentCount )
                 {
@@ -673,5 +679,32 @@ public class SignAndDeployFileMojo
         {
             throw exception;
         }
+    }
+    
+    protected ArtifactRepository createDeploymentArtifactRepository( String id, String url )
+    {
+        return new MavenArtifactRepository( id, url, new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(),
+                                            new ArtifactRepositoryPolicy() );
+    }
+
+    private static class SimpleModelProblemCollector
+        implements ModelProblemCollector
+    {
+
+        private final List<String> result;
+
+        SimpleModelProblemCollector( List<String> result )
+        {
+            this.result = result;
+        }
+
+        public void add( Severity severity, String message, InputLocation location, Exception cause )
+        {
+            if ( !ModelProblem.Severity.WARNING.equals( severity ) )
+            {
+                result.add( message );
+            }
+        }
+
     }
 }

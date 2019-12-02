@@ -1,4 +1,4 @@
-package org.apache.maven.plugin.gpg;
+package org.apache.maven.plugins.gpg;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,22 +19,19 @@ package org.apache.maven.plugin.gpg;
  * under the License.
  */
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-import org.apache.maven.plugin.gpg.GpgVersionParser.GpgVersionConsumer;
+import org.apache.maven.plugins.gpg.GpgVersion;
 import org.junit.Test;
 
-public class GpgVersionConsumerTest
+public class GpgVersionTest
 {
     @Test
     public void test()
-        throws Exception
     {
-        GpgVersionConsumer consumer = new GpgVersionConsumer();
-        consumer.consumeLine( "gpg (GnuPG/MacGPG2) 2.2.10" );
-
-        assertThat( consumer.getGpgVersion().toString(), is( "gpg (GnuPG/MacGPG2) 2.2.10" ) );
+        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ) ) );
+        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "2.1" ) ) );
+        assertTrue( GpgVersion.parse( "gpg (GnuPG/MacGPG2) 2.2.10" ).isAtLeast( GpgVersion.parse( "2.2.10" ) ) );
     }
 
 }

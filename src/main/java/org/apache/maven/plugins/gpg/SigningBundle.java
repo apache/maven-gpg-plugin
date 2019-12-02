@@ -1,4 +1,4 @@
-package org.apache.maven.plugin.gpg;
+package org.apache.maven.plugins.gpg;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,18 +19,45 @@ package org.apache.maven.plugin.gpg;
  * under the License.
  */
 
-import static org.junit.Assert.assertTrue;
+import java.io.File;
 
-import org.junit.Test;
-
-public class GpgVersionTest
+/** @author Jason van Zyl */
+public class SigningBundle
 {
-    @Test
-    public void test()
+
+    private String extension;
+
+    private String classifier;
+
+    private File signature;
+
+    public SigningBundle( String extension, File signature )
     {
-        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ) ) );
-        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "2.1" ) ) );
-        assertTrue( GpgVersion.parse( "gpg (GnuPG/MacGPG2) 2.2.10" ).isAtLeast( GpgVersion.parse( "2.2.10" ) ) );
+        this.extension = extension;
+
+        this.signature = signature;
+    }
+
+    public SigningBundle( String extension, String classifier, File signature )
+    {
+        this.extension = extension;
+        this.classifier = classifier;
+        this.signature = signature;
+    }
+
+    public String getExtension()
+    {
+        return extension;
+    }
+
+    public File getSignature()
+    {
+        return signature;
+    }
+
+    public String getClassifier()
+    {
+        return classifier;
     }
 
 }
