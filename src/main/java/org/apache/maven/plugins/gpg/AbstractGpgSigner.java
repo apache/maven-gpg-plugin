@@ -147,7 +147,7 @@ public abstract class AbstractGpgSigner
      *
      * @param file The file to sign
      * @return A reference to the generated signature file
-     * @throws org.apache.maven.plugin.MojoExecutionException
+     * @throws MojoExecutionException if signature generation fails
      */
     public File generateSignatureForArtifact( File file )
         throws MojoExecutionException
@@ -210,7 +210,7 @@ public abstract class AbstractGpgSigner
      *
      * @param file The file to sign
      * @param signature The file in which the generate signature will be put
-     * @throws MojoExecutionException
+     * @throws MojoExecutionException if signature generation fails
      */
     protected abstract void generateSignatureForFile( File file, File signature )
         throws MojoExecutionException;

@@ -624,11 +624,9 @@ public class SignAndDeployFileMojo
     /**
      * Deploy an artifact from a particular file.
      *
-     * @param source the file to deploy
      * @param artifact the artifact definition
      * @param deploymentRepository the repository to deploy to
-     * @param localRepository the local repository to install into
-     * @throws ArtifactDeploymentException if an error occurred deploying the artifact
+     * @throws ArtifactDeployerException if an error occurred deploying the artifact
      */
     protected void deploy( Artifact artifact,
                            ArtifactRepository deploymentRepository )
