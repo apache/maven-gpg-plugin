@@ -48,7 +48,8 @@ public class GpgSignAttachedMojo
     extends AbstractGpgMojo
 {
 
-    private static final String DEFAULT_EXCLUDES[] = new String[] { "**/*.md5", "**/*.sha1", "**/*.asc" };
+    private static final String DEFAULT_EXCLUDES[] =
+        new String[] { "**/*.md5", "**/*.sha1", "**/*.sha256", "**/*.sha512", "**/*.asc" };
 
     /**
      * Skip doing the gpg signing.
