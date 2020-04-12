@@ -26,15 +26,15 @@
 
 Deploy Signed Artifacts
 
-  Without this plugin you would deploy your project like this:
+  Without this plugin you deploy your project like this:
 
 +----------+
 mvn deploy
 +----------+
 
  If you have configured this plugin according to the instructions in the
- {{{../usage.html}usage page}} then you just need to specify the passphrase for
- your private key on the command line. Like this:
+ {{{../usage.html}usage page}}, you just need to specify the passphrase for
+ your private key on the command line like this:
 
 +----------+
 mvn deploy -Dgpg.passphrase=thephrase
@@ -43,18 +43,10 @@ mvn deploy -Dgpg.passphrase=thephrase
   If you don't specify a passphrase, it will prompt for one.
 
 
-
-* Issue with invalid signatures on the POM files
-  
-  Maven 2.0.5 fixes a problem where the POM files would end up changing between
-  signing them and deploying them.   If the signatures on the POM files are invalid,
-  make sure you upgrade to Maven 2.0.5.
-
-
 * Install/Deploy without configuring the plugin in the POM
 
-  Currently this is not easily accomplished.   gpg signs the artifacts attached to the
-  build at the point that gpg runs.   However, we want to "inject" the gpg into the phases.
+  Currently this is not easily accomplished. gpg signs the artifacts attached to the
+  build at the point that gpg runs. However, we want to "inject" the gpg into the phases.
   What MIGHT work is:
 
 +----------+
