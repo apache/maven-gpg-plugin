@@ -30,7 +30,7 @@ under the License.
   </parent>
 
   <artifactId>maven-gpg-plugin</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Apache Maven GPG Plugin</name>
@@ -64,7 +64,7 @@ under the License.
   <properties>
     <mavenVersion>3.0</mavenVersion>
     <javaVersion>7</javaVersion>
-    <project.build.outputTimestamp>2020-04-12T12:44:35Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2020-04-12T12:45:04Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
