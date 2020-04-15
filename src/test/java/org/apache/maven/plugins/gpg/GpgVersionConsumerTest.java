@@ -20,7 +20,7 @@ package org.apache.maven.plugins.gpg;
  */
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.apache.maven.plugins.gpg.GpgVersionParser.GpgVersionConsumer;
 import org.junit.Test;
