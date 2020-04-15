@@ -30,7 +30,7 @@ under the License.
   </parent>
 
   <artifactId>maven-gpg-plugin</artifactId>
-  <version>3.0.1-SNAPSHOT</version>
+  <version>3.0.1</version>
   <packaging>maven-plugin</packaging>
 
   <name>Apache Maven GPG Plugin</name>
@@ -44,7 +44,7 @@ under the License.
     <connection>scm:git:https://gitbox.apache.org/repos/asf/maven-gpg-plugin.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/maven-gpg-plugin.git</developerConnection>
     <url>https://github.com/apache/maven-gpg-plugin/tree/${project.scm.tag}</url>
-    <tag>maven-gpg-plugin-3.0.0</tag>
+    <tag>maven-gpg-plugin-3.0.1</tag>
   </scm>
   <issueManagement>
     <system>jira</system>
@@ -64,7 +64,7 @@ under the License.
   <properties>
     <mavenVersion>3.0</mavenVersion>
     <javaVersion>7</javaVersion>
-    <project.build.outputTimestamp>2020-04-12T12:45:04Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2020-04-15T15:04:12Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
