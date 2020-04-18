@@ -19,11 +19,13 @@ package org.apache.maven.plugins.gpg;
  * under the License.
  */
 
-import static org.junit.Assert.assertTrue;
-
-import org.apache.maven.plugins.gpg.GpgVersion;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
+/**
+ * Tests for {@link GpgVersion}.
+ */
 public class GpgVersionTest
 {
     @Test
@@ -32,6 +34,8 @@ public class GpgVersionTest
         assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ) ) );
         assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isAtLeast( GpgVersion.parse( "2.1" ) ) );
         assertTrue( GpgVersion.parse( "gpg (GnuPG/MacGPG2) 2.2.10" ).isAtLeast( GpgVersion.parse( "2.2.10" ) ) );
+        assertTrue( GpgVersion.parse( "gpg (GnuPG) 2.0.26 (Gpg4win 2.2.3)" )
+                .isAtLeast( GpgVersion.parse( "2.0.26" ) ) );
     }
 
 }

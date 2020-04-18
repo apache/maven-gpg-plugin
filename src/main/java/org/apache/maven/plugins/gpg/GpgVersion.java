@@ -47,13 +47,13 @@ public class GpgVersion implements Comparable<GpgVersion>
     @Override
     public int compareTo( GpgVersion other )
     {
-        Pattern p = Pattern.compile( "([.\\d]+)$" );
+        Pattern p = Pattern.compile( "(\\d+\\.)+(\\d+)" );
 
         String[] thisSegments;
         Matcher m = p.matcher( rawVersion );
         if ( m.find() )
         {
-            thisSegments  = m.group( 1 ).split( "\\." );
+            thisSegments  = m.group( 0 ).split( "\\." );
         }
         else
         {
@@ -64,7 +64,7 @@ public class GpgVersion implements Comparable<GpgVersion>
         m = p.matcher( other.rawVersion );
         if ( m.find() )
         {
-            otherSegments  = m.group( 1 ).split( "\\." );
+            otherSegments  = m.group( 0 ).split( "\\." );
         }
         else
         {
