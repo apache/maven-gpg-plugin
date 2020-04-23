@@ -21,6 +21,7 @@ package org.apache.maven.plugins.gpg;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -38,4 +39,13 @@ public class GpgVersionTest
                 .isAtLeast( GpgVersion.parse( "2.0.26" ) ) );
     }
 
+    @Test
+    public void testOpposite()
+    {
+        assertFalse( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isBefore( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ) ) );
+        assertFalse( GpgVersion.parse( "gpg (GnuPG) 2.2.1" ).isBefore( GpgVersion.parse( "2.1" ) ) );
+        assertFalse( GpgVersion.parse( "gpg (GnuPG/MacGPG2) 2.2.10" ).isBefore( GpgVersion.parse( "2.2.10" ) ) );
+        assertFalse( GpgVersion.parse( "gpg (GnuPG) 2.0.26 (Gpg4win 2.2.3)" )
+                .isBefore( GpgVersion.parse( "2.0.26" ) ) );
+    }
 }
