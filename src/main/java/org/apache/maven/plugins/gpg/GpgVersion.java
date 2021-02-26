@@ -19,6 +19,7 @@ package org.apache.maven.plugins.gpg;
  * under the License.
  */
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,6 +122,30 @@ public class GpgVersion implements Comparable<GpgVersion>
         }
 
         return versionStringBuilder.toString();
+    }
+
+    @Override
+    public boolean equals( final Object other )
+    {
+        if ( this == other )
+        {
+            return true;
+        }
+
+        if ( !( other instanceof GpgVersion ) )
+        {
+            return false;
+        }
+
+        final GpgVersion that = (GpgVersion) other;
+
+        return compareTo( that ) == 0;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Arrays.hashCode( versionSegments );
     }
 
 }
