@@ -32,54 +32,46 @@ import java.util.regex.Pattern;
  */
 public class GpgVersion implements Comparable<GpgVersion>
 {
-    private final String rawVersion;
 
-    private GpgVersion( String rawVersion )
+    private static final Pattern VERSION_PATTERN = Pattern.compile( "(\\d+\\.)+(\\d+)" );
+
+    private final int[] versionSegments;
+
+    private GpgVersion( int... versionSegments )
     {
-        this.rawVersion = rawVersion;
+        this.versionSegments = versionSegments;
     }
 
     public static GpgVersion parse( String rawVersion )
     {
-        return new GpgVersion( rawVersion );
+        final Matcher versionMatcher = VERSION_PATTERN.matcher( rawVersion );
+        if ( !versionMatcher.find() )
+        {
+            throw new IllegalArgumentException( "Can't parse version of " + rawVersion );
+        }
+
+        final String[] rawVersionSegments = versionMatcher.group( 0 ).split( "\\." );
+
+        final int[] versionSegments = new int[rawVersionSegments.length];
+        for ( int index = 0; index < rawVersionSegments.length; index++ )
+        {
+            versionSegments[index] = Integer.parseInt( rawVersionSegments[index] );
+        }
+
+        return new GpgVersion( versionSegments );
     }
 
     @Override
     public int compareTo( GpgVersion other )
     {
-        Pattern p = Pattern.compile( "(\\d+\\.)+(\\d+)" );
-
-        String[] thisSegments;
-        Matcher m = p.matcher( rawVersion );
-        if ( m.find() )
-        {
-            thisSegments  = m.group( 0 ).split( "\\." );
-        }
-        else
-        {
-          throw new IllegalArgumentException( "Can't parse version of " + this.rawVersion );
-        }
-
-        String[] otherSegments;
-        m = p.matcher( other.rawVersion );
-        if ( m.find() )
-        {
-            otherSegments  = m.group( 0 ).split( "\\." );
-        }
-        else
-        {
-          throw new IllegalArgumentException( "Can't parse version of " + other.rawVersion );
-        }
+        final int[] thisSegments = versionSegments;
+        final int[] otherSegments = other.versionSegments;
 
         int minSegments = Math.min( thisSegments.length, otherSegments.length );
 
         for ( int index = 0; index < minSegments; index++ )
         {
-            int thisValue = Integer.parseInt( thisSegments[index] );
-
-            int otherValue = Integer.parseInt( otherSegments[index] );
-
-            int compareValue = Integer.compare( thisValue, otherValue );
+            int compareValue = Integer.compare( thisSegments[index], otherSegments[index] );
 
             if ( compareValue != 0 )
             {
@@ -102,17 +94,6 @@ public class GpgVersion implements Comparable<GpgVersion>
     }
 
     /**
-     * Verify if this version is before some other version
-     *
-     * @param other the version to compare with
-     * @return {@code true}  is this is less than {@code other}, otherwise {@code false}
-     */
-    public boolean isBefore( String other )
-    {
-        return this.compareTo( parse( other ) ) < 0;
-    }
-
-    /**
      * Verify if this version is at least some other version
      *
      * @param other the version to compare with
@@ -123,21 +104,23 @@ public class GpgVersion implements Comparable<GpgVersion>
         return this.compareTo( other ) >= 0;
     }
 
-    /**
-     * Verify if this version is at least some other version
-     *
-     * @param other the version to compare with
-     * @return  {@code true} is this is greater than or equal to {@code other}, otherwise {@code false}
-     */
-    public boolean isAtLeast( String other )
-    {
-        return this.compareTo( parse( other ) ) >= 0;
-    }
-
     @Override
     public String toString()
     {
-        return rawVersion;
+        if ( versionSegments.length == 0 )
+        {
+            return "";
+        }
+
+        final StringBuilder versionStringBuilder = new StringBuilder();
+        versionStringBuilder.append( versionSegments[0] );
+
+        for ( int index = 1; index < versionSegments.length; index++ )
+        {
+            versionStringBuilder.append( '.' ).append( versionSegments[index] );
+        }
+
+        return versionStringBuilder.toString();
     }
 
 }
