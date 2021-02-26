@@ -192,6 +192,12 @@ public class GpgSignAttachedMojo
 
             File file = artifact.getFile();
 
+            if ( isExcluded( file.getPath() ) )
+            {
+                getLog().debug( "Skipping generation of signature for excluded " + file );
+                continue;
+            }
+
             getLog().debug( "Generating signature for " + file );
 
             File signature = signer.generateSignatureForArtifact( file );
