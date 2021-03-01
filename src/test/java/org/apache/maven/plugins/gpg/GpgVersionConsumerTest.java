@@ -34,7 +34,7 @@ public class GpgVersionConsumerTest
         GpgVersionConsumer consumer = new GpgVersionConsumer();
         consumer.consumeLine( "gpg (GnuPG/MacGPG2) 2.2.10" );
 
-        assertThat( consumer.getGpgVersion().toString(), is( GpgVersion.parse( "2.2.10" ).toString() ) );
+        assertThat( consumer.getGpgVersion(), is( GpgVersion.parse( "2.2.10" ) ) );
     }
 
 }
