@@ -21,6 +21,7 @@ package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -192,6 +193,12 @@ public class GpgSignAttachedMojo
 
             File file = artifact.getFile();
 
+            if ( isExcluded( artifact ) )
+            {
+                getLog().debug( "Skipping generation of signature for excluded " + file );
+                continue;
+            }
+
             getLog().debug( "Generating signature for " + file );
 
             File signature = signer.generateSignatureForArtifact( file );
@@ -217,19 +224,24 @@ public class GpgSignAttachedMojo
     /**
      * Tests whether or not a name matches against at least one exclude pattern.
      *
-     * @param name The name to match. Must not be <code>null</code>.
+     * @param artifact The artifact to match. Must not be <code>null</code>.
      * @return <code>true</code> when the name matches against at least one exclude pattern, or <code>false</code>
      *         otherwise.
      */
-    protected boolean isExcluded( String name )
+    protected boolean isExcluded( Artifact artifact )
     {
+        final Path projectBasePath = project.getBasedir().toPath();
+        final Path artifactPath = artifact.getFile().toPath();
+        final String relativeArtifactPath = projectBasePath.relativize( artifactPath ).toString();
+
         for ( String exclude : excludes )
         {
-            if ( SelectorUtils.matchPath( exclude, name ) )
+            if ( SelectorUtils.matchPath( exclude, relativeArtifactPath ) )
             {
                 return true;
             }
         }
+
         return false;
     }
 
