@@ -65,6 +65,7 @@ under the License.
     <mavenVersion>3.0</mavenVersion>
     <javaVersion>7</javaVersion>
     <project.build.outputTimestamp>2020-04-12T12:45:04Z</project.build.outputTimestamp>
+    <resource.delimiter>@</resource.delimiter>
   </properties>
 
   <dependencies>
@@ -145,9 +146,33 @@ under the License.
       <version>2.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-invoker</artifactId>
+      <version>3.1.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/pom.xml</include>
+          <include>**/settings.xml</include>
+        </includes>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+        <excludes>
+          <exclude>**/pom.xml</exclude>
+          <exclude>**/settings.xml</exclude>
+        </excludes>
+      </testResource>
+    </testResources>
+
     <pluginManagement>
       <plugins>
         <plugin>
@@ -205,6 +230,30 @@ under the License.
       <id>run-its</id>
       <build>
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <environmentVariables>
+                <JENKINS_MAVEN_AGENT_DISABLED>true</JENKINS_MAVEN_AGENT_DISABLED>
+              </environmentVariables>
+              <systemPropertyVariables>
+                <maven.home>${maven.home}</maven.home>
+                <https.protocols>${https.protocols}</https.protocols>
+                <gpg.homedir>${project.build.testOutputDirectory}/gnupg</gpg.homedir>
+                <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                <settingsFile>/it/settings.xml</settingsFile>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-invoker-plugin</artifactId>

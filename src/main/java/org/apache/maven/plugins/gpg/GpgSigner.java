@@ -97,20 +97,25 @@ public class GpgSigner
                 cmd.createArg().setValue( "--no-use-agent" );
             }
         }
-        else
-        {
-            cmd.createArg().setValue( "--pinentry-mode" );
-            cmd.createArg().setValue( "loopback" );
-        }
 
         InputStream in = null;
         if ( null != passphrase )
         {
+            if ( gpgVersion.isAtLeast( GpgVersion.parse( "2.0" ) ) )
+            {
+                // required for option --passphrase-fd since GPG 2.0
+                cmd.createArg().setValue( "--batch" );
+            }
+
+            if ( gpgVersion.isAtLeast( GpgVersion.parse( "2.1" ) ) )
+            {
+                // required for option --passphrase-fd since GPG 2.1
+                cmd.createArg().setValue( "--pinentry-mode" );
+                cmd.createArg().setValue( "loopback" );
+            }
+
             // make --passphrase-fd effective in gpg2
-            cmd.createArg().setValue( "--batch" );
-
             cmd.createArg().setValue( "--passphrase-fd" );
-
             cmd.createArg().setValue( "0" );
 
             // Prepare the input stream which will be used to pass the passphrase to the executable
@@ -128,9 +133,24 @@ public class GpgSigner
 
         cmd.createArg().setValue( "--detach-sign" );
 
+        if ( getLog().isDebugEnabled() )
+        {
+            // instruct GPG to write status information to stdout
+            cmd.createArg().setValue( "--status-fd" );
+            cmd.createArg().setValue( "1" );
+        }
+
         if ( !isInteractive )
         {
+            cmd.createArg().setValue( "--batch" );
             cmd.createArg().setValue( "--no-tty" );
+
+            if ( null == passphrase && gpgVersion.isAtLeast( GpgVersion.parse( "2.1" ) ) )
+            {
+                // prevent GPG from spawning input prompts in Maven non-interactive mode
+                cmd.createArg().setValue( "--pinentry-mode" );
+                cmd.createArg().setValue( "error" );
+            }
         }
 
         if ( !defaultKeyring )
