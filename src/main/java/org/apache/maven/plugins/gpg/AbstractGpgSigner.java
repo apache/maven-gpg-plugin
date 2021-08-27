@@ -174,14 +174,11 @@ public abstract class AbstractGpgSigner
 
             while ( ( signatureDirectory = signatureDirectory.getParentFile() ) != null )
             {
-                if ( !signatureDirectory.equals( baseDir ) )
-                {
-                    fileDirectory = signatureDirectory.getName() + File.separatorChar + fileDirectory;
-                }
-                else
+                if ( isPossibleRootOfArtifact( signatureDirectory ) )
                 {
                     break;
                 }
+                fileDirectory = signatureDirectory.getName() + File.separatorChar + fileDirectory;
             }
             signatureDirectory = new File( outputDir, fileDirectory );
             if ( !signatureDirectory.exists() )
@@ -253,5 +250,12 @@ public abstract class AbstractGpgSigner
         throws IOException
     {
         return System.console().readPassword();
+    }
+
+    private boolean isPossibleRootOfArtifact( File signatureDirectory )
+    {
+        return signatureDirectory.equals( outputDir )
+                || signatureDirectory.equals( buildDir )
+                || signatureDirectory.equals( baseDir );
     }
 }
