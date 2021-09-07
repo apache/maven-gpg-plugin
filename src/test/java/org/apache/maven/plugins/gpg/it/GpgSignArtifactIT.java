@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.runners.Parameterized.*;
 
@@ -66,20 +67,20 @@ public class GpgSignArtifactIT
     public String[] expectedFiles;
 
     @Test
-    public void testFolderStructureWithArtifactAndDefaultOutputDirectory() throws Exception
+    public void testPlacementOfArtifactInOutputDirectory() throws Exception
     {
         // given
         final File pomFile = InvokerTestUtils.getTestResource( pomPath );
         final InvocationRequest request = InvokerTestUtils.createRequest( pomFile, mavenUserSettings, gpgHome );
         final File integrationTestRootDirectory = new File( pomFile.getParent());
-        final File expectedOutputDirectory =  new File (integrationTestRootDirectory + expectedFileLocation );
+        final File expectedOutputDirectory = new File (integrationTestRootDirectory + expectedFileLocation );
 
         // when
         InvokerTestUtils.executeRequest( request, mavenHome, localRepository );
 
         // then
         assertThat( expectedOutputDirectory.exists(), equalTo( true ) );
-        assertThat( expectedOutputDirectory.list(), equalTo( expectedFiles ) );
+        assertThat( expectedOutputDirectory.list(), arrayContainingInAnyOrder( expectedFiles ) );
     }
 
 }
