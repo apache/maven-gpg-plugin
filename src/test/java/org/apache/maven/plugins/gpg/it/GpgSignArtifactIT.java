@@ -31,7 +31,8 @@ import java.util.Collection;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.runners.Parameterized.*;
+import static org.junit.runners.Parameterized.Parameter;
+import static org.junit.runners.Parameterized.Parameters;
 
 @RunWith( Parameterized.class )
 public class GpgSignArtifactIT
@@ -50,20 +51,25 @@ public class GpgSignArtifactIT
     }
 
     @Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-                { "/it/sign-release-with-artifact/pom.xml", "/target/gpg/tarballs/", new String[]{ "sign-release-with-artifact-1.0-jar-with-dependencies.jar.asc" } },
-                { "/it/sign-release-with-artifact-and-output-directory/pom.xml", "/target/signed-files/tarballs/", new String[]{ "sign-release-with-artifact-and-output-directory-1.0-jar-with-dependencies.jar.asc" } },
-                { "/it/sign-release-with-artifact-and-output-directory-root/pom.xml", "/signed-files/tarballs/", new String[]{ "sign-release-with-artifact-and-output-directory-root-1.0-jar-with-dependencies.jar.asc" } },
-                { "/it/sign-release-with-artifact-same-directory/pom.xml", "/target/tarballs/", new String[]{ "sign-release-with-artifact-same-directory-1.0-jar-with-dependencies.jar", "sign-release-with-artifact-same-directory-1.0-jar-with-dependencies.jar.asc" } },
-        });
+    public static Collection<Object[]> data()
+    {
+        return Arrays.asList( new Object[][] {
+                { "/it/sign-release-in-default-dir/pom.xml", "/target/gpg/tarballs/",
+                        new String[] { "sign-release-in-default-dir-1.0.jar.asc" }},
+                { "/it/sign-release-in-output-dir/pom.xml", "/target/signed-files/tarballs/",
+                        new String[] { "sign-release-in-output-dir-1.0.jar.asc" }},
+                { "/it/sign-release-in-root-dir/pom.xml", "/signed-files/tarballs/",
+                        new String[] { "sign-release-in-root-dir-1.0.jar.asc" }},
+                { "/it/sign-release-in-same-dir/pom.xml", "/target/tarballs/",
+                        new String[] { "sign-release-in-same-dir-1.0.jar", "sign-release-in-same-dir-1.0.jar.asc" }},
+        } );
     }
 
     @Parameter
     public String pomPath;
-    @Parameter(1)
+    @Parameter( 1 )
     public String expectedFileLocation;
-    @Parameter(2)
+    @Parameter( 2 )
     public String[] expectedFiles;
 
     @Test
@@ -72,8 +78,8 @@ public class GpgSignArtifactIT
         // given
         final File pomFile = InvokerTestUtils.getTestResource( pomPath );
         final InvocationRequest request = InvokerTestUtils.createRequest( pomFile, mavenUserSettings, gpgHome );
-        final File integrationTestRootDirectory = new File( pomFile.getParent());
-        final File expectedOutputDirectory = new File (integrationTestRootDirectory + expectedFileLocation );
+        final File integrationTestRootDirectory = new File( pomFile.getParent() );
+        final File expectedOutputDirectory = new File( integrationTestRootDirectory + expectedFileLocation );
 
         // when
         InvokerTestUtils.executeRequest( request, mavenHome, localRepository );

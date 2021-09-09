@@ -24,7 +24,7 @@ under the License.
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.maven.its.gpg.srwopi</groupId>
-    <artifactId>sign-release-with-artifact-same-directory</artifactId>
+    <artifactId>sign-release-in-same-dir</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
@@ -61,6 +61,7 @@ under the License.
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <outputDirectory>target/tarballs</outputDirectory>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>

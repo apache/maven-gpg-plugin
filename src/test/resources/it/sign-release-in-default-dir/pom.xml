@@ -24,13 +24,13 @@ under the License.
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.maven.its.gpg.srwopi</groupId>
-    <artifactId>sign-release-with-artifact-and-output-directory</artifactId>
+    <artifactId>sign-release-in-default-dir</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
     <description>
-        Tests that signed artifacts are placed in the correct configured folder structure.
-        Expected path: '/path/to/maven-gpg-plugin/target/signed-files/tarballs'
+        Tests that signed artifacts are placed in the correct default folder structure.
+        Expected path: '/path/to/maven-gpg-plugin/target/gpg/tarballs'
     </description>
 
     <build>
@@ -39,9 +39,6 @@ under the License.
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>@project.version@</version>
-                <configuration>
-                    <ascDirectory>target/signed-files</ascDirectory>
-                </configuration>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -60,6 +57,7 @@ under the License.
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <outputDirectory>target/tarballs</outputDirectory>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
