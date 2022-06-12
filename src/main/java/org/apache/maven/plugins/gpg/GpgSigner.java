@@ -69,6 +69,10 @@ public class GpgSigner
         GpgVersionParser versionParser = GpgVersionParser.parse( executable );
 
         GpgVersion gpgVersion = versionParser.getGpgVersion();
+        if ( gpgVersion == null )
+        {
+            throw new MojoExecutionException( "Could not determine gpg version" );
+        }
 
         getLog().debug( gpgVersion.toString() );
 
