@@ -62,7 +62,7 @@ under the License.
   </distributionManagement>
 
   <properties>
-    <mavenVersion>3.0</mavenVersion>
+    <mavenVersion>3.2.5</mavenVersion>
     <javaVersion>8</javaVersion>
     <project.build.outputTimestamp>2021-05-05T16:39:01Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
@@ -73,31 +73,37 @@ under the License.
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <version>${mavenVersion}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
       <version>${mavenVersion}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-artifact</artifactId>
       <version>${mavenVersion}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-model</artifactId>
       <version>${mavenVersion}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-model-builder</artifactId>
       <version>${mavenVersion}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-settings</artifactId>
       <version>${mavenVersion}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
@@ -107,7 +113,7 @@ under the License.
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-artifact-transfer</artifactId>
-      <version>0.12.0</version>
+      <version>0.13.1</version>
     </dependency>
     <dependency>
       <!-- org.eclipse.aether.util.artifact.SubArtifact -->
@@ -117,10 +123,10 @@ under the License.
       <optional>true</optional>
     </dependency>
     <dependency>
-      <!-- org.sonatype.aether.util.artifact.SubArtifact -->
-      <groupId>org.sonatype.aether</groupId>
+      <!-- org.eclipse.aether.util.artifact.SubArtifact -->
+      <groupId>org.eclipse.aether</groupId>
       <artifactId>aether-util</artifactId>
-      <version>1.13.1</version>
+      <version>1.1.0</version>
       <optional>true</optional>
     </dependency>
     <dependency>

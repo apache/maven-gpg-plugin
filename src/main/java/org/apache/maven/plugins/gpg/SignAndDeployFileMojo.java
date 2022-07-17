@@ -36,14 +36,13 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelProblem;
-import org.apache.maven.model.building.ModelProblem.Severity;
 import org.apache.maven.model.building.ModelProblemCollector;
+import org.apache.maven.model.building.ModelProblemCollectorRequest;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.model.validation.ModelValidator;
@@ -692,11 +691,11 @@ public class SignAndDeployFileMojo
             this.result = result;
         }
 
-        public void add( Severity severity, String message, InputLocation location, Exception cause )
+        public void add( ModelProblemCollectorRequest req )
         {
-            if ( !ModelProblem.Severity.WARNING.equals( severity ) )
+            if ( !ModelProblem.Severity.WARNING.equals( req.getSeverity() ) )
             {
-                result.add( message );
+                result.add( req.getMessage() );
             }
         }
 
