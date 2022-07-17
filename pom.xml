@@ -63,7 +63,7 @@ under the License.
 
   <properties>
     <mavenVersion>3.0</mavenVersion>
-    <javaVersion>7</javaVersion>
+    <javaVersion>8</javaVersion>
     <project.build.outputTimestamp>2021-05-05T16:39:01Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
   </properties>
