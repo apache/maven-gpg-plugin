@@ -206,7 +206,7 @@ under the License.
               <artifactSet>
                 <includes>
                   <include>org.apache.maven.resolver:maven-resolver-util</include>
-                  <include>org.sonatype.aether:aether-util</include>
+                  <include>org.eclipse.aether:aether-util</include>
                 </includes>
               </artifactSet>
               <filters>
@@ -217,7 +217,7 @@ under the License.
                   </includes>
                 </filter>
                 <filter>
-                  <artifact>org.sonatype.aether:aether-util</artifact>
+                  <artifact>org.eclipse.aether:aether-util</artifact>
                   <includes>
                     <include>org/sonatype/aether/util/artifact/SubArtifact.class</include>
                   </includes>
