@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -553,7 +554,7 @@ public class SignAndDeployFileMojo
         
         try 
         {
-            File tempFile = File.createTempFile( "mvndeploy", ".pom" );
+            File tempFile = Files.createTempFile( "mvndeploy", ".pom" ).toFile();
             tempFile.deleteOnExit();
 
             try ( Writer fw = WriterFactory.newXmlWriter( tempFile ) )
