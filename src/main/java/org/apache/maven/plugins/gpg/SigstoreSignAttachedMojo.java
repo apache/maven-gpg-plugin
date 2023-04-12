@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -37,16 +38,18 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.SelectorUtils;
 
+import dev.sigstore.KeylessSignature;
+import dev.sigstore.KeylessSigner;
+import dev.sigstore.bundle.BundleFactory;
+
 /**
- * Sign project artifact, the POM, and attached artifacts with GnuPG for deployment.
+ * Sign project artifact, the POM, and attached artifacts with sigstore for deployment.
  *
- * @author Jason van Zyl
- * @author Jason Dillon
- * @author Daniel Kulp
+ * @since 3.1.0
  */
-@Mojo( name = "sign", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true )
-public class GpgSignAttachedMojo
-    extends AbstractGpgMojo
+@Mojo( name = "sigstore", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true )
+public class SigstoreSignAttachedMojo
+    extends AbstractMojo
 {
 
     private static final String DEFAULT_EXCLUDES[] =
@@ -55,29 +58,19 @@ public class GpgSignAttachedMojo
     /**
      * Skip doing the gpg signing.
      */
-    @Parameter( property = "gpg.skip", defaultValue = "false" )
+    @Parameter( property = "sigstore.skip", defaultValue = "false" )
     private boolean skip;
 
     /**
      * A list of files to exclude from being signed. Can contain Ant-style wildcards and double wildcards. The default
      * excludes are <code>**&#47;*.md5   **&#47;*.sha1    **&#47;*.sha256    **&#47;*.sha512
      *     **&#47;*.asc    **&#47;*.sigstore</code>.
-     *
-     * @since 1.0-alpha-4
      */
     @Parameter
     private String[] excludes;
 
     /**
-     * The directory where to store signature files.
-     *
-     * @since 1.0-alpha-4
-     */
-    @Parameter( defaultValue = "${project.build.directory}/gpg", alias = "outputDirectory" )
-    private File ascDirectory;
-
-    /**
-     * The maven project.
+     * The Maven project.
      */
     @Parameter( defaultValue = "${project}", readonly = true, required = true )
     protected MavenProject project;
@@ -115,17 +108,7 @@ public class GpgSignAttachedMojo
         }
         excludes = newExcludes;
 
-        AbstractGpgSigner signer = newSigner( project );
-
-        // ----------------------------------------------------------------------------
-        // What we need to generateSignatureForArtifact here
-        // ----------------------------------------------------------------------------
-
-        signer.setOutputDirectory( ascDirectory );
-        signer.setBuildDirectory( new File( project.getBuild().getDirectory() ) );
-        signer.setBaseDirectory( project.getBasedir() );
-
-        List<SigningBundle> signingBundles = new ArrayList<>();
+        List<SigningBundle> filesToSign = new ArrayList<>();
 
         if ( !"pom".equals( project.getPackaging() ) )
         {
@@ -139,15 +122,7 @@ public class GpgSignAttachedMojo
 
             if ( file != null && file.isFile() )
             {
-                getLog().debug( "Generating signature for " + file );
-
-                File projectArtifactSignature = signer.generateSignatureForArtifact( file );
-
-                if ( projectArtifactSignature != null )
-                {
-                    signingBundles.add( new SigningBundle( artifact.getArtifactHandler().getExtension(),
-                                                           projectArtifactSignature ) );
-                }
+                filesToSign.add( new SigningBundle( artifact.getArtifactHandler().getExtension(), file ) );
             }
             else if ( project.getAttachedArtifacts().isEmpty() )
             {
@@ -175,14 +150,7 @@ public class GpgSignAttachedMojo
             throw new MojoExecutionException( "Error copying POM for signing.", e );
         }
 
-        getLog().debug( "Generating signature for " + pomToSign );
-
-        File pomSignature = signer.generateSignatureForArtifact( pomToSign );
-
-        if ( pomSignature != null )
-        {
-            signingBundles.add( new SigningBundle( "pom", pomSignature ) );
-        }
+        filesToSign.add( new SigningBundle( "pom", pomToSign ) );
 
         // ----------------------------------------------------------------------------
         // Attached artifacts
@@ -200,25 +168,36 @@ public class GpgSignAttachedMojo
                 continue;
             }
 
-            getLog().debug( "Generating signature for " + file );
-
-            File signature = signer.generateSignatureForArtifact( file );
-
-            if ( signature != null )
-            {
-                signingBundles.add( new SigningBundle( artifact.getArtifactHandler().getExtension(),
-                                                       artifact.getClassifier(), signature ) );
-            }
+            filesToSign.add( new SigningBundle( artifact.getArtifactHandler().getExtension(),
+                                                artifact.getClassifier(), file ) );
         }
 
         // ----------------------------------------------------------------------------
-        // Attach all the signatures
+        // Sign the filesToSign and attach all the signatures
         // ----------------------------------------------------------------------------
 
-        for ( SigningBundle bundle : signingBundles )
+        try
         {
-            projectHelper.attachArtifact( project, bundle.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
-                                          bundle.getClassifier(), bundle.getSignature() );
+            KeylessSigner signer = KeylessSigner.builder().sigstoreStagingDefaults().build();
+            for ( SigningBundle bundleToSign : filesToSign )
+            {
+                File fileToSign = bundleToSign.getSignature(); // reusing original GPG implementation where it's the signature: TODO change
+
+                KeylessSignature signature = signer.signFile( fileToSign.toPath() );
+
+                // sigstore signature in bundle format (json string)
+                String sigstoreBundle = BundleFactory.createBundle( signature );
+
+                File signatureFile = new File( fileToSign + ".sigstore" );
+                FileUtils.fileWrite( signatureFile, "UTF-8", sigstoreBundle );
+
+                projectHelper.attachArtifact( project, bundleToSign.getExtension() + ".sigstore",
+                                            bundleToSign.getClassifier(), signatureFile );
+            }
+        }
+        catch ( Exception e )
+        {
+            throw new MojoExecutionException( "Error while signing with sigstore", e );
         }
     }
 
