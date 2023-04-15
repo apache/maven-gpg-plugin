@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,12 +16,12 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 
 /** @author Jason van Zyl */
-public class SigningBundle
-{
+public class SigningBundle {
 
     private String extension;
 
@@ -31,33 +29,27 @@ public class SigningBundle
 
     private File signature;
 
-    public SigningBundle( String extension, File signature )
-    {
+    public SigningBundle(String extension, File signature) {
         this.extension = extension;
 
         this.signature = signature;
     }
 
-    public SigningBundle( String extension, String classifier, File signature )
-    {
+    public SigningBundle(String extension, String classifier, File signature) {
         this.extension = extension;
         this.classifier = classifier;
         this.signature = signature;
     }
 
-    public String getExtension()
-    {
+    public String getExtension() {
         return extension;
     }
 
-    public File getSignature()
-    {
+    public File getSignature() {
         return signature;
     }
 
-    public String getClassifier()
-    {
+    public String getClassifier() {
         return classifier;
     }
-
 }

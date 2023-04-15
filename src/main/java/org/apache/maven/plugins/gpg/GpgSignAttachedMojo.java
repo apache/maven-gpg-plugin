@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +16,7 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,18 +43,16 @@ import org.codehaus.plexus.util.SelectorUtils;
  * @author Jason Dillon
  * @author Daniel Kulp
  */
-@Mojo( name = "sign", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true )
-public class GpgSignAttachedMojo
-    extends AbstractGpgMojo
-{
+@Mojo(name = "sign", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
+public class GpgSignAttachedMojo extends AbstractGpgMojo {
 
     private static final String DEFAULT_EXCLUDES[] =
-        new String[] { "**/*.md5", "**/*.sha1", "**/*.sha256", "**/*.sha512", "**/*.asc" };
+            new String[] {"**/*.md5", "**/*.sha1", "**/*.sha256", "**/*.sha512", "**/*.asc"};
 
     /**
      * Skip doing the gpg signing.
      */
-    @Parameter( property = "gpg.skip", defaultValue = "false" )
+    @Parameter(property = "gpg.skip", defaultValue = "false")
     private boolean skip;
 
     /**
@@ -72,13 +69,13 @@ public class GpgSignAttachedMojo
      *
      * @since 1.0-alpha-4
      */
-    @Parameter( defaultValue = "${project.build.directory}/gpg", alias = "outputDirectory" )
+    @Parameter(defaultValue = "${project.build.directory}/gpg", alias = "outputDirectory")
     private File ascDirectory;
 
     /**
      * The maven project.
      */
-    @Parameter( defaultValue = "${project}", readonly = true, required = true )
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     protected MavenProject project;
 
     /**
@@ -88,46 +85,39 @@ public class GpgSignAttachedMojo
     private MavenProjectHelper projectHelper;
 
     @Override
-    public void execute()
-        throws MojoExecutionException, MojoFailureException
-    {
-        if ( skip )
-        {
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
             // We're skipping the signing stuff
             return;
         }
 
-        if ( excludes == null || excludes.length == 0 )
-        {
+        if (excludes == null || excludes.length == 0) {
             excludes = DEFAULT_EXCLUDES;
         }
         String newExcludes[] = new String[excludes.length];
-        for ( int i = 0; i < excludes.length; i++ )
-        {
+        for (int i = 0; i < excludes.length; i++) {
             String pattern;
-            pattern = excludes[i].trim().replace( '/', File.separatorChar ).replace( '\\', File.separatorChar );
-            if ( pattern.endsWith( File.separator ) )
-            {
+            pattern = excludes[i].trim().replace('/', File.separatorChar).replace('\\', File.separatorChar);
+            if (pattern.endsWith(File.separator)) {
                 pattern += "**";
             }
             newExcludes[i] = pattern;
         }
         excludes = newExcludes;
 
-        AbstractGpgSigner signer = newSigner( project );
+        AbstractGpgSigner signer = newSigner(project);
 
         // ----------------------------------------------------------------------------
         // What we need to generateSignatureForArtifact here
         // ----------------------------------------------------------------------------
 
-        signer.setOutputDirectory( ascDirectory );
-        signer.setBuildDirectory( new File( project.getBuild().getDirectory() ) );
-        signer.setBaseDirectory( project.getBasedir() );
+        signer.setOutputDirectory(ascDirectory);
+        signer.setBuildDirectory(new File(project.getBuild().getDirectory()));
+        signer.setBaseDirectory(project.getBasedir());
 
         List<SigningBundle> signingBundles = new ArrayList<>();
 
-        if ( !"pom".equals( project.getPackaging() ) )
-        {
+        if (!"pom".equals(project.getPackaging())) {
             // ----------------------------------------------------------------------------
             // Project artifact
             // ----------------------------------------------------------------------------
@@ -136,26 +126,20 @@ public class GpgSignAttachedMojo
 
             File file = artifact.getFile();
 
-            if ( file != null && file.isFile() )
-            {
-                getLog().debug( "Generating signature for " + file );
+            if (file != null && file.isFile()) {
+                getLog().debug("Generating signature for " + file);
 
-                File projectArtifactSignature = signer.generateSignatureForArtifact( file );
+                File projectArtifactSignature = signer.generateSignatureForArtifact(file);
 
-                if ( projectArtifactSignature != null )
-                {
-                    signingBundles.add( new SigningBundle( artifact.getArtifactHandler().getExtension(),
-                                                           projectArtifactSignature ) );
+                if (projectArtifactSignature != null) {
+                    signingBundles.add(
+                            new SigningBundle(artifact.getArtifactHandler().getExtension(), projectArtifactSignature));
                 }
-            }
-            else if ( project.getAttachedArtifacts().isEmpty() )
-            {
-                throw new MojoFailureException( "The project artifact has not been assembled yet. "
-                    + "Please do not invoke this goal before the lifecycle phase \"package\"." );
-            }
-            else
-            {
-                getLog().debug( "Main artifact not assembled, skipping signature generation" );
+            } else if (project.getAttachedArtifacts().isEmpty()) {
+                throw new MojoFailureException("The project artifact has not been assembled yet. "
+                        + "Please do not invoke this goal before the lifecycle phase \"package\".");
+            } else {
+                getLog().debug("Main artifact not assembled, skipping signature generation");
             }
         }
 
@@ -163,50 +147,44 @@ public class GpgSignAttachedMojo
         // POM
         // ----------------------------------------------------------------------------
 
-        File pomToSign = new File( project.getBuild().getDirectory(), project.getBuild().getFinalName() + ".pom" );
+        File pomToSign =
+                new File(project.getBuild().getDirectory(), project.getBuild().getFinalName() + ".pom");
 
-        try
-        {
-            FileUtils.copyFile( project.getFile(), pomToSign );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoExecutionException( "Error copying POM for signing.", e );
+        try {
+            FileUtils.copyFile(project.getFile(), pomToSign);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error copying POM for signing.", e);
         }
 
-        getLog().debug( "Generating signature for " + pomToSign );
+        getLog().debug("Generating signature for " + pomToSign);
 
-        File pomSignature = signer.generateSignatureForArtifact( pomToSign );
+        File pomSignature = signer.generateSignatureForArtifact(pomToSign);
 
-        if ( pomSignature != null )
-        {
-            signingBundles.add( new SigningBundle( "pom", pomSignature ) );
+        if (pomSignature != null) {
+            signingBundles.add(new SigningBundle("pom", pomSignature));
         }
 
         // ----------------------------------------------------------------------------
         // Attached artifacts
         // ----------------------------------------------------------------------------
 
-        for ( Object o : project.getAttachedArtifacts() )
-        {
+        for (Object o : project.getAttachedArtifacts()) {
             Artifact artifact = (Artifact) o;
 
             File file = artifact.getFile();
 
-            if ( isExcluded( artifact ) )
-            {
-                getLog().debug( "Skipping generation of signature for excluded " + file );
+            if (isExcluded(artifact)) {
+                getLog().debug("Skipping generation of signature for excluded " + file);
                 continue;
             }
 
-            getLog().debug( "Generating signature for " + file );
+            getLog().debug("Generating signature for " + file);
 
-            File signature = signer.generateSignatureForArtifact( file );
+            File signature = signer.generateSignatureForArtifact(file);
 
-            if ( signature != null )
-            {
-                signingBundles.add( new SigningBundle( artifact.getArtifactHandler().getExtension(),
-                                                       artifact.getClassifier(), signature ) );
+            if (signature != null) {
+                signingBundles.add(new SigningBundle(
+                        artifact.getArtifactHandler().getExtension(), artifact.getClassifier(), signature));
             }
         }
 
@@ -214,10 +192,12 @@ public class GpgSignAttachedMojo
         // Attach all the signatures
         // ----------------------------------------------------------------------------
 
-        for ( SigningBundle bundle : signingBundles )
-        {
-            projectHelper.attachArtifact( project, bundle.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
-                                          bundle.getClassifier(), bundle.getSignature() );
+        for (SigningBundle bundle : signingBundles) {
+            projectHelper.attachArtifact(
+                    project,
+                    bundle.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
+                    bundle.getClassifier(),
+                    bundle.getSignature());
         }
     }
 
@@ -228,21 +208,18 @@ public class GpgSignAttachedMojo
      * @return <code>true</code> when the name matches against at least one exclude pattern, or <code>false</code>
      *         otherwise.
      */
-    protected boolean isExcluded( Artifact artifact )
-    {
+    protected boolean isExcluded(Artifact artifact) {
         final Path projectBasePath = project.getBasedir().toPath();
         final Path artifactPath = artifact.getFile().toPath();
-        final String relativeArtifactPath = projectBasePath.relativize( artifactPath ).toString();
+        final String relativeArtifactPath =
+                projectBasePath.relativize(artifactPath).toString();
 
-        for ( String exclude : excludes )
-        {
-            if ( SelectorUtils.matchPath( exclude, relativeArtifactPath ) )
-            {
+        for (String exclude : excludes) {
+            if (SelectorUtils.matchPath(exclude, relativeArtifactPath)) {
                 return true;
             }
         }
 
         return false;
     }
-
 }

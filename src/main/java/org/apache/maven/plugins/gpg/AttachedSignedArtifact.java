@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +16,7 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,325 +36,269 @@ import org.apache.maven.artifact.versioning.VersionRange;
  * A wrapper class for attached artifacts which have a GPG signature. Needed as attached artifacts in general do not
  * have metadata.
  */
-public class AttachedSignedArtifact
-    implements Artifact
-{
+public class AttachedSignedArtifact implements Artifact {
     private final Artifact delegate;
 
     private final AscArtifactMetadata signature;
 
-    public AttachedSignedArtifact( Artifact delegate, AscArtifactMetadata signature )
-    {
+    public AttachedSignedArtifact(Artifact delegate, AscArtifactMetadata signature) {
         this.delegate = delegate;
         this.signature = signature;
     }
 
     @Override
-    public void setArtifactId( String artifactId )
-    {
-        delegate.setArtifactId( artifactId );
+    public void setArtifactId(String artifactId) {
+        delegate.setArtifactId(artifactId);
     }
 
     @Override
-    public List<ArtifactVersion> getAvailableVersions()
-    {
+    public List<ArtifactVersion> getAvailableVersions() {
         return delegate.getAvailableVersions();
     }
 
     @Override
-    public void setAvailableVersions( List<ArtifactVersion> availableVersions )
-    {
-        delegate.setAvailableVersions( availableVersions );
+    public void setAvailableVersions(List<ArtifactVersion> availableVersions) {
+        delegate.setAvailableVersions(availableVersions);
     }
 
     @Override
-    public String getBaseVersion()
-    {
+    public String getBaseVersion() {
         return delegate.getBaseVersion();
     }
 
     @Override
-    public void setBaseVersion( String baseVersion )
-    {
-        delegate.setBaseVersion( baseVersion );
+    public void setBaseVersion(String baseVersion) {
+        delegate.setBaseVersion(baseVersion);
     }
 
     @Override
-    public String getDownloadUrl()
-    {
+    public String getDownloadUrl() {
         return delegate.getDownloadUrl();
     }
 
     @Override
-    public void setDownloadUrl( String downloadUrl )
-    {
-        delegate.setDownloadUrl( downloadUrl );
+    public void setDownloadUrl(String downloadUrl) {
+        delegate.setDownloadUrl(downloadUrl);
     }
 
     @Override
-    public void setGroupId( String groupId )
-    {
-        delegate.setGroupId( groupId );
+    public void setGroupId(String groupId) {
+        delegate.setGroupId(groupId);
     }
 
     @Override
-    public ArtifactRepository getRepository()
-    {
+    public ArtifactRepository getRepository() {
         return delegate.getRepository();
     }
 
     @Override
-    public void setRepository( ArtifactRepository repository )
-    {
-        delegate.setRepository( repository );
+    public void setRepository(ArtifactRepository repository) {
+        delegate.setRepository(repository);
     }
 
     @Override
-    public String getScope()
-    {
+    public String getScope() {
         return delegate.getScope();
     }
 
     @Override
-    public void setScope( String scope )
-    {
-        delegate.setScope( scope );
+    public void setScope(String scope) {
+        delegate.setScope(scope);
     }
 
     @Override
-    public String getVersion()
-    {
+    public String getVersion() {
         return delegate.getVersion();
     }
 
     @Override
-    public void setVersion( String version )
-    {
-        delegate.setVersion( version );
+    public void setVersion(String version) {
+        delegate.setVersion(version);
     }
 
     @Override
-    public VersionRange getVersionRange()
-    {
+    public VersionRange getVersionRange() {
         return delegate.getVersionRange();
     }
 
     @Override
-    public void setVersionRange( VersionRange range )
-    {
-        delegate.setVersionRange( range );
+    public void setVersionRange(VersionRange range) {
+        delegate.setVersionRange(range);
     }
 
     @Override
-    public boolean isRelease()
-    {
+    public boolean isRelease() {
         return delegate.isRelease();
     }
 
     @Override
-    public void setRelease( boolean release )
-    {
-        delegate.setRelease( release );
+    public void setRelease(boolean release) {
+        delegate.setRelease(release);
     }
 
     @Override
-    public boolean isSnapshot()
-    {
+    public boolean isSnapshot() {
         return delegate.isSnapshot();
     }
 
     @Override
-    public void addMetadata( ArtifactMetadata metadata )
-    {
-        delegate.addMetadata( metadata );
+    public void addMetadata(ArtifactMetadata metadata) {
+        delegate.addMetadata(metadata);
     }
 
     @Override
-    public String getClassifier()
-    {
+    public String getClassifier() {
         return delegate.getClassifier();
     }
 
     @Override
-    public boolean hasClassifier()
-    {
+    public boolean hasClassifier() {
         return delegate.hasClassifier();
     }
 
     @Override
-    public String getGroupId()
-    {
+    public String getGroupId() {
         return delegate.getGroupId();
     }
 
     @Override
-    public String getArtifactId()
-    {
+    public String getArtifactId() {
         return delegate.getArtifactId();
     }
 
     @Override
-    public String getType()
-    {
+    public String getType() {
         return delegate.getType();
     }
 
     @Override
-    public void setFile( File file )
-    {
-        delegate.setFile( file );
+    public void setFile(File file) {
+        delegate.setFile(file);
     }
 
     @Override
-    public File getFile()
-    {
+    public File getFile() {
         return delegate.getFile();
     }
 
     @Override
-    public String getId()
-    {
+    public String getId() {
         return delegate.getId();
     }
 
     @Override
-    public String getDependencyConflictId()
-    {
+    public String getDependencyConflictId() {
         return delegate.getDependencyConflictId();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return delegate.toString();
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return delegate.hashCode();
     }
 
     @Override
-    public boolean equals( Object o )
-    {
-        return delegate.equals( o );
+    public boolean equals(Object o) {
+        return delegate.equals(o);
     }
 
     @Override
-    public void updateVersion( String version, ArtifactRepository localRepository )
-    {
-        delegate.updateVersion( version, localRepository );
+    public void updateVersion(String version, ArtifactRepository localRepository) {
+        delegate.updateVersion(version, localRepository);
     }
 
     @Override
-    public ArtifactFilter getDependencyFilter()
-    {
+    public ArtifactFilter getDependencyFilter() {
         return delegate.getDependencyFilter();
     }
 
     @Override
-    public void setDependencyFilter( ArtifactFilter artifactFilter )
-    {
-        delegate.setDependencyFilter( artifactFilter );
+    public void setDependencyFilter(ArtifactFilter artifactFilter) {
+        delegate.setDependencyFilter(artifactFilter);
     }
 
     @Override
-    public ArtifactHandler getArtifactHandler()
-    {
+    public ArtifactHandler getArtifactHandler() {
         return delegate.getArtifactHandler();
     }
 
     @Override
-    public List<String> getDependencyTrail()
-    {
+    public List<String> getDependencyTrail() {
         return delegate.getDependencyTrail();
     }
 
     @Override
-    public void setDependencyTrail( List<String> dependencyTrail )
-    {
-        delegate.setDependencyTrail( dependencyTrail );
+    public void setDependencyTrail(List<String> dependencyTrail) {
+        delegate.setDependencyTrail(dependencyTrail);
     }
 
     @Override
-    public void selectVersion( String version )
-    {
-        delegate.selectVersion( version );
+    public void selectVersion(String version) {
+        delegate.selectVersion(version);
     }
 
     @Override
-    public void setResolved( boolean resolved )
-    {
-        delegate.setResolved( resolved );
+    public void setResolved(boolean resolved) {
+        delegate.setResolved(resolved);
     }
 
     @Override
-    public boolean isResolved()
-    {
+    public boolean isResolved() {
         return delegate.isResolved();
     }
 
     @Override
-    public void setResolvedVersion( String version )
-    {
-        delegate.setResolvedVersion( version );
+    public void setResolvedVersion(String version) {
+        delegate.setResolvedVersion(version);
     }
 
     @Override
-    public void setArtifactHandler( ArtifactHandler artifactHandler )
-    {
-        delegate.setArtifactHandler( artifactHandler );
+    public void setArtifactHandler(ArtifactHandler artifactHandler) {
+        delegate.setArtifactHandler(artifactHandler);
     }
 
     @Override
-    public boolean isOptional()
-    {
+    public boolean isOptional() {
         return delegate.isOptional();
     }
 
     @Override
-    public ArtifactVersion getSelectedVersion()
-        throws OverConstrainedVersionException
-    {
+    public ArtifactVersion getSelectedVersion() throws OverConstrainedVersionException {
         return delegate.getSelectedVersion();
     }
 
     @Override
-    public boolean isSelectedVersionKnown()
-        throws OverConstrainedVersionException
-    {
+    public boolean isSelectedVersionKnown() throws OverConstrainedVersionException {
         return delegate.isSelectedVersionKnown();
     }
 
     @Override
-    public void setOptional( boolean optional )
-    {
-        delegate.setOptional( optional );
+    public void setOptional(boolean optional) {
+        delegate.setOptional(optional);
     }
 
     @Override
-    public Collection<ArtifactMetadata> getMetadataList()
-    {
-        List<ArtifactMetadata> result = new ArrayList<>( delegate.getMetadataList() );
+    public Collection<ArtifactMetadata> getMetadataList() {
+        List<ArtifactMetadata> result = new ArrayList<>(delegate.getMetadataList());
 
-        for ( ArtifactMetadata metadata : result )
-        {
-            if ( signature.getKey().equals( metadata.getKey() ) )
-            {
+        for (ArtifactMetadata metadata : result) {
+            if (signature.getKey().equals(metadata.getKey())) {
                 // already signed
                 return result;
             }
         }
 
-        result.add( signature );
+        result.add(signature);
 
         return result;
     }
 
     @Override
-    public int compareTo( Artifact o )
-    {
-        return delegate.compareTo( o );
+    public int compareTo(Artifact o) {
+        return delegate.compareTo(o);
     }
 }
