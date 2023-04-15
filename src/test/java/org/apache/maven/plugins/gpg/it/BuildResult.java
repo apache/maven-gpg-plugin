@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg.it;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,31 +16,27 @@ package org.apache.maven.plugins.gpg.it;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg.it;
 
 import java.io.File;
 
 import org.apache.maven.shared.invoker.InvocationResult;
 
-public class BuildResult
-{
+public class BuildResult {
 
     private final File buildLog;
     private final InvocationResult invocationResult;
 
-    public BuildResult( final File buildLog, final InvocationResult invocationResult )
-    {
+    public BuildResult(final File buildLog, final InvocationResult invocationResult) {
         this.buildLog = buildLog;
         this.invocationResult = invocationResult;
     }
 
-    public File getBuildLog()
-    {
+    public File getBuildLog() {
         return buildLog;
     }
 
-    public InvocationResult getInvocationResult()
-    {
+    public InvocationResult getInvocationResult() {
         return invocationResult;
     }
-
 }

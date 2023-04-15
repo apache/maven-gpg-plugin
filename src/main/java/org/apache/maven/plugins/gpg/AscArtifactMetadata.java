@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +16,7 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,121 +32,97 @@ import org.codehaus.plexus.util.FileUtils;
  * @author dkulp
  *
  */
-public class AscArtifactMetadata
-    extends AbstractArtifactMetadata implements org.apache.maven.shared.transfer.metadata.ArtifactMetadata  
-{
+public class AscArtifactMetadata extends AbstractArtifactMetadata
+        implements org.apache.maven.shared.transfer.metadata.ArtifactMetadata {
 
     private final File file;
 
     private final boolean isPom;
 
-    public AscArtifactMetadata( Artifact artifact, File file, boolean isPom )
-    {
-        super( artifact );
+    public AscArtifactMetadata(Artifact artifact, File file, boolean isPom) {
+        super(artifact);
         this.file = file;
         this.isPom = isPom;
     }
 
     @Override
-    public String getBaseVersion()
-    {
+    public String getBaseVersion() {
         return artifact.getBaseVersion();
     }
 
     @Override
-    public Object getKey()
-    {
+    public Object getKey() {
         return "gpg signature " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getType()
-            + ":" + artifact.getClassifier() + ( isPom ? ":pom" : "" );
+                + ":" + artifact.getClassifier() + (isPom ? ":pom" : "");
     }
 
-    private String getFilename()
-    {
-        StringBuilder buf = new StringBuilder( 128 );
-        buf.append( getArtifactId() );
-        buf.append( "-" ).append( artifact.getVersion() );
-        if ( isPom )
-        {
-            buf.append( ".pom" );
-        }
-        else
-        {
-            if ( artifact.getClassifier() != null && !"".equals( artifact.getClassifier() ) )
-            {
-                buf.append( "-" ).append( artifact.getClassifier() );
+    private String getFilename() {
+        StringBuilder buf = new StringBuilder(128);
+        buf.append(getArtifactId());
+        buf.append("-").append(artifact.getVersion());
+        if (isPom) {
+            buf.append(".pom");
+        } else {
+            if (artifact.getClassifier() != null && !"".equals(artifact.getClassifier())) {
+                buf.append("-").append(artifact.getClassifier());
             }
-            buf.append( "." ).append( artifact.getArtifactHandler().getExtension() );
+            buf.append(".").append(artifact.getArtifactHandler().getExtension());
         }
-        buf.append( ".asc" );
+        buf.append(".asc");
         return buf.toString();
     }
 
     @Override
-    public String getLocalFilename( ArtifactRepository repository )
-    {
+    public String getLocalFilename(ArtifactRepository repository) {
         return getFilename();
     }
 
     @Override
-    public String getRemoteFilename()
-    {
+    public String getRemoteFilename() {
         return getFilename();
     }
 
     @Override
-    public void merge( ArtifactMetadata metadata )
-    {
-        merge( (AscArtifactMetadata) metadata );
+    public void merge(ArtifactMetadata metadata) {
+        merge((AscArtifactMetadata) metadata);
     }
 
     @Override
-    public void merge( org.apache.maven.repository.legacy.metadata.ArtifactMetadata metadata )
-    {
-        merge( (AscArtifactMetadata) metadata );
-    }
-    
-    private void merge( AscArtifactMetadata metadata )
-    {
-        if ( !metadata.file.equals( file ) )
-        {
-            throw new IllegalStateException( "Cannot add two different pieces of metadata for: " + getKey() );
-        } 
+    public void merge(org.apache.maven.repository.legacy.metadata.ArtifactMetadata metadata) {
+        merge((AscArtifactMetadata) metadata);
     }
 
-    @Override
-    public void storeInLocalRepository( ArtifactRepository localRepository, ArtifactRepository remoteRepository )
-        throws RepositoryMetadataStoreException
-    {
-        File destination =
-            new File( localRepository.getBasedir(), localRepository.pathOfLocalRepositoryMetadata( this,
-                                                                                                   remoteRepository ) );
-
-        try
-        {
-            FileUtils.copyFile( file, destination );
-        }
-        catch ( IOException e )
-        {
-            throw new RepositoryMetadataStoreException( "Error copying ASC to the local repository.", e );
+    private void merge(AscArtifactMetadata metadata) {
+        if (!metadata.file.equals(file)) {
+            throw new IllegalStateException("Cannot add two different pieces of metadata for: " + getKey());
         }
     }
 
     @Override
-    public boolean storedInArtifactVersionDirectory()
-    {
+    public void storeInLocalRepository(ArtifactRepository localRepository, ArtifactRepository remoteRepository)
+            throws RepositoryMetadataStoreException {
+        File destination = new File(
+                localRepository.getBasedir(), localRepository.pathOfLocalRepositoryMetadata(this, remoteRepository));
+
+        try {
+            FileUtils.copyFile(file, destination);
+        } catch (IOException e) {
+            throw new RepositoryMetadataStoreException("Error copying ASC to the local repository.", e);
+        }
+    }
+
+    @Override
+    public boolean storedInArtifactVersionDirectory() {
         return true;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return getFilename();
     }
 
     @Override
-    public File getFile()
-    {
+    public File getFile() {
         return file;
     }
-
 }

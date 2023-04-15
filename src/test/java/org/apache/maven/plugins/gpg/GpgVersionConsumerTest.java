@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,23 +16,20 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+package org.apache.maven.plugins.gpg;
 
 import org.apache.maven.plugins.gpg.GpgVersionParser.GpgVersionConsumer;
 import org.junit.Test;
 
-public class GpgVersionConsumerTest
-{
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class GpgVersionConsumerTest {
     @Test
-    public void test()
-        throws Exception
-    {
+    public void test() throws Exception {
         GpgVersionConsumer consumer = new GpgVersionConsumer();
-        consumer.consumeLine( "gpg (GnuPG/MacGPG2) 2.2.10" );
+        consumer.consumeLine("gpg (GnuPG/MacGPG2) 2.2.10");
 
-        assertThat( consumer.getGpgVersion(), is( GpgVersion.parse( "2.2.10" ) ) );
+        assertThat(consumer.getGpgVersion(), is(GpgVersion.parse("2.2.10")));
     }
-
 }
