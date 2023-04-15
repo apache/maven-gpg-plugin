@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,24 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import org.codehaus.plexus.util.FileUtils
 
-import java.io.*;
-
-File artifactDir = new File( basedir, "target/repo/org/apache/maven/its/gpg/sadnjp/test/1.0" );
-
-String[] expectedFiles = {
-    "test-1.0-javadoc.jar",
-    "test-1.0-javadoc.jar.asc",
-};
-
-for ( String expectedFile : expectedFiles )
-{
-    File file = new File( artifactDir, expectedFile );
-
-    System.out.println( "Checking for existence of " + file );
-
-    if ( !file.isFile() )
-    {
-        throw new Exception( "Missing file " + file );
-    }
-}
+FileUtils.deleteDirectory(new File(basedir, "target"))

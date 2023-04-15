@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,26 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+var artifactDir = new File(basedir, "target/repo/org/apache/maven/its/gpg/sadfwop/test/1.0")
 
-import java.io.*;
-
-File artifactDir = new File( basedir, "target/repo/org/apache/maven/its/gpg/sadfwop/test/1.0" );
-
-String[] expectedFiles = {
+var expectedFiles = [
     "test-1.0.jar",
     "test-1.0.jar.asc",
     "test-1.0.pom",
-    "test-1.0.pom.asc",
-};
+    "test-1.0.pom.asc"
+]
 
-for ( String expectedFile : expectedFiles )
-{
-    File file = new File( artifactDir, expectedFile );
+for (String expectedFile : expectedFiles) {
+    var file = new File(artifactDir, expectedFile)
 
-    System.out.println( "Checking for existence of " + file );
+    println "Checking for existence of $file"
 
-    if ( !file.isFile() )
-    {
-        throw new Exception( "Missing file " + file );
+    if (!file.isFile()) {
+        throw new Exception("Missing file $file")
     }
 }
