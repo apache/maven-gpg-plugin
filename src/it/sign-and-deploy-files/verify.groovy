@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,42 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+var artifactDir = new File(basedir, "target/repo/org/apache/maven/its/gpg/sadfs/test/1.0")
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.List;
-import org.codehaus.plexus.util.FileUtils;
-
-File artifactDir = new File( localRepositoryPath, "org/apache/maven/its/gpg/srwe/test/1.0" );
-
-String[] expectedFiles = {
-    "_remote.repositories",
-    "test-1.0.pom",
-    "test-1.0.pom.asc",
+var expectedFiles = [
     "test-1.0.jar",
     "test-1.0.jar.asc",
     "test-1.0-sources.jar",
     "test-1.0-sources.jar.asc",
-};
+    "test-1.0-javadoc.jar",
+    "test-1.0-javadoc.jar.asc",
+    "test-1.0.pom",
+    "test-1.0.pom.asc",
+    "test-1.0.zip",
+    "test-1.0.zip.asc",
+    "test-1.0-src.tar.gz",
+    "test-1.0-src.tar.gz.asc",
+    "test-1.0.tar.gz",
+    "test-1.0.tar.gz.asc"
+]
 
-for ( File file : artifactDir.listFiles() )
-{
-    String fileName = file.getName();
-    System.out.println( "Checking if file is expected: " + fileName );
+for (String expectedFile : expectedFiles) {
+    var file = new File(artifactDir, expectedFile)
 
-    boolean expected = false;
-    for ( String expectedFile : expectedFiles )
-    {
-        if ( expectedFile.equals( fileName ) )
-        {
-            expected = true;
-            break;
-        }
-    }
+    println "Checking for existence of $file"
 
-    if ( !expected )
-    {
-        throw new Exception( "Unexpected file " + file );
+    if (!file.isFile()) {
+        throw new Exception("Missing file $file")
     }
 }
