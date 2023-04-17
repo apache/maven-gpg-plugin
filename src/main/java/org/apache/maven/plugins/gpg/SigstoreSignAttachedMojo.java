@@ -22,6 +22,7 @@ package org.apache.maven.plugins.gpg;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,6 +81,12 @@ public class SigstoreSignAttachedMojo
      */
     @Parameter( property = "sigstore.wait", defaultValue = "0" )
     private long wait;
+
+    /**
+     * PoC: certificate duration (in min)
+     */
+    @Parameter( property = "sigstore.duration", defaultValue = "-1" )
+    private long duration;
 
     /**
      * Maven ProjectHelper
@@ -185,6 +192,13 @@ public class SigstoreSignAttachedMojo
         try
         {
             KeylessSigner signer = KeylessSigner.builder().sigstoreStagingDefaults().build();
+            if ( duration > -1 )
+            {
+                getLog().info( "updating certificate duration to " + duration + " min" );
+                signer = KeylessSigner.builder().sigstoreStagingDefaults()
+                        .minSigningCertificateLifetime( Duration.ofMinutes( duration ) ).build();
+            }
+
             for ( SigningBundle bundleToSign : filesToSign )
             {
                 if ( wait > 0 )
