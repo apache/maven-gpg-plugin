@@ -76,6 +76,12 @@ public class SigstoreSignAttachedMojo
     protected MavenProject project;
 
     /**
+     * PoC: wait time before each file signature (in seconds)
+     */
+    @Parameter( property = "sigstore.wait", defaultValue = "0" )
+    private long wait;
+
+    /**
      * Maven ProjectHelper
      */
     @Component
@@ -181,6 +187,12 @@ public class SigstoreSignAttachedMojo
             KeylessSigner signer = KeylessSigner.builder().sigstoreStagingDefaults().build();
             for ( SigningBundle bundleToSign : filesToSign )
             {
+                if ( wait > 0 )
+                {
+                    getLog().info( "waiting for " + wait + " seconds before signing" );
+                    Thread.sleep( wait * 1000 );
+                }
+
                 File fileToSign = bundleToSign.getSignature(); // reusing original GPG implementation where it's the signature: TODO change
 
                 KeylessSignature signature = signer.signFile( fileToSign.toPath() );
