@@ -194,21 +194,28 @@ public class SigstoreSignAttachedMojo
             KeylessSigner signer = KeylessSigner.builder().sigstoreStagingDefaults().build();
             if ( duration > -1 )
             {
-                getLog().info( "updating certificate duration to " + duration + " min" );
-                signer = KeylessSigner.builder().sigstoreStagingDefaults()
+<               getLog().info( "updating certificate minimum remaining duration to " + duration + " min" );
+>               signer = KeylessSigner.builder().sigstoreStagingDefaults()
                         .minSigningCertificateLifetime( Duration.ofMinutes( duration ) ).build();
             }
 
+            boolean first = true;
             for ( SigningBundle bundleToSign : filesToSign )
             {
-                if ( wait > 0 )
+                if ( first )
                 {
-                    getLog().info( "waiting for " + wait + " seconds before signing" );
+                    first = false;
+                }
+                else if ( wait > 0 )
+                {
+                    getLog().info( "waiting for " + wait + " seconds before signing next = "
+                         + bundleToSign.getSignature() );
                     Thread.sleep( wait * 1000 );
                 }
 
                 File fileToSign = bundleToSign.getSignature(); // reusing original GPG implementation where it's the signature: TODO change
 
+                getLog().info( "Signing " + fileToSign );
                 KeylessSignature signature = signer.signFile( fileToSign.toPath() );
 
                 // sigstore signature in bundle format (json string)
