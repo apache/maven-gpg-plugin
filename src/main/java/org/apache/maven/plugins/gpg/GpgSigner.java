@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +16,7 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -34,13 +33,10 @@ import org.codehaus.plexus.util.cli.DefaultConsumer;
 /**
  * A signer implementation that uses the GnuPG command line executable.
  */
-public class GpgSigner
-    extends AbstractGpgSigner
-{
+public class GpgSigner extends AbstractGpgSigner {
     private String executable;
 
-    public GpgSigner( String executable )
-    {
+    public GpgSigner(String executable) {
         this.executable = executable;
     }
 
@@ -48,175 +44,139 @@ public class GpgSigner
      * {@inheritDoc}
      */
     @Override
-    protected void generateSignatureForFile( File file, File signature )
-        throws MojoExecutionException
-    {
+    protected void generateSignatureForFile(File file, File signature) throws MojoExecutionException {
         // ----------------------------------------------------------------------------
         // Set up the command line
         // ----------------------------------------------------------------------------
 
         Commandline cmd = new Commandline();
 
-        if ( StringUtils.isNotEmpty( executable ) )
-        {
-            cmd.setExecutable( executable );
-        }
-        else
-        {
-            cmd.setExecutable( "gpg" + ( Os.isFamily( Os.FAMILY_WINDOWS ) ? ".exe" : "" ) );
+        if (StringUtils.isNotEmpty(executable)) {
+            cmd.setExecutable(executable);
+        } else {
+            cmd.setExecutable("gpg" + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : ""));
         }
 
-        GpgVersionParser versionParser = GpgVersionParser.parse( executable );
+        GpgVersionParser versionParser = GpgVersionParser.parse(executable);
 
         GpgVersion gpgVersion = versionParser.getGpgVersion();
-        if ( gpgVersion == null )
-        {
-            throw new MojoExecutionException( "Could not determine gpg version" );
+        if (gpgVersion == null) {
+            throw new MojoExecutionException("Could not determine gpg version");
         }
 
-        getLog().debug( gpgVersion.toString() );
+        getLog().debug(gpgVersion.toString());
 
-        if ( args != null )
-        {
-            for ( String arg : args )
-            {
-                cmd.createArg().setValue( arg );
+        if (args != null) {
+            for (String arg : args) {
+                cmd.createArg().setValue(arg);
             }
         }
 
-        if ( homeDir != null )
-        {
-            cmd.createArg().setValue( "--homedir" );
-            cmd.createArg().setFile( homeDir );
+        if (homeDir != null) {
+            cmd.createArg().setValue("--homedir");
+            cmd.createArg().setFile(homeDir);
         }
 
-        if ( gpgVersion.isBefore( GpgVersion.parse( "2.1" ) ) )
-        {
-            if ( useAgent )
-            {
-                cmd.createArg().setValue( "--use-agent" );
-            }
-            else
-            {
-                cmd.createArg().setValue( "--no-use-agent" );
+        if (gpgVersion.isBefore(GpgVersion.parse("2.1"))) {
+            if (useAgent) {
+                cmd.createArg().setValue("--use-agent");
+            } else {
+                cmd.createArg().setValue("--no-use-agent");
             }
         }
 
         InputStream in = null;
-        if ( null != passphrase )
-        {
-            if ( gpgVersion.isAtLeast( GpgVersion.parse( "2.0" ) ) )
-            {
+        if (null != passphrase) {
+            if (gpgVersion.isAtLeast(GpgVersion.parse("2.0"))) {
                 // required for option --passphrase-fd since GPG 2.0
-                cmd.createArg().setValue( "--batch" );
+                cmd.createArg().setValue("--batch");
             }
 
-            if ( gpgVersion.isAtLeast( GpgVersion.parse( "2.1" ) ) )
-            {
+            if (gpgVersion.isAtLeast(GpgVersion.parse("2.1"))) {
                 // required for option --passphrase-fd since GPG 2.1
-                cmd.createArg().setValue( "--pinentry-mode" );
-                cmd.createArg().setValue( "loopback" );
+                cmd.createArg().setValue("--pinentry-mode");
+                cmd.createArg().setValue("loopback");
             }
 
             // make --passphrase-fd effective in gpg2
-            cmd.createArg().setValue( "--passphrase-fd" );
-            cmd.createArg().setValue( "0" );
+            cmd.createArg().setValue("--passphrase-fd");
+            cmd.createArg().setValue("0");
 
             // Prepare the input stream which will be used to pass the passphrase to the executable
-            in = new ByteArrayInputStream( passphrase.getBytes() );
+            in = new ByteArrayInputStream(passphrase.getBytes());
         }
 
-        if ( null != keyname )
-        {
-            cmd.createArg().setValue( "--local-user" );
+        if (null != keyname) {
+            cmd.createArg().setValue("--local-user");
 
-            cmd.createArg().setValue( keyname );
+            cmd.createArg().setValue(keyname);
         }
 
-        cmd.createArg().setValue( "--armor" );
+        cmd.createArg().setValue("--armor");
 
-        cmd.createArg().setValue( "--detach-sign" );
+        cmd.createArg().setValue("--detach-sign");
 
-        if ( getLog().isDebugEnabled() )
-        {
+        if (getLog().isDebugEnabled()) {
             // instruct GPG to write status information to stdout
-            cmd.createArg().setValue( "--status-fd" );
-            cmd.createArg().setValue( "1" );
+            cmd.createArg().setValue("--status-fd");
+            cmd.createArg().setValue("1");
         }
 
-        if ( !isInteractive )
-        {
-            cmd.createArg().setValue( "--batch" );
-            cmd.createArg().setValue( "--no-tty" );
+        if (!isInteractive) {
+            cmd.createArg().setValue("--batch");
+            cmd.createArg().setValue("--no-tty");
 
-            if ( null == passphrase && gpgVersion.isAtLeast( GpgVersion.parse( "2.1" ) ) )
-            {
+            if (null == passphrase && gpgVersion.isAtLeast(GpgVersion.parse("2.1"))) {
                 // prevent GPG from spawning input prompts in Maven non-interactive mode
-                cmd.createArg().setValue( "--pinentry-mode" );
-                cmd.createArg().setValue( "error" );
+                cmd.createArg().setValue("--pinentry-mode");
+                cmd.createArg().setValue("error");
             }
         }
 
-        if ( !defaultKeyring )
-        {
-            cmd.createArg().setValue( "--no-default-keyring" );
+        if (!defaultKeyring) {
+            cmd.createArg().setValue("--no-default-keyring");
         }
 
-        if ( StringUtils.isNotEmpty( secretKeyring ) )
-        {
-            if ( gpgVersion.isBefore( GpgVersion.parse( "2.1" ) ) )
-            {
-                cmd.createArg().setValue( "--secret-keyring" );
-                cmd.createArg().setValue( secretKeyring );
-            }
-            else
-            {
-                getLog().warn( "'secretKeyring' is an obsolete option and ignored. All secret keys "
-                    + "are stored in the ‘private-keys-v1.d’ directory below the GnuPG home directory." );
+        if (StringUtils.isNotEmpty(secretKeyring)) {
+            if (gpgVersion.isBefore(GpgVersion.parse("2.1"))) {
+                cmd.createArg().setValue("--secret-keyring");
+                cmd.createArg().setValue(secretKeyring);
+            } else {
+                getLog().warn("'secretKeyring' is an obsolete option and ignored. All secret keys "
+                        + "are stored in the ‘private-keys-v1.d’ directory below the GnuPG home directory.");
             }
         }
 
-        if ( StringUtils.isNotEmpty( publicKeyring ) )
-        {
-            cmd.createArg().setValue( "--keyring" );
-            cmd.createArg().setValue( publicKeyring );
+        if (StringUtils.isNotEmpty(publicKeyring)) {
+            cmd.createArg().setValue("--keyring");
+            cmd.createArg().setValue(publicKeyring);
         }
 
-        if ( "once".equalsIgnoreCase( lockMode ) )
-        {
-            cmd.createArg().setValue( "--lock-once" );
-        }
-        else if ( "multiple".equalsIgnoreCase( lockMode ) )
-        {
-            cmd.createArg().setValue( "--lock-multiple" );
-        }
-        else if ( "never".equalsIgnoreCase( lockMode ) )
-        {
-            cmd.createArg().setValue( "--lock-never" );
+        if ("once".equalsIgnoreCase(lockMode)) {
+            cmd.createArg().setValue("--lock-once");
+        } else if ("multiple".equalsIgnoreCase(lockMode)) {
+            cmd.createArg().setValue("--lock-multiple");
+        } else if ("never".equalsIgnoreCase(lockMode)) {
+            cmd.createArg().setValue("--lock-never");
         }
 
-        cmd.createArg().setValue( "--output" );
-        cmd.createArg().setFile( signature );
+        cmd.createArg().setValue("--output");
+        cmd.createArg().setFile(signature);
 
-        cmd.createArg().setFile( file );
+        cmd.createArg().setFile(file);
 
         // ----------------------------------------------------------------------------
         // Execute the command line
         // ----------------------------------------------------------------------------
 
-        try
-        {
-            int exitCode = CommandLineUtils.executeCommandLine( cmd, in, new DefaultConsumer(), new DefaultConsumer() );
+        try {
+            int exitCode = CommandLineUtils.executeCommandLine(cmd, in, new DefaultConsumer(), new DefaultConsumer());
 
-            if ( exitCode != 0 )
-            {
-                throw new MojoExecutionException( "Exit code: " + exitCode );
+            if (exitCode != 0) {
+                throw new MojoExecutionException("Exit code: " + exitCode);
             }
-        }
-        catch ( CommandLineException e )
-        {
-            throw new MojoExecutionException( "Unable to execute gpg command", e );
+        } catch (CommandLineException e) {
+            throw new MojoExecutionException("Unable to execute gpg command", e);
         }
     }
-
 }

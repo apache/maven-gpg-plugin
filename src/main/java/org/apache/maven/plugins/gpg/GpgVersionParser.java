@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,13 +16,13 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoExecutionException;
-
 import org.codehaus.plexus.util.Os;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
@@ -34,7 +32,7 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
  * Parse the output of <code>gpg --version</code> and exposes these as dedicated objects.
- * 
+ *
  * Supported:
  * <ul>
  *   <li>gpg version, i.e. gpg (GnuPG) 2.2.15</li>
@@ -45,55 +43,41 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  *   <li>Home</li>
  *   <li>Supported algorithms (Pubkey, Cipher, Hash, Compression)</li>
  * </ul>
- * 
+ *
  * @author Robert Scholte
  * @since 3.0.0
  */
-public class GpgVersionParser
-{
+public class GpgVersionParser {
     private final GpgVersionConsumer consumer;
 
-    private GpgVersionParser( GpgVersionConsumer consumer )
-    {
+    private GpgVersionParser(GpgVersionConsumer consumer) {
         this.consumer = consumer;
-
     }
 
-    public static GpgVersionParser parse( String executable )
-        throws MojoExecutionException
-    {
+    public static GpgVersionParser parse(String executable) throws MojoExecutionException {
         Commandline cmd = new Commandline();
 
-        if ( StringUtils.isNotEmpty( executable ) )
-        {
-            cmd.setExecutable( executable );
-        }
-        else
-        {
-            cmd.setExecutable( "gpg" + ( Os.isFamily( Os.FAMILY_WINDOWS ) ? ".exe" : "" ) );
+        if (StringUtils.isNotEmpty(executable)) {
+            cmd.setExecutable(executable);
+        } else {
+            cmd.setExecutable("gpg" + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : ""));
         }
 
-
-        cmd.createArg().setValue( "--version" );
+        cmd.createArg().setValue("--version");
 
         GpgVersionConsumer out = new GpgVersionConsumer();
 
-        try
-        {
-           CommandLineUtils.executeCommandLine( cmd, null, out, null );
-        }
-        catch ( CommandLineException e )
-        {
-            throw new MojoExecutionException( "failed to execute gpg", e );
+        try {
+            CommandLineUtils.executeCommandLine(cmd, null, out, null);
+        } catch (CommandLineException e) {
+            throw new MojoExecutionException("failed to execute gpg", e);
         }
 
-        return new GpgVersionParser( out );
+        return new GpgVersionParser(out);
     }
 
-    public GpgVersion getGpgVersion()
-    {
+    public GpgVersion getGpgVersion() {
         return consumer.getGpgVersion();
-
     }
 
     /**
@@ -102,28 +86,21 @@ public class GpgVersionParser
      * @author Robert Scholte
      * @since 3.0.0
      */
-    static class GpgVersionConsumer
-        implements StreamConsumer
-    {
-        private final Pattern gpgVersionPattern = Pattern.compile( "gpg \\([^)]+\\) .+" );
+    static class GpgVersionConsumer implements StreamConsumer {
+        private final Pattern gpgVersionPattern = Pattern.compile("gpg \\([^)]+\\) .+");
 
         private GpgVersion gpgVersion;
 
         @Override
-        public void consumeLine( String line )
-            throws IOException
-        {
-            Matcher m = gpgVersionPattern.matcher( line );
-            if ( m.matches() )
-            {
-                gpgVersion = GpgVersion.parse( m.group() );
+        public void consumeLine(String line) throws IOException {
+            Matcher m = gpgVersionPattern.matcher(line);
+            if (m.matches()) {
+                gpgVersion = GpgVersion.parse(m.group());
             }
         }
-        
-        public GpgVersion getGpgVersion()
-        {
+
+        public GpgVersion getGpgVersion() {
             return gpgVersion;
         }
     }
-
 }

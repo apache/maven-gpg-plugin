@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -18,14 +17,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>maven-plugins</artifactId>
     <groupId>org.apache.maven.plugins</groupId>
-    <version>36</version>
+    <artifactId>maven-plugins</artifactId>
+    <version>39</version>
     <relativePath />
   </parent>
 
@@ -43,8 +41,8 @@ under the License.
   <scm>
     <connection>scm:git:https://gitbox.apache.org/repos/asf/maven-gpg-plugin.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/maven-gpg-plugin.git</developerConnection>
-    <url>https://github.com/apache/maven-gpg-plugin/tree/${project.scm.tag}</url>
     <tag>HEAD</tag>
+    <url>https://github.com/apache/maven-gpg-plugin/tree/${project.scm.tag}</url>
   </scm>
   <issueManagement>
     <system>jira</system>
@@ -151,7 +149,7 @@ under the License.
       <artifactId>plexus-sec-dispatcher</artifactId>
       <version>1.4</version>
     </dependency>
-    
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -175,8 +173,8 @@ under the License.
   <build>
     <testResources>
       <testResource>
-        <directory>${basedir}/src/test/resources</directory>
         <filtering>true</filtering>
+        <directory>${basedir}/src/test/resources</directory>
         <includes>
           <include>**/pom.xml</include>
           <include>**/settings.xml</include>
@@ -202,6 +200,11 @@ under the License.
               <exclude>src/test/resources/gnupg/*</exclude>
             </excludes>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-invoker-plugin</artifactId>
+          <version>3.5.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -250,14 +253,6 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <environmentVariables>
                 <JENKINS_MAVEN_AGENT_DISABLED>true</JENKINS_MAVEN_AGENT_DISABLED>
@@ -270,6 +265,14 @@ under the License.
                 <settingsFile>/it/settings.xml</settingsFile>
               </systemPropertyVariables>
             </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -280,7 +283,8 @@ under the License.
                 <pomInclude>*</pomInclude>
               </pomIncludes>
               <pomExcludes>
-                <pomExclude>alternative-secret-keyring</pomExclude> <!-- not supported with gpg 2.1+ -->
+                <!-- not supported with gpg 2.1+ -->
+                <pomExclude>alternative-secret-keyring</pomExclude>
               </pomExcludes>
               <goals>
                 <goal>clean</goal>
