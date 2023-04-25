@@ -48,7 +48,7 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
 
     /**
      * A list of files to exclude from being signed. Can contain Ant-style wildcards and double wildcards. The default
-     * excludes are <code>**&#47;*.md5 **&#47;*.sha1 **&#47;*.sha256 **&#47;*.sha512 **&#47;*.asc</code>.
+     * excludes are <code>**&#47;*.md5 **&#47;*.sha1 **&#47;*.sha256 **&#47;*.sha512 **&#47;*.asc **&#47;*.sigstore</code>.
      *
      * @since 1.0-alpha-4
      */
