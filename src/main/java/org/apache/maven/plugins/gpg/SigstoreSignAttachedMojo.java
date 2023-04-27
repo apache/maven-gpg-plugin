@@ -118,6 +118,8 @@ public class SigstoreSignAttachedMojo extends AbstractMojo {
         // Sign the filesToSign and attach all the signatures
         // ----------------------------------------------------------------------------
 
+        getLog().info("Signing " + items.size() + " file" + ((items.size() > 1) ? "s" : "") + ".");
+
         try {
             KeylessSigner signer =
                     KeylessSigner.builder().sigstoreStagingDefaults().build();
