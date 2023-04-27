@@ -98,6 +98,9 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
         signer.setBuildDirectory(new File(project.getBuild().getDirectory()));
         signer.setBaseDirectory(project.getBasedir());
 
+        getLog().info("Signing " + items.size() + " file" + ((items.size() > 1) ? "s" : "") + " with "
+                + ((signer.keyname == null) ? "default" : signer.keyname) + " secret key.");
+
         for (FilesCollector.Item item : items) {
             getLog().debug("Generating signature for " + item.getFile());
 
