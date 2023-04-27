@@ -1,0 +1,59 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+commons-io:commons-io = 0xCD5464315F0B98C77E6E8ECD9DAADC1C9FCC82D0
+junit:junit = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
+org.apache.maven.resolver = 0x522CA055B326A636D833EF6A0551FD3684FCBBB7
+org.apache.maven.shared:maven-artifact-transfer = 0x6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688
+org.apache.maven.shared:maven-common-artifact-filters = 0xB02137D875D833D9B23392ECAE5A7FB608A0221C
+org.apache.maven.shared:maven-invoker = 0x84789D24DF77A32433CE1F079EB80E92EB2135B1
+org.apache.maven.shared:maven-shared-utils = 0x82C9EC0E52C47A936A849E0113D979595E6D01E1
+org.codehaus.plexus:plexus-classworlds = 0xFB11D4BB7B244678337AAD8BC7BF26D0BB617866
+org.codehaus.plexus:plexus-component-annotations = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
+org.codehaus.plexus:plexus-utils = 0x6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688
+org.eclipse.aether:aether-api = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
+org.eclipse.aether:aether-util = 0xFB11D4BB7B244678337AAD8BC7BF26D0BB617866
+org.hamcrest:hamcrest = 0xE3A9F95079E84CE201F7CF60BEDE11EAF1164480
+org.hamcrest:hamcrest-core = 0xE3A9F95079E84CE201F7CF60BEDE11EAF1164480
+org.slf4j:slf4j-api = 0x475F3B8E59E6E63AA78067482C7B12F2A511E325
+org.sonatype.plexus:plexus-cipher = 0x9FFED7A118D45A44E4A1E47130E6F80434A72A7F
+org.sonatype.plexus:plexus-sec-dispatcher = 0x2BCBDD0F23EA1CAFCC11D4860374CF2E8DD1BDFD
+org.sonatype.sisu = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
+
+dev.sigstore = 0xF6B17CDEEE2BB5BB7D04667D4BE41A4907BCD034
+com.google.http-client = 0x47504B76CF89C15C0512D9AFE16AB52D79FD224F
+io.opencensus = 0x600EA202B1EC682F4A788E5AAC7A514BC9F9BB70
+commons-logging:commons-logging = 0x0CC641C3A62453AB390066C4A41F13C999945293
+org.apache.httpcomponents = 0x0785B3EFF60B1B1BEA94E0BB7C25280EAE63EBE5
+io.github.erdtman:java-json-canonicalization = 0x4556208EBE484FBA3984DC3D3D4FA1A9DB2FB4F4
+com.google.api.grpc:proto-google-common-protos = 0x47504B76CF89C15C0512D9AFE16AB52D79FD224F
+com.google.protobuf = 0x2E5B73C6EFD2EB453104C2EAE6EC76B4C6D3AE8E
+com.google.code.findbugs = 0x7616EB882DAF57A11477AAF559A252FB1199D873
+com.google.errorprone:error_prone_annotations = 0xE77417AC194160A3FABD04969A259C7EE636C5ED
+com.google.guava:guava = 0xBDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE
+com.google.guava:failureaccess = 0x56ED3B4843DAACC79DE555557457CA33C3CE9E15
+com.google.guava:listenablefuture = 0xBDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE
+org.checkerframework:checker-qual = 0x19BEAB2D799C020F17C69126B16698A4ADF4D638
+com.google.j2objc:j2objc-annotations = 0xB801E2F8EF035068EC1139CC29579F18FA8FD93B
+io.grpc = 0xB02335AA54CCF21E52BBF9ABD9C565AA72BA2FDD
+commons-codec:commons-codec = 0xBC87A3FD0A54480F0BADBEBD21939FF0CA2A6567
+com.google.code.gson:gson = 0xC7BE5BCC9FEC15518CFDA882B0F3710FA64900E7
+org.bouncycastle = 0x08F0AAB4D0C1A4BDDE340765B341DDB020FCB6AB
+com.google.oauth-client = 0x47504B76CF89C15C0512D9AFE16AB52D79FD224F
+io.perfmark:perfmark-api = 0xC6F7D1C804C821F49AF3BFC13AD93C3C677A106E
+com.google.android:annotations = 0x0F07D1201BDDAB67CFB84EB479752DB6C966F0B8
+org.codehaus.mojo:animal-sniffer-annotations = 0xF254B35617DC255D9344BCFA873A8E86B4372146
