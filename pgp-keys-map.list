@@ -1,0 +1,35 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+commons-io:commons-io = 0xCD5464315F0B98C77E6E8ECD9DAADC1C9FCC82D0
+junit:junit = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
+org.apache.maven.resolver = 0x522CA055B326A636D833EF6A0551FD3684FCBBB7
+org.apache.maven.shared:maven-artifact-transfer = 0x6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688
+org.apache.maven.shared:maven-common-artifact-filters = 0xB02137D875D833D9B23392ECAE5A7FB608A0221C
+org.apache.maven.shared:maven-invoker = 0x84789D24DF77A32433CE1F079EB80E92EB2135B1
+org.apache.maven.shared:maven-shared-utils = 0x82C9EC0E52C47A936A849E0113D979595E6D01E1
+org.codehaus.plexus:plexus-classworlds = 0xFB11D4BB7B244678337AAD8BC7BF26D0BB617866
+org.codehaus.plexus:plexus-component-annotations = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
+org.codehaus.plexus:plexus-utils = 0x6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688
+org.eclipse.aether:aether-api = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
+org.eclipse.aether:aether-util = 0xFB11D4BB7B244678337AAD8BC7BF26D0BB617866
+org.hamcrest:hamcrest = 0xE3A9F95079E84CE201F7CF60BEDE11EAF1164480
+org.hamcrest:hamcrest-core = 0xE3A9F95079E84CE201F7CF60BEDE11EAF1164480
+org.slf4j:slf4j-api = 0x475F3B8E59E6E63AA78067482C7B12F2A511E325
+org.sonatype.plexus:plexus-cipher = 0x9FFED7A118D45A44E4A1E47130E6F80434A72A7F
+org.sonatype.plexus:plexus-sec-dispatcher = 0x2BCBDD0F23EA1CAFCC11D4860374CF2E8DD1BDFD
+org.sonatype.sisu = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
