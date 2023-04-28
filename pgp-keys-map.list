@@ -35,6 +35,13 @@ org.sonatype.plexus:plexus-sec-dispatcher = 0x2BCBDD0F23EA1CAFCC11D4860374CF2E8D
 org.sonatype.sisu = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
 
 dev.sigstore = 0xF6B17CDEEE2BB5BB7D04667D4BE41A4907BCD034
+# sigstore signature https://repo.maven.apache.org/maven2/dev/sigstore/sigstore-java/0.4.0/sigstore-java-0.4.0.jar.sigstore
+# decoded with https://search.sigstore.dev/?logIndex=16039467
+#  Subject Alternative Name (critical):
+#    email:
+#    - appu@google.com
+#  OIDC Issuer: https://accounts.google.com
+ 
 com.google.http-client = 0x47504B76CF89C15C0512D9AFE16AB52D79FD224F
 io.opencensus = 0x600EA202B1EC682F4A788E5AAC7A514BC9F9BB70
 commons-logging:commons-logging = 0x0CC641C3A62453AB390066C4A41F13C999945293
