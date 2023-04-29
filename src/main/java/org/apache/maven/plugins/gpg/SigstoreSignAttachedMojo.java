@@ -38,7 +38,6 @@ package org.apache.maven.plugins.gpg;
  */
 
 import java.io.File;
-import java.time.Duration;
 import java.util.List;
 
 import dev.sigstore.KeylessSignature;
@@ -83,18 +82,6 @@ public class SigstoreSignAttachedMojo extends AbstractMojo {
     protected MavenProject project;
 
     /**
-     * PoC: wait time before each file signature (in seconds)
-     */
-    @Parameter(property = "sigstore.wait", defaultValue = "0")
-    private long wait;
-
-    /**
-     * PoC: certificate duration (in min)
-     */
-    @Parameter(property = "sigstore.duration", defaultValue = "-1")
-    private long duration;
-
-    /**
      * Maven ProjectHelper
      */
     @Component
@@ -123,28 +110,12 @@ public class SigstoreSignAttachedMojo extends AbstractMojo {
         try {
             KeylessSigner signer =
                     KeylessSigner.builder().sigstoreStagingDefaults().build();
-            if (duration > -1) {
-                getLog().info("updating certificate minimum remaining duration to " + duration + " min");
-                signer = KeylessSigner.builder()
-                        .sigstoreStagingDefaults()
-                        .minSigningCertificateLifetime(Duration.ofMinutes(duration))
-                        .build();
-            }
 
-            boolean first = true;
             for (FilesCollector.Item item : items) {
-                getLog().debug("Generating signature for " + item.getFile());
-
-                if (first) {
-                    first = false;
-                } else if (wait > 0) {
-                    getLog().info("waiting for " + wait + " seconds before signing next = " + item.getFile());
-                    Thread.sleep(wait * 1000);
-                }
-
                 File fileToSign = item.getFile();
 
                 getLog().info("Signing " + fileToSign);
+                long start = System.currentTimeMillis();
                 KeylessSignature signature = signer.signFile(fileToSign.toPath());
 
                 // sigstore signature in bundle format (json string)
@@ -152,6 +123,9 @@ public class SigstoreSignAttachedMojo extends AbstractMojo {
 
                 File signatureFile = new File(fileToSign + ".sigstore");
                 FileUtils.fileWrite(signatureFile, "UTF-8", sigstoreBundle);
+
+                long duration = System.currentTimeMillis() - start;
+                getLog().info("        > " + signatureFile.getName() + " in " + duration + " ms");
 
                 projectHelper.attachArtifact(
                         project, item.getExtension() + ".sigstore", item.getClassifier(), signatureFile);
