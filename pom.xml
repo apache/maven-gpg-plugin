@@ -343,6 +343,9 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
+            <configuration>
+              <public-staging>true</public-staging>
+            </configuration>
             <executions>
               <execution>
                 <id>sigstore-sign-release-artifacts</id>

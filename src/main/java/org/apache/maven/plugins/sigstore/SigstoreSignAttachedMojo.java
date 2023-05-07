@@ -58,7 +58,7 @@ import org.codehaus.plexus.util.FileUtils;
 /**
  * Sign project artifact, the POM, and attached artifacts with sigstore for deployment.
  *
- * @since 3.1.0
+ * @since 3.1.1
  */
 @Mojo(name = "sigstore", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class SigstoreSignAttachedMojo extends AbstractMojo {
@@ -77,10 +77,16 @@ public class SigstoreSignAttachedMojo extends AbstractMojo {
     private String[] excludes;
 
     /**
+     * Use public staging {@code sigstage.dev} instead of public default {@code sigstore.dev}.
+     */
+    @Parameter(defaultValue = "false", property = "public-staging")
+    private boolean publicStaging;
+
+    /**
      * The Maven project.
      */
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    protected MavenProject project;
+    @Parameter(defaultValue = "${project}", readonly = true)
+    private MavenProject project;
 
     /**
      * Maven ProjectHelper
@@ -109,8 +115,13 @@ public class SigstoreSignAttachedMojo extends AbstractMojo {
         getLog().info("Signing " + items.size() + " file" + ((items.size() > 1) ? "s" : "") + ".");
 
         try {
-            KeylessSigner signer =
-                    KeylessSigner.builder().sigstoreStagingDefaults().build();
+            KeylessSigner signer;
+
+            if (publicStaging) {
+                signer = KeylessSigner.builder().sigstoreStagingDefaults().build();
+            } else {
+                signer = KeylessSigner.builder().sigstorePublicDefaults().build();
+            }
 
             for (FilesCollector.Item item : items) {
                 File fileToSign = item.getFile();
