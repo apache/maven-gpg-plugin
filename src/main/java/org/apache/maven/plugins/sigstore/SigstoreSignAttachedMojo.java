@@ -38,6 +38,7 @@ package org.apache.maven.plugins.sigstore;
  */
 
 import java.io.File;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import dev.sigstore.KeylessSignature;
@@ -141,6 +142,13 @@ public class SigstoreSignAttachedMojo extends AbstractMojo {
 
                 projectHelper.attachArtifact(
                         project, item.getExtension() + ".sigstore", item.getClassifier(), signatureFile);
+
+                getLog().info("          Rekor logIndex: "
+                        + signature.getEntry().get().getLogIndex());
+                X509Certificate cert = (X509Certificate)
+                        signature.getCertPath().getCertificates().get(0);
+                getLog().info("          Certificate Issuer DN: " + cert.getIssuerDN());
+                getLog().info("                      Subject Alternative Names: " + cert.getSubjectAlternativeNames());
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Error while signing with sigstore", e);
