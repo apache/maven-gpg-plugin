@@ -24,7 +24,6 @@ import java.io.InputStream;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.Os;
-import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -51,7 +50,7 @@ public class GpgSigner extends AbstractGpgSigner {
 
         Commandline cmd = new Commandline();
 
-        if (StringUtils.isNotEmpty(executable)) {
+        if (executable != null && !executable.isEmpty()) {
             cmd.setExecutable(executable);
         } else {
             cmd.setExecutable("gpg" + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : ""));
@@ -137,7 +136,7 @@ public class GpgSigner extends AbstractGpgSigner {
             cmd.createArg().setValue("--no-default-keyring");
         }
 
-        if (StringUtils.isNotEmpty(secretKeyring)) {
+        if (secretKeyring != null && !secretKeyring.isEmpty()) {
             if (gpgVersion.isBefore(GpgVersion.parse("2.1"))) {
                 cmd.createArg().setValue("--secret-keyring");
                 cmd.createArg().setValue(secretKeyring);
@@ -147,7 +146,7 @@ public class GpgSigner extends AbstractGpgSigner {
             }
         }
 
-        if (StringUtils.isNotEmpty(publicKeyring)) {
+        if (publicKeyring != null && !publicKeyring.isEmpty()) {
             cmd.createArg().setValue("--keyring");
             cmd.createArg().setValue(publicKeyring);
         }

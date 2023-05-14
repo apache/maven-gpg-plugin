@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.Os;
-import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -57,7 +56,7 @@ public class GpgVersionParser {
     public static GpgVersionParser parse(String executable) throws MojoExecutionException {
         Commandline cmd = new Commandline();
 
-        if (StringUtils.isNotEmpty(executable)) {
+        if (executable != null && !executable.isEmpty()) {
             cmd.setExecutable(executable);
         } else {
             cmd.setExecutable("gpg" + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : ""));
