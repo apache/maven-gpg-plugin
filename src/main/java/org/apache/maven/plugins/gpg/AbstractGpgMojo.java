@@ -30,7 +30,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
@@ -201,7 +200,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * @throws MojoFailureException
      */
     private void loadGpgPassphrase() throws MojoFailureException {
-        if (StringUtils.isEmpty(this.passphrase)) {
+        if (this.passphrase == null || this.passphrase.isEmpty()) {
             Server server = this.settings.getServer(passphraseServerId);
 
             if (server != null) {
