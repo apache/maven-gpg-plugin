@@ -125,10 +125,10 @@ public class FilesCollector {
     }
 
     /**
-     * Tests whether or not a name matches against at least one exclude pattern.
+     * Tests whether or not a name matches at least one exclude pattern.
      *
-     * @param artifact The artifact to match. Must not be <code>null</code>.
-     * @return <code>true</code> when the name matches against at least one exclude pattern, or <code>false</code>
+     * @param artifact the artifact to match. Must not be <code>null</code>.
+     * @return <code>true</code> when the name matches at least one exclude pattern, or <code>false</code>
      *         otherwise.
      */
     protected boolean isExcluded(Artifact artifact) {
