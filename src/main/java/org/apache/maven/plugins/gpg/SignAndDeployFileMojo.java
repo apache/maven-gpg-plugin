@@ -490,7 +490,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         Model model = generateModel();
 
         try {
-            File tempFile = Files.createTempFile("mvndeploy", ".pom".toFile();
+            File tempFile = Files.createTempFile("mvndeploy", ".pom").toFile();
             tempFile.deleteOnExit();
 
             try (Writer fw = WriterFactory.newXmlWriter(tempFile)) {
