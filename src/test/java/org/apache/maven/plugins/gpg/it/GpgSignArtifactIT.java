@@ -23,17 +23,11 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.maven.shared.invoker.InvocationRequest;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.runners.Parameterized.Parameter;
-import static org.junit.runners.Parameterized.Parameters;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
 public class GpgSignArtifactIT {
     private final File mavenHome;
     private final File localRepository;
@@ -47,7 +41,6 @@ public class GpgSignArtifactIT {
         this.gpgHome = new File(System.getProperty("gpg.homedir"));
     }
 
-    @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
@@ -73,17 +66,10 @@ public class GpgSignArtifactIT {
         });
     }
 
-    @Parameter
-    public String pomPath;
-
-    @Parameter(1)
-    public String expectedFileLocation;
-
-    @Parameter(2)
-    public String[] expectedFiles;
-
-    @Test
-    public void testPlacementOfArtifactInOutputDirectory() throws Exception {
+    @MethodSource("data")
+    @ParameterizedTest
+    void testPlacementOfArtifactInOutputDirectory(String pomPath, String expectedFileLocation, String[] expectedFiles)
+            throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource(pomPath);
         final InvocationRequest request = InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome);
@@ -94,7 +80,7 @@ public class GpgSignArtifactIT {
         InvokerTestUtils.executeRequest(request, mavenHome, localRepository);
 
         // then
-        assertThat(expectedOutputDirectory.exists(), equalTo(true));
-        assertThat(expectedOutputDirectory.list(), arrayContainingInAnyOrder(expectedFiles));
+        assertThat(expectedOutputDirectory).exists();
+        assertThat(expectedOutputDirectory.list()).containsExactlyInAnyOrder(expectedFiles);
     }
 }

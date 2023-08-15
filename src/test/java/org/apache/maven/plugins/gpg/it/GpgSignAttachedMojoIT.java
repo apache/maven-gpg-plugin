@@ -23,11 +23,9 @@ import java.io.File;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GpgSignAttachedMojoIT {
 
@@ -44,7 +42,7 @@ public class GpgSignAttachedMojoIT {
     }
 
     @Test
-    public void testInteractiveWithoutPassphrase() throws Exception {
+    void testInteractiveWithoutPassphrase() throws Exception {
         // given
         final File pomFile =
                 InvokerTestUtils.getTestResource("/it/sign-release-without-passphrase-interactive/pom.xml");
@@ -60,10 +58,11 @@ public class GpgSignAttachedMojoIT {
         final String buildLogContent = FileUtils.fileRead(result.getBuildLog());
 
         // then
-        assertThat("Maven execution must fail", invocationResult.getExitCode(), not(0));
-        assertThat(
-                "Maven execution failed because no pinentry program is available",
-                buildLogContent,
-                containsString("[GNUPG:] FAILURE sign 67108949"));
+        assertThat(invocationResult.getExitCode())
+                .as("Maven execution must fail")
+                .isNotEqualTo(0);
+        assertThat(buildLogContent)
+                .as("Maven execution failed because no pinentry program is available")
+                .contains("[GNUPG:] FAILURE sign 67108949");
     }
 }
