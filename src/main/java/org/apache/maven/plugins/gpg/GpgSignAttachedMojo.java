@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,14 +16,11 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -34,8 +29,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.SelectorUtils;
 
 /**
  * Sign project artifact, the POM, and attached artifacts with GnuPG for deployment.
@@ -44,23 +37,18 @@ import org.codehaus.plexus.util.SelectorUtils;
  * @author Jason Dillon
  * @author Daniel Kulp
  */
-@Mojo( name = "sign", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true )
-public class GpgSignAttachedMojo
-    extends AbstractGpgMojo
-{
-
-    private static final String DEFAULT_EXCLUDES[] =
-        new String[] { "**/*.md5", "**/*.sha1", "**/*.sha256", "**/*.sha512", "**/*.asc" };
+@Mojo(name = "sign", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
+public class GpgSignAttachedMojo extends AbstractGpgMojo {
 
     /**
      * Skip doing the gpg signing.
      */
-    @Parameter( property = "gpg.skip", defaultValue = "false" )
+    @Parameter(property = "gpg.skip", defaultValue = "false")
     private boolean skip;
 
     /**
      * A list of files to exclude from being signed. Can contain Ant-style wildcards and double wildcards. The default
-     * excludes are <code>**&#47;*.md5   **&#47;*.sha1    **&#47;*.sha256    **&#47;*.sha512    **&#47;*.asc</code>.
+     * excludes are <code>**&#47;*.md5 **&#47;*.sha1 **&#47;*.sha256 **&#47;*.sha512 **&#47;*.asc **&#47;*.sigstore</code>.
      *
      * @since 1.0-alpha-4
      */
@@ -72,13 +60,13 @@ public class GpgSignAttachedMojo
      *
      * @since 1.0-alpha-4
      */
-    @Parameter( defaultValue = "${project.build.directory}/gpg", alias = "outputDirectory" )
+    @Parameter(defaultValue = "${project.build.directory}/gpg", alias = "outputDirectory")
     private File ascDirectory;
 
     /**
      * The maven project.
      */
-    @Parameter( defaultValue = "${project}", readonly = true, required = true )
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     protected MavenProject project;
 
     /**
@@ -88,161 +76,41 @@ public class GpgSignAttachedMojo
     private MavenProjectHelper projectHelper;
 
     @Override
-    public void execute()
-        throws MojoExecutionException, MojoFailureException
-    {
-        if ( skip )
-        {
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
             // We're skipping the signing stuff
             return;
         }
 
-        if ( excludes == null || excludes.length == 0 )
-        {
-            excludes = DEFAULT_EXCLUDES;
-        }
-        String newExcludes[] = new String[excludes.length];
-        for ( int i = 0; i < excludes.length; i++ )
-        {
-            String pattern;
-            pattern = excludes[i].trim().replace( '/', File.separatorChar ).replace( '\\', File.separatorChar );
-            if ( pattern.endsWith( File.separator ) )
-            {
-                pattern += "**";
-            }
-            newExcludes[i] = pattern;
-        }
-        excludes = newExcludes;
-
-        AbstractGpgSigner signer = newSigner( project );
-
         // ----------------------------------------------------------------------------
-        // What we need to generateSignatureForArtifact here
+        // Collect files to sign
         // ----------------------------------------------------------------------------
 
-        signer.setOutputDirectory( ascDirectory );
-        signer.setBuildDirectory( new File( project.getBuild().getDirectory() ) );
-        signer.setBaseDirectory( project.getBasedir() );
-
-        List<SigningBundle> signingBundles = new ArrayList<>();
-
-        if ( !"pom".equals( project.getPackaging() ) )
-        {
-            // ----------------------------------------------------------------------------
-            // Project artifact
-            // ----------------------------------------------------------------------------
-
-            Artifact artifact = project.getArtifact();
-
-            File file = artifact.getFile();
-
-            if ( file != null && file.isFile() )
-            {
-                getLog().debug( "Generating signature for " + file );
-
-                File projectArtifactSignature = signer.generateSignatureForArtifact( file );
-
-                if ( projectArtifactSignature != null )
-                {
-                    signingBundles.add( new SigningBundle( artifact.getArtifactHandler().getExtension(),
-                                                           projectArtifactSignature ) );
-                }
-            }
-            else if ( project.getAttachedArtifacts().isEmpty() )
-            {
-                throw new MojoFailureException( "The project artifact has not been assembled yet. "
-                    + "Please do not invoke this goal before the lifecycle phase \"package\"." );
-            }
-            else
-            {
-                getLog().debug( "Main artifact not assembled, skipping signature generation" );
-            }
-        }
+        FilesCollector collector = new FilesCollector(project, excludes, getLog());
+        List<FilesCollector.Item> items = collector.collect();
 
         // ----------------------------------------------------------------------------
-        // POM
+        // Sign collected files and attach all the signatures
         // ----------------------------------------------------------------------------
 
-        File pomToSign = new File( project.getBuild().getDirectory(), project.getBuild().getFinalName() + ".pom" );
+        AbstractGpgSigner signer = newSigner(project);
+        signer.setOutputDirectory(ascDirectory);
+        signer.setBuildDirectory(new File(project.getBuild().getDirectory()));
+        signer.setBaseDirectory(project.getBasedir());
 
-        try
-        {
-            FileUtils.copyFile( project.getFile(), pomToSign );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoExecutionException( "Error copying POM for signing.", e );
-        }
+        getLog().info("Signing " + items.size() + " file" + ((items.size() > 1) ? "s" : "") + " with "
+                + ((signer.keyname == null) ? "default" : signer.keyname) + " secret key.");
 
-        getLog().debug( "Generating signature for " + pomToSign );
+        for (FilesCollector.Item item : items) {
+            getLog().debug("Generating signature for " + item.getFile());
 
-        File pomSignature = signer.generateSignatureForArtifact( pomToSign );
+            File signature = signer.generateSignatureForArtifact(item.getFile());
 
-        if ( pomSignature != null )
-        {
-            signingBundles.add( new SigningBundle( "pom", pomSignature ) );
-        }
-
-        // ----------------------------------------------------------------------------
-        // Attached artifacts
-        // ----------------------------------------------------------------------------
-
-        for ( Object o : project.getAttachedArtifacts() )
-        {
-            Artifact artifact = (Artifact) o;
-
-            File file = artifact.getFile();
-
-            if ( isExcluded( artifact ) )
-            {
-                getLog().debug( "Skipping generation of signature for excluded " + file );
-                continue;
-            }
-
-            getLog().debug( "Generating signature for " + file );
-
-            File signature = signer.generateSignatureForArtifact( file );
-
-            if ( signature != null )
-            {
-                signingBundles.add( new SigningBundle( artifact.getArtifactHandler().getExtension(),
-                                                       artifact.getClassifier(), signature ) );
-            }
-        }
-
-        // ----------------------------------------------------------------------------
-        // Attach all the signatures
-        // ----------------------------------------------------------------------------
-
-        for ( SigningBundle bundle : signingBundles )
-        {
-            projectHelper.attachArtifact( project, bundle.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
-                                          bundle.getClassifier(), bundle.getSignature() );
+            projectHelper.attachArtifact(
+                    project,
+                    item.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
+                    item.getClassifier(),
+                    signature);
         }
     }
-
-    /**
-     * Tests whether or not a name matches against at least one exclude pattern.
-     *
-     * @param artifact The artifact to match. Must not be <code>null</code>.
-     * @return <code>true</code> when the name matches against at least one exclude pattern, or <code>false</code>
-     *         otherwise.
-     */
-    protected boolean isExcluded( Artifact artifact )
-    {
-        final Path projectBasePath = project.getBasedir().toPath();
-        final Path artifactPath = artifact.getFile().toPath();
-        final String relativeArtifactPath = projectBasePath.relativize( artifactPath ).toString();
-
-        for ( String exclude : excludes )
-        {
-            if ( SelectorUtils.matchPath( exclude, relativeArtifactPath ) )
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
 }

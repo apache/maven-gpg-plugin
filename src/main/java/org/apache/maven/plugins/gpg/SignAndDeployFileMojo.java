@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -9,7 +7,7 @@ package org.apache.maven.plugins.gpg;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +16,7 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -70,96 +69,94 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  * @author Daniel Kulp
  * @since 1.0-beta-4
  */
-@Mojo( name = "sign-and-deploy-file", requiresProject = false, threadSafe = true )
-public class SignAndDeployFileMojo
-    extends AbstractGpgMojo
-{
+@Mojo(name = "sign-and-deploy-file", requiresProject = false, threadSafe = true)
+public class SignAndDeployFileMojo extends AbstractGpgMojo {
 
     /**
      * The directory where to store signature files.
      */
-    @Parameter( property = "gpg.ascDirectory" )
+    @Parameter(property = "gpg.ascDirectory")
     private File ascDirectory;
 
     /**
      * Flag whether Maven is currently in online/offline mode.
      */
-    @Parameter( defaultValue = "${settings.offline}", readonly = true )
+    @Parameter(defaultValue = "${settings.offline}", readonly = true)
     private boolean offline;
 
     /**
      * GroupId of the artifact to be deployed. Retrieved from POM file if specified.
      */
-    @Parameter( property = "groupId" )
+    @Parameter(property = "groupId")
     private String groupId;
 
     /**
      * ArtifactId of the artifact to be deployed. Retrieved from POM file if specified.
      */
-    @Parameter( property = "artifactId" )
+    @Parameter(property = "artifactId")
     private String artifactId;
 
     /**
      * Version of the artifact to be deployed. Retrieved from POM file if specified.
      */
-    @Parameter( property = "version" )
+    @Parameter(property = "version")
     private String version;
 
     /**
      * Type of the artifact to be deployed. Retrieved from POM file if specified.
      * Defaults to file extension if not specified via command line or POM.
      */
-    @Parameter( property = "packaging" )
+    @Parameter(property = "packaging")
     private String packaging;
 
     /**
      * Add classifier to the artifact
      */
-    @Parameter( property = "classifier" )
+    @Parameter(property = "classifier")
     private String classifier;
 
     /**
      * Description passed to a generated POM file (in case of generatePom=true).
      */
-    @Parameter( property = "generatePom.description" )
+    @Parameter(property = "generatePom.description")
     private String description;
 
     /**
      * File to be deployed.
      */
-    @Parameter( property = "file", required = true )
+    @Parameter(property = "file", required = true)
     private File file;
 
     /**
      * Location of an existing POM file to be deployed alongside the main artifact, given by the ${file} parameter.
      */
-    @Parameter( property = "pomFile" )
+    @Parameter(property = "pomFile")
     private File pomFile;
 
     /**
      * Upload a POM for this artifact. Will generate a default POM if none is supplied with the pomFile argument.
      */
-    @Parameter( property = "generatePom", defaultValue = "true" )
+    @Parameter(property = "generatePom", defaultValue = "true")
     private boolean generatePom;
 
     /**
      * URL where the artifact will be deployed. <br/>
      * ie ( file:///C:/m2-repo or scp://host.com/path/to/repo )
      */
-    @Parameter( property = "url", required = true )
+    @Parameter(property = "url", required = true)
     private String url;
 
     /**
      * Server Id to map on the &lt;id&gt; under &lt;server&gt; section of <code>settings.xml</code>. In most cases, this
      * parameter will be required for authentication.
      */
-    @Parameter( property = "repositoryId", defaultValue = "remote-repository", required = true )
+    @Parameter(property = "repositoryId", defaultValue = "remote-repository", required = true)
     private String repositoryId;
 
     /**
      * The type of remote repository layout to deploy to. Try <i>legacy</i> for a Maven 1.x-style repository layout.
      */
-    @Parameter( property = "repositoryLayout", defaultValue = "default" )
+    @Parameter(property = "repositoryLayout", defaultValue = "default")
     private String repositoryLayout;
 
     /**
@@ -169,7 +166,7 @@ public class SignAndDeployFileMojo
 
     /**
      */
-    @Parameter( defaultValue = "${localRepository}", required = true, readonly = true )
+    @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
     private ArtifactRepository localRepository;
 
     /**
@@ -189,13 +186,13 @@ public class SignAndDeployFileMojo
      *
      * @since 1.3
      */
-    @Parameter( defaultValue = "${project}", readonly = true, required = true )
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
     /**
      * @since 3.0.0
      */
-    @Parameter( defaultValue = "${session}", readonly = true, required = true )
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession session;
 
     /**
@@ -211,7 +208,7 @@ public class SignAndDeployFileMojo
      *
      * @since 1.3
      */
-    @Parameter( property = "javadoc" )
+    @Parameter(property = "javadoc")
     private File javadoc;
 
     /**
@@ -219,7 +216,7 @@ public class SignAndDeployFileMojo
      *
      * @since 1.3
      */
-    @Parameter( property = "sources" )
+    @Parameter(property = "sources")
     private File sources;
 
     /**
@@ -228,7 +225,7 @@ public class SignAndDeployFileMojo
      *
      * @since 1.3
      */
-    @Parameter( property = "retryFailedDeploymentCount", defaultValue = "1" )
+    @Parameter(property = "retryFailedDeploymentCount", defaultValue = "1")
     private int retryFailedDeploymentCount;
 
     /**
@@ -236,232 +233,191 @@ public class SignAndDeployFileMojo
      *
      * @since 1.3
      */
-    @Parameter( property = "updateReleaseInfo", defaultValue = "false" )
+    @Parameter(property = "updateReleaseInfo", defaultValue = "false")
     protected boolean updateReleaseInfo;
 
     /**
      * A comma separated list of types for each of the extra side artifacts to deploy. If there is a mis-match in
      * the number of entries in {@link #files} or {@link #classifiers}, then an error will be raised.
      */
-    @Parameter( property = "types" )
+    @Parameter(property = "types")
     private String types;
 
     /**
      * A comma separated list of classifiers for each of the extra side artifacts to deploy. If there is a mis-match in
      * the number of entries in {@link #files} or {@link #types}, then an error will be raised.
      */
-    @Parameter( property = "classifiers" )
+    @Parameter(property = "classifiers")
     private String classifiers;
 
     /**
      * A comma separated list of files for each of the extra side artifacts to deploy. If there is a mis-match in
      * the number of entries in {@link #types} or {@link #classifiers}, then an error will be raised.
      */
-    @Parameter( property = "files" )
+    @Parameter(property = "files")
     private String files;
 
-    private void initProperties()
-        throws MojoExecutionException
-    {
+    private void initProperties() throws MojoExecutionException {
         // Process the supplied POM (if there is one)
-        if ( pomFile != null )
-        {
+        if (pomFile != null) {
             generatePom = false;
 
-            Model model = readModel( pomFile );
+            Model model = readModel(pomFile);
 
-            processModel( model );
+            processModel(model);
         }
 
-        if ( packaging == null && file != null )
-        {
-            packaging = FileUtils.getExtension( file.getName() );
+        if (packaging == null && file != null) {
+            packaging = FileUtils.getExtension(file.getName());
         }
     }
 
     @Override
-    public void execute()
-        throws MojoExecutionException, MojoFailureException
-    {
-        AbstractGpgSigner signer = newSigner( null );
-        signer.setOutputDirectory( ascDirectory );
-        signer.setBaseDirectory( new File( "" ).getAbsoluteFile() );
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        AbstractGpgSigner signer = newSigner(null);
+        signer.setOutputDirectory(ascDirectory);
+        signer.setBaseDirectory(new File("").getAbsoluteFile());
 
-        if ( offline )
-        {
-            throw new MojoFailureException( "Cannot deploy artifacts when Maven is in offline mode" );
+        if (offline) {
+            throw new MojoFailureException("Cannot deploy artifacts when Maven is in offline mode");
         }
 
         initProperties();
 
         validateArtifactInformation();
 
-        if ( !file.exists() )
-        {
-            throw new MojoFailureException( file.getPath() + " not found." );
+        if (!file.exists()) {
+            throw new MojoFailureException(file.getPath() + " not found.");
         }
 
-        
-        ArtifactRepository deploymentRepository = createDeploymentArtifactRepository( repositoryId, url );
+        ArtifactRepository deploymentRepository = createDeploymentArtifactRepository(repositoryId, url);
 
-        if ( StringUtils.isEmpty( deploymentRepository.getProtocol() ) )
-        {
-            throw new MojoFailureException( "No transfer protocol found." );
+        if (StringUtils.isEmpty(deploymentRepository.getProtocol())) {
+            throw new MojoFailureException("No transfer protocol found.");
         }
 
         Artifact artifact =
-            artifactFactory.createArtifactWithClassifier( groupId, artifactId, version, packaging, classifier );
+                artifactFactory.createArtifactWithClassifier(groupId, artifactId, version, packaging, classifier);
 
-        if ( file.equals( getLocalRepoFile( artifact ) ) )
-        {
-            throw new MojoFailureException( "Cannot deploy artifact from the local repository: " + file );
+        if (file.equals(getLocalRepoFile(artifact))) {
+            throw new MojoFailureException("Cannot deploy artifact from the local repository: " + file);
         }
-        artifact.setFile( file );
+        artifact.setFile(file);
 
-        File fileSig = signer.generateSignatureForArtifact( file );
-        ArtifactMetadata metadata = new AscArtifactMetadata( artifact, fileSig, false );
-        artifact.addMetadata( metadata );
+        File fileSig = signer.generateSignatureForArtifact(file);
+        ArtifactMetadata metadata = new AscArtifactMetadata(artifact, fileSig, false);
+        artifact.addMetadata(metadata);
 
-        if ( !"pom".equals( packaging ) )
-        {
-            if ( pomFile == null && generatePom )
-            {
+        if (!"pom".equals(packaging)) {
+            if (pomFile == null && generatePom) {
                 pomFile = generatePomFile();
             }
-            if ( pomFile != null )
-            {
-                metadata = new ProjectArtifactMetadata( artifact, pomFile );
-                artifact.addMetadata( metadata );
+            if (pomFile != null) {
+                metadata = new ProjectArtifactMetadata(artifact, pomFile);
+                artifact.addMetadata(metadata);
 
-                fileSig = signer.generateSignatureForArtifact( pomFile );
-                metadata = new AscArtifactMetadata( artifact, fileSig, true );
-                artifact.addMetadata( metadata );
+                fileSig = signer.generateSignatureForArtifact(pomFile);
+                metadata = new AscArtifactMetadata(artifact, fileSig, true);
+                artifact.addMetadata(metadata);
             }
         }
 
-        if ( updateReleaseInfo )
-        {
-            artifact.setRelease( true );
+        if (updateReleaseInfo) {
+            artifact.setRelease(true);
         }
 
-        project.setArtifact( artifact );
+        project.setArtifact(artifact);
 
-        try
-        {
-            deploy( artifact, deploymentRepository );
-        }
-        catch ( ArtifactDeployerException e )
-        {
-            throw new MojoExecutionException( e.getMessage(), e );
+        try {
+            deploy(artifact, deploymentRepository);
+        } catch (ArtifactDeployerException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
 
-        if ( sources != null )
-        {
-            projectHelper.attachArtifact( project, "jar", "sources", sources );
+        if (sources != null) {
+            projectHelper.attachArtifact(project, "jar", "sources", sources);
         }
 
-        if ( javadoc != null )
-        {
-            projectHelper.attachArtifact( project, "jar", "javadoc", javadoc );
+        if (javadoc != null) {
+            projectHelper.attachArtifact(project, "jar", "javadoc", javadoc);
         }
 
-        if ( files != null )
-        {
-            if ( types == null )
-            {
-                throw new MojoExecutionException( "You must specify 'types' if you specify 'files'" );
+        if (files != null) {
+            if (types == null) {
+                throw new MojoExecutionException("You must specify 'types' if you specify 'files'");
             }
-            if ( classifiers == null )
-            {
-                throw new MojoExecutionException( "You must specify 'classifiers' if you specify 'files'" );
+            if (classifiers == null) {
+                throw new MojoExecutionException("You must specify 'classifiers' if you specify 'files'");
             }
-            int filesLength = StringUtils.countMatches( files, "," );
-            int typesLength = StringUtils.countMatches( types, "," );
-            int classifiersLength = StringUtils.countMatches( classifiers, "," );
-            if ( typesLength != filesLength )
-            {
-                throw new MojoExecutionException( "You must specify the same number of entries in 'files' and "
-                    + "'types' (respectively " + filesLength + " and " + typesLength + " entries )" );
+            int filesLength = StringUtils.countMatches(files, ",");
+            int typesLength = StringUtils.countMatches(types, ",");
+            int classifiersLength = StringUtils.countMatches(classifiers, ",");
+            if (typesLength != filesLength) {
+                throw new MojoExecutionException("You must specify the same number of entries in 'files' and "
+                        + "'types' (respectively " + filesLength + " and " + typesLength + " entries )");
             }
-            if ( classifiersLength != filesLength )
-            {
-                throw new MojoExecutionException( "You must specify the same number of entries in 'files' and "
-                    + "'classifiers' (respectively " + filesLength + " and " + classifiersLength + " entries )" );
+            if (classifiersLength != filesLength) {
+                throw new MojoExecutionException("You must specify the same number of entries in 'files' and "
+                        + "'classifiers' (respectively " + filesLength + " and " + classifiersLength + " entries )");
             }
             int fi = 0;
             int ti = 0;
             int ci = 0;
-            for ( int i = 0; i <= filesLength; i++ )
-            {
-                int nfi = files.indexOf( ',', fi );
-                if ( nfi == -1 )
-                {
+            for (int i = 0; i <= filesLength; i++) {
+                int nfi = files.indexOf(',', fi);
+                if (nfi == -1) {
                     nfi = files.length();
                 }
-                int nti = types.indexOf( ',', ti );
-                if ( nti == -1 )
-                {
+                int nti = types.indexOf(',', ti);
+                if (nti == -1) {
                     nti = types.length();
                 }
-                int nci = classifiers.indexOf( ',', ci );
-                if ( nci == -1 )
-                {
+                int nci = classifiers.indexOf(',', ci);
+                if (nci == -1) {
                     nci = classifiers.length();
                 }
-                File file = new File( files.substring( fi, nfi ) );
-                if ( !file.isFile() )
-                {
+                File file = new File(files.substring(fi, nfi));
+                if (!file.isFile()) {
                     // try relative to the project basedir just in case
-                    file = new File( project.getBasedir(), files.substring( fi, nfi ) );
+                    file = new File(project.getBasedir(), files.substring(fi, nfi));
                 }
-                if ( file.isFile() )
-                {
-                    if ( StringUtils.isWhitespace( classifiers.substring( ci, nci ) ) )
-                    {
-                        projectHelper.attachArtifact( project, types.substring( ti, nti ).trim(), file );
+                if (file.isFile()) {
+                    if (StringUtils.isWhitespace(classifiers.substring(ci, nci))) {
+                        projectHelper.attachArtifact(
+                                project, types.substring(ti, nti).trim(), file);
+                    } else {
+                        projectHelper.attachArtifact(
+                                project,
+                                types.substring(ti, nti).trim(),
+                                classifiers.substring(ci, nci).trim(),
+                                file);
                     }
-                    else
-                    {
-                        projectHelper.attachArtifact( project, types.substring( ti, nti ).trim(),
-                                                      classifiers.substring( ci, nci ).trim(), file );
-                    }
-                }
-                else
-                {
-                    throw new MojoExecutionException( "Specified side artifact " + file + " does not exist" );
+                } else {
+                    throw new MojoExecutionException("Specified side artifact " + file + " does not exist");
                 }
                 fi = nfi + 1;
                 ti = nti + 1;
                 ci = nci + 1;
             }
-        }
-        else
-        {
-            if ( types != null )
-            {
-                throw new MojoExecutionException( "You must specify 'files' if you specify 'types'" );
+        } else {
+            if (types != null) {
+                throw new MojoExecutionException("You must specify 'files' if you specify 'types'");
             }
-            if ( classifiers != null )
-            {
-                throw new MojoExecutionException( "You must specify 'files' if you specify 'classifiers'" );
+            if (classifiers != null) {
+                throw new MojoExecutionException("You must specify 'files' if you specify 'classifiers'");
             }
         }
 
-        for ( Artifact attached : project.getAttachedArtifacts() )
-        {
-            fileSig = signer.generateSignatureForArtifact( attached.getFile() );
-            attached = new AttachedSignedArtifact( attached, new AscArtifactMetadata( attached, fileSig, false ) );
-            try
-            {
-                deploy(  attached, deploymentRepository );
-            }
-            catch ( ArtifactDeployerException e )
-            {
-                throw new MojoExecutionException( "Error deploying attached artifact " + attached.getFile() + ": "
-                    + e.getMessage(), e );
+        for (Artifact attached : project.getAttachedArtifacts()) {
+            fileSig = signer.generateSignatureForArtifact(attached.getFile());
+            attached = new AttachedSignedArtifact(attached, new AscArtifactMetadata(attached, fileSig, false));
+            try {
+                deploy(attached, deploymentRepository);
+            } catch (ArtifactDeployerException e) {
+                throw new MojoExecutionException(
+                        "Error deploying attached artifact " + attached.getFile() + ": " + e.getMessage(), e);
             }
         }
-
     }
 
     /**
@@ -471,10 +427,9 @@ public class SignAndDeployFileMojo
      * @param artifact The artifact whose local repo path should be determined, must not be <code>null</code>.
      * @return The absolute path to the artifact when installed, never <code>null</code>.
      */
-    private File getLocalRepoFile( Artifact artifact )
-    {
-        String path = localRepository.pathOf( artifact );
-        return new File( localRepository.getBasedir(), path );
+    private File getLocalRepoFile(Artifact artifact) {
+        String path = localRepository.pathOf(artifact);
+        return new File(localRepository.getBasedir(), path);
     }
 
     /**
@@ -482,32 +437,25 @@ public class SignAndDeployFileMojo
      *
      * @param model The POM to extract missing artifact coordinates from, must not be <code>null</code>.
      */
-    private void processModel( Model model )
-    {
+    private void processModel(Model model) {
         Parent parent = model.getParent();
 
-        if ( this.groupId == null )
-        {
+        if (this.groupId == null) {
             this.groupId = model.getGroupId();
-            if ( this.groupId == null && parent != null )
-            {
+            if (this.groupId == null && parent != null) {
                 this.groupId = parent.getGroupId();
             }
         }
-        if ( this.artifactId == null )
-        {
+        if (this.artifactId == null) {
             this.artifactId = model.getArtifactId();
         }
-        if ( this.version == null )
-        {
+        if (this.version == null) {
             this.version = model.getVersion();
-            if ( this.version == null && parent != null )
-            {
+            if (this.version == null && parent != null) {
                 this.version = parent.getVersion();
             }
         }
-        if ( this.packaging == null )
-        {
+        if (this.packaging == null) {
             this.packaging = model.getPackaging();
         }
     }
@@ -519,25 +467,16 @@ public class SignAndDeployFileMojo
      * @return The model from the POM file, never <code>null</code>.
      * @throws MojoExecutionException If the file doesn't exist of cannot be read.
      */
-    private Model readModel( File pomFile )
-        throws MojoExecutionException
-    {
-        try ( Reader reader = ReaderFactory.newXmlReader( pomFile ) )
-        {
-            final Model model = new MavenXpp3Reader().read( reader );
+    private Model readModel(File pomFile) throws MojoExecutionException {
+        try (Reader reader = ReaderFactory.newXmlReader(pomFile)) {
+            final Model model = new MavenXpp3Reader().read(reader);
             return model;
-        }
-        catch ( FileNotFoundException e )
-        {
-            throw new MojoExecutionException( "POM not found " + pomFile, e );
-        }
-        catch ( IOException e )
-        {
-            throw new MojoExecutionException( "Error reading POM " + pomFile, e );
-        }
-        catch ( XmlPullParserException e )
-        {
-            throw new MojoExecutionException( "Error parsing POM " + pomFile, e );
+        } catch (FileNotFoundException e) {
+            throw new MojoExecutionException("POM not found " + pomFile, e);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error reading POM " + pomFile, e);
+        } catch (XmlPullParserException e) {
+            throw new MojoExecutionException("Error parsing POM " + pomFile, e);
         }
     }
 
@@ -547,26 +486,20 @@ public class SignAndDeployFileMojo
      * @return The path to the generated POM file, never <code>null</code>.
      * @throws MojoExecutionException If the generation failed.
      */
-    private File generatePomFile()
-        throws MojoExecutionException
-    {
+    private File generatePomFile() throws MojoExecutionException {
         Model model = generateModel();
-        
-        try 
-        {
-            File tempFile = Files.createTempFile( "mvndeploy", ".pom" ).toFile();
+
+        try {
+            File tempFile = Files.createTempFile("mvndeploy", ".pom".toFile();
             tempFile.deleteOnExit();
 
-            try ( Writer fw = WriterFactory.newXmlWriter( tempFile ) )
-            {
-                new MavenXpp3Writer().write( fw, model );
+            try (Writer fw = WriterFactory.newXmlWriter(tempFile)) {
+                new MavenXpp3Writer().write(fw, model);
             }
 
             return tempFile;
-        }
-        catch ( IOException e )
-        {
-            throw new MojoExecutionException( "Error writing temporary pom file: " + e.getMessage(), e );
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error writing temporary pom file: " + e.getMessage(), e);
         }
     }
 
@@ -575,28 +508,24 @@ public class SignAndDeployFileMojo
      *
      * @throws MojoFailureException If any artifact coordinate is invalid.
      */
-    private void validateArtifactInformation()
-        throws MojoFailureException
-    {
+    private void validateArtifactInformation() throws MojoFailureException {
         Model model = generateModel();
 
-        ModelBuildingRequest request = new DefaultModelBuildingRequest()
-                        .setValidationLevel( ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0 );
-                    
+        ModelBuildingRequest request =
+                new DefaultModelBuildingRequest().setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0);
+
         List<String> result = new ArrayList<>();
 
-        SimpleModelProblemCollector problemCollector = new SimpleModelProblemCollector( result );
+        SimpleModelProblemCollector problemCollector = new SimpleModelProblemCollector(result);
 
-        modelValidator.validateEffectiveModel( model, request, problemCollector );
+        modelValidator.validateEffectiveModel(model, request, problemCollector);
 
-        if ( !result.isEmpty() )
-        {
-            StringBuilder msg = new StringBuilder( "The artifact information is incomplete or not valid:\n" );
-            for ( String e : result )
-            {
-                msg.append( " - " + e + '\n' );
+        if (!result.isEmpty()) {
+            StringBuilder msg = new StringBuilder("The artifact information is incomplete or not valid:\n");
+            for (String e : result) {
+                msg.append(" - " + e + '\n');
             }
-            throw new MojoFailureException( msg.toString() );
+            throw new MojoFailureException(msg.toString());
         }
     }
 
@@ -605,18 +534,17 @@ public class SignAndDeployFileMojo
      *
      * @return The generated model, never <code>null</code>.
      */
-    private Model generateModel()
-    {
+    private Model generateModel() {
         Model model = new Model();
 
-        model.setModelVersion( "4.0.0" );
+        model.setModelVersion("4.0.0");
 
-        model.setGroupId( groupId );
-        model.setArtifactId( artifactId );
-        model.setVersion( version );
-        model.setPackaging( packaging );
+        model.setGroupId(groupId);
+        model.setArtifactId(artifactId);
+        model.setVersion(version);
+        model.setPackaging(packaging);
 
-        model.setDescription( description );
+        model.setDescription(description);
 
         return model;
     }
@@ -628,77 +556,58 @@ public class SignAndDeployFileMojo
      * @param deploymentRepository the repository to deploy to
      * @throws ArtifactDeployerException if an error occurred deploying the artifact
      */
-    protected void deploy( Artifact artifact,
-                           ArtifactRepository deploymentRepository )
-        throws ArtifactDeployerException
-    {
+    protected void deploy(Artifact artifact, ArtifactRepository deploymentRepository) throws ArtifactDeployerException {
         final ProjectBuildingRequest buildingRequest = session.getProjectBuildingRequest();
-        
-        int retryFailedDeploymentCount = Math.max( 1, Math.min( 10, this.retryFailedDeploymentCount ) );
+
+        int retryFailedDeploymentCount = Math.max(1, Math.min(10, this.retryFailedDeploymentCount));
         ArtifactDeployerException exception = null;
-        for ( int count = 0; count < retryFailedDeploymentCount; count++ )
-        {
-            try
-            {
-                if ( count > 0 )
-                {
+        for (int count = 0; count < retryFailedDeploymentCount; count++) {
+            try {
+                if (count > 0) {
                     // CHECKSTYLE_OFF: LineLength
-                    getLog().info( "Retrying deployment attempt " + ( count + 1 ) + " of " + retryFailedDeploymentCount );
+                    getLog().info("Retrying deployment attempt " + (count + 1) + " of " + retryFailedDeploymentCount);
                     // CHECKSTYLE_ON: LineLength
                 }
-                deployer.deploy( buildingRequest, deploymentRepository, Collections.singletonList( artifact ) );
+                deployer.deploy(buildingRequest, deploymentRepository, Collections.singletonList(artifact));
 
-                for ( Object o : artifact.getMetadataList() )
-                {
+                for (Object o : artifact.getMetadataList()) {
                     ArtifactMetadata metadata = (ArtifactMetadata) o;
-                    getLog().info( "Metadata[" + metadata.getKey() + "].filename = " + metadata.getRemoteFilename() );
+                    getLog().info("Metadata[" + metadata.getKey() + "].filename = " + metadata.getRemoteFilename());
                 }
                 exception = null;
                 break;
-            }
-            catch ( ArtifactDeployerException e )
-            {
-                if ( count + 1 < retryFailedDeploymentCount )
-                {
-                    getLog().warn( "Encountered issue during deployment: " + e.getLocalizedMessage() );
-                    getLog().debug( e );
+            } catch (ArtifactDeployerException e) {
+                if (count + 1 < retryFailedDeploymentCount) {
+                    getLog().warn("Encountered issue during deployment: " + e.getLocalizedMessage());
+                    getLog().debug(e);
                 }
-                if ( exception == null )
-                {
+                if (exception == null) {
                     exception = e;
                 }
             }
         }
-        if ( exception != null )
-        {
+        if (exception != null) {
             throw exception;
         }
     }
-    
-    protected ArtifactRepository createDeploymentArtifactRepository( String id, String url )
-    {
-        return new MavenArtifactRepository( id, url, new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(),
-                                            new ArtifactRepositoryPolicy() );
+
+    protected ArtifactRepository createDeploymentArtifactRepository(String id, String url) {
+        return new MavenArtifactRepository(
+                id, url, new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(), new ArtifactRepositoryPolicy());
     }
 
-    private static class SimpleModelProblemCollector
-        implements ModelProblemCollector
-    {
+    private static class SimpleModelProblemCollector implements ModelProblemCollector {
 
         private final List<String> result;
 
-        SimpleModelProblemCollector( List<String> result )
-        {
+        SimpleModelProblemCollector(List<String> result) {
             this.result = result;
         }
 
-        public void add( ModelProblemCollectorRequest req )
-        {
-            if ( !ModelProblem.Severity.WARNING.equals( req.getSeverity() ) )
-            {
-                result.add( req.getMessage() );
+        public void add(ModelProblemCollectorRequest req) {
+            if (!ModelProblem.Severity.WARNING.equals(req.getSeverity())) {
+                result.add(req.getMessage());
             }
         }
-
     }
 }

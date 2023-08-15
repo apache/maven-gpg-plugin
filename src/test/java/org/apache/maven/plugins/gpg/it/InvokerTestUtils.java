@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg.it;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +16,7 @@ package org.apache.maven.plugins.gpg.it;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg.it;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,68 +38,64 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.apache.maven.shared.invoker.PrintStreamHandler;
 import org.apache.maven.shared.invoker.PrintStreamLogger;
 
-public class InvokerTestUtils
-{
+public class InvokerTestUtils {
 
-    public static InvocationRequest createRequest( final File pomFile, final File mavenUserSettings, final File gpgHome )
-    {
+    public static InvocationRequest createRequest(
+            final File pomFile, final File mavenUserSettings, final File gpgHome) {
         final InvocationRequest request = new DefaultInvocationRequest();
-        request.setUserSettingsFile( mavenUserSettings );
-        request.setShowVersion( true );
-        request.setDebug( true );
-        request.setShowErrors( true );
-        request.setTimeoutInSeconds( 60 ); // safeguard against GPG freezes
-        request.setGoals( Arrays.asList( "clean", "install" ) );
-        request.setPomFile( pomFile );
+        request.setUserSettingsFile(mavenUserSettings);
+        request.setShowVersion(true);
+        request.setDebug(true);
+        request.setShowErrors(true);
+        request.setTimeoutInSeconds(60); // safeguard against GPG freezes
+        request.setGoals(Arrays.asList("clean", "install"));
+        request.setPomFile(pomFile);
 
         final Properties properties = new Properties();
-        request.setProperties( properties );
+        request.setProperties(properties);
 
         // Required for JRE 7 to connect to Maven Central with TLSv1.2
-        final String httpsProtocols = System.getProperty( "https.protocols" );
-        if ( httpsProtocols != null && !httpsProtocols.isEmpty() ) {
-            properties.setProperty( "https.protocols", httpsProtocols );
+        final String httpsProtocols = System.getProperty("https.protocols");
+        if (httpsProtocols != null && !httpsProtocols.isEmpty()) {
+            properties.setProperty("https.protocols", httpsProtocols);
         }
 
-        properties.setProperty( "gpg.homedir", gpgHome.getAbsolutePath() );
+        properties.setProperty("gpg.homedir", gpgHome.getAbsolutePath());
 
         return request;
     }
 
-    public static BuildResult executeRequest( final InvocationRequest request, final File mavenHome, final File localRepository )
-        throws FileNotFoundException, MavenInvocationException
-    {
+    public static BuildResult executeRequest(
+            final InvocationRequest request, final File mavenHome, final File localRepository)
+            throws FileNotFoundException, MavenInvocationException {
         final InvocationResult result;
 
-        final File buildLog = new File( request.getBaseDirectory( request.getPomFile().getParentFile() ), "build.log" );
-        try ( final PrintStream buildLogStream = new PrintStream( buildLog ) )
-        {
-            final InvocationOutputHandler buildLogOutputHandler = new PrintStreamHandler( buildLogStream, false );
-            final InvokerLogger logger = new PrintStreamLogger( buildLogStream, InvokerLogger.DEBUG );
+        final File buildLog =
+                new File(request.getBaseDirectory(request.getPomFile().getParentFile()), "build.log");
+        try (final PrintStream buildLogStream = new PrintStream(buildLog)) {
+            final InvocationOutputHandler buildLogOutputHandler = new PrintStreamHandler(buildLogStream, false);
+            final InvokerLogger logger = new PrintStreamLogger(buildLogStream, InvokerLogger.DEBUG);
 
             final Invoker invoker = new DefaultInvoker();
-            invoker.setMavenHome( mavenHome );
-            invoker.setLocalRepositoryDirectory( localRepository );
-            invoker.setInputStream( new NullInputStream( 0 ) );
-            invoker.setOutputHandler( buildLogOutputHandler );
-            invoker.setErrorHandler( buildLogOutputHandler );
-            invoker.setLogger( logger );
+            invoker.setMavenHome(mavenHome);
+            invoker.setLocalRepositoryDirectory(localRepository);
+            invoker.setInputStream(new NullInputStream(0));
+            invoker.setOutputHandler(buildLogOutputHandler);
+            invoker.setErrorHandler(buildLogOutputHandler);
+            invoker.setLogger(logger);
 
-            result = invoker.execute( request );
+            result = invoker.execute(request);
         }
 
-        return new BuildResult( buildLog, result );
+        return new BuildResult(buildLog, result);
     }
 
-    public static File getTestResource( final String path ) throws URISyntaxException, FileNotFoundException
-    {
-        final URL resourceUrl = InvokerTestUtils.class.getResource( path );
-        if ( resourceUrl == null )
-        {
-            throw new FileNotFoundException( "Cannot find file " + path );
+    public static File getTestResource(final String path) throws URISyntaxException, FileNotFoundException {
+        final URL resourceUrl = InvokerTestUtils.class.getResource(path);
+        if (resourceUrl == null) {
+            throw new FileNotFoundException("Cannot find file " + path);
         }
 
-        return new File( resourceUrl.toURI() );
+        return new File(resourceUrl.toURI());
     }
-
 }

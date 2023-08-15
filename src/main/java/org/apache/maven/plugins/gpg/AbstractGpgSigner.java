@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,6 +16,7 @@ package org.apache.maven.plugins.gpg;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +32,7 @@ import org.apache.maven.project.MavenProject;
  * @author Dennis Lundberg
  * @since 1.5
  */
-public abstract class AbstractGpgSigner
-{
+public abstract class AbstractGpgSigner {
     private static final String GPG_PASSPHRASE = "gpg.passphrase";
 
     public static final String SIGNATURE_EXTENSION = ".asc";
@@ -67,78 +65,63 @@ public abstract class AbstractGpgSigner
 
     protected List<String> args;
 
-    public Log getLog()
-    {
+    public Log getLog() {
         return log;
     }
 
-    public void setArgs( List<String> args )
-    {
+    public void setArgs(List<String> args) {
         this.args = args;
     }
 
-    public void setInteractive( boolean b )
-    {
+    public void setInteractive(boolean b) {
         isInteractive = b;
     }
 
-    public void setLockMode( String lockMode )
-    {
+    public void setLockMode(String lockMode) {
         this.lockMode = lockMode;
     }
 
-    public void setUseAgent( boolean b )
-    {
+    public void setUseAgent(boolean b) {
         useAgent = b;
     }
 
-    public void setDefaultKeyring( boolean enabled )
-    {
+    public void setDefaultKeyring(boolean enabled) {
         defaultKeyring = enabled;
     }
 
-    public void setKeyName( String s )
-    {
+    public void setKeyName(String s) {
         keyname = s;
     }
 
-    public void setLog( Log log )
-    {
+    public void setLog(Log log) {
         this.log = log;
     }
 
-    public void setPassPhrase( String s )
-    {
+    public void setPassPhrase(String s) {
         passphrase = s;
     }
 
-    public void setOutputDirectory( File out )
-    {
+    public void setOutputDirectory(File out) {
         outputDir = out;
     }
 
-    public void setBuildDirectory( File out )
-    {
+    public void setBuildDirectory(File out) {
         buildDir = out;
     }
 
-    public void setBaseDirectory( File out )
-    {
+    public void setBaseDirectory(File out) {
         baseDir = out;
     }
 
-    public void setHomeDirectory( File homeDirectory )
-    {
+    public void setHomeDirectory(File homeDirectory) {
         homeDir = homeDirectory;
     }
 
-    public void setSecretKeyring( String path )
-    {
+    public void setSecretKeyring(String path) {
         secretKeyring = path;
     }
 
-    public void setPublicKeyring( String path )
-    {
+    public void setPublicKeyring(String path) {
         publicKeyring = path;
     }
 
@@ -149,47 +132,38 @@ public abstract class AbstractGpgSigner
      * @return A reference to the generated signature file
      * @throws MojoExecutionException if signature generation fails
      */
-    public File generateSignatureForArtifact( File file )
-        throws MojoExecutionException
-    {
+    public File generateSignatureForArtifact(File file) throws MojoExecutionException {
         // ----------------------------------------------------------------------------
         // Set up the file and directory for the signature file
         // ----------------------------------------------------------------------------
 
-        File signature = new File( file + SIGNATURE_EXTENSION );
+        File signature = new File(file + SIGNATURE_EXTENSION);
 
         boolean isInBuildDir = false;
-        if ( buildDir != null )
-        {
+        if (buildDir != null) {
             File parent = signature.getParentFile();
-            if ( buildDir.equals( parent ) )
-            {
+            if (buildDir.equals(parent)) {
                 isInBuildDir = true;
             }
         }
-        if ( !isInBuildDir && outputDir != null )
-        {
+        if (!isInBuildDir && outputDir != null) {
             String fileDirectory = "";
             File signatureDirectory = signature;
 
-            while ( ( signatureDirectory = signatureDirectory.getParentFile() ) != null )
-            {
-                if ( isPossibleRootOfArtifact( signatureDirectory ) )
-                {
+            while ((signatureDirectory = signatureDirectory.getParentFile()) != null) {
+                if (isPossibleRootOfArtifact(signatureDirectory)) {
                     break;
                 }
                 fileDirectory = signatureDirectory.getName() + File.separatorChar + fileDirectory;
             }
-            signatureDirectory = new File( outputDir, fileDirectory );
-            if ( !signatureDirectory.exists() )
-            {
+            signatureDirectory = new File(outputDir, fileDirectory);
+            if (!signatureDirectory.exists()) {
                 signatureDirectory.mkdirs();
             }
-            signature = new File( signatureDirectory, file.getName() + SIGNATURE_EXTENSION );
+            signature = new File(signatureDirectory, file.getName() + SIGNATURE_EXTENSION);
         }
 
-        if ( signature.exists() )
-        {
+        if (signature.exists()) {
             signature.delete();
         }
 
@@ -197,7 +171,7 @@ public abstract class AbstractGpgSigner
         // Generate the signature file
         // ----------------------------------------------------------------------------
 
-        generateSignatureForFile( file, signature );
+        generateSignatureForFile(file, signature);
 
         return signature;
     }
@@ -209,53 +183,43 @@ public abstract class AbstractGpgSigner
      * @param signature The file in which the generate signature will be put
      * @throws MojoExecutionException if signature generation fails
      */
-    protected abstract void generateSignatureForFile( File file, File signature )
-        throws MojoExecutionException;
+    protected abstract void generateSignatureForFile(File file, File signature) throws MojoExecutionException;
 
-    private MavenProject findReactorProject( MavenProject prj )
-    {
-        if ( prj.getParent() != null && prj.getParent().getBasedir() != null && prj.getParent().getBasedir().exists() )
-        {
-            return findReactorProject( prj.getParent() );
+    private MavenProject findReactorProject(MavenProject prj) {
+        if (prj.getParent() != null
+                && prj.getParent().getBasedir() != null
+                && prj.getParent().getBasedir().exists()) {
+            return findReactorProject(prj.getParent());
         }
         return prj;
     }
 
-    public String getPassphrase( MavenProject project )
-        throws IOException
-    {
+    public String getPassphrase(MavenProject project) throws IOException {
         String pass = null;
 
-        if ( project != null )
-        {
-            pass = project.getProperties().getProperty( GPG_PASSPHRASE );
-            if ( pass == null )
-            {
-                MavenProject prj2 = findReactorProject( project );
-                pass = prj2.getProperties().getProperty( GPG_PASSPHRASE );
+        if (project != null) {
+            pass = project.getProperties().getProperty(GPG_PASSPHRASE);
+            if (pass == null) {
+                MavenProject prj2 = findReactorProject(project);
+                pass = prj2.getProperties().getProperty(GPG_PASSPHRASE);
             }
         }
-        if ( pass == null )
-        {
-            pass = new String( readPassword( "GPG Passphrase: " ) );
+        if (pass == null) {
+            pass = new String(readPassword("GPG Passphrase: "));
         }
-        if ( project != null )
-        {
-            findReactorProject( project ).getProperties().setProperty( GPG_PASSPHRASE, pass );
+        if (project != null) {
+            findReactorProject(project).getProperties().setProperty(GPG_PASSPHRASE, pass);
         }
         return pass;
     }
 
-    private char[] readPassword( String prompt )
-        throws IOException
-    {
+    private char[] readPassword(String prompt) throws IOException {
         return System.console().readPassword();
     }
 
-    private boolean isPossibleRootOfArtifact( File signatureDirectory )
-    {
-        return signatureDirectory.equals( outputDir )
-                || signatureDirectory.equals( buildDir )
-                || signatureDirectory.equals( baseDir );
+    private boolean isPossibleRootOfArtifact(File signatureDirectory) {
+        return signatureDirectory.equals(outputDir)
+                || signatureDirectory.equals(buildDir)
+                || signatureDirectory.equals(baseDir);
     }
 }

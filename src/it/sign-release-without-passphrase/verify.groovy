@@ -1,5 +1,3 @@
-package org.apache.maven.plugins.gpg;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,45 +17,19 @@ package org.apache.maven.plugins.gpg;
  * under the License.
  */
 
-import java.io.File;
 
-/** @author Jason van Zyl */
-public class SigningBundle
-{
+import org.codehaus.plexus.util.FileUtils
 
-    private String extension;
+var buildLog = new File(basedir, "build.log")
+var logContent = FileUtils.fileRead(buildLog)
 
-    private String classifier;
-
-    private File signature;
-
-    public SigningBundle( String extension, File signature )
-    {
-        this.extension = extension;
-
-        this.signature = signature;
-    }
-
-    public SigningBundle( String extension, String classifier, File signature )
-    {
-        this.extension = extension;
-        this.classifier = classifier;
-        this.signature = signature;
-    }
-
-    public String getExtension()
-    {
-        return extension;
-    }
-
-    public File getSignature()
-    {
-        return signature;
-    }
-
-    public String getClassifier()
-    {
-        return classifier;
-    }
-
+// assert that the Maven build properly failed and did not time out
+if (!logContent.contains("Total time: ") || !logContent.contains("Finished at: ")) {
+    throw new Exception("Maven build did not fail, but timed out")
 }
+
+// assert that the Maven build failed, because pinentry is not allowed in non-interactive mode
+if (!logContent.contains("[GNUPG:] FAILURE sign 67108949")) {
+    throw new Exception("Maven build did not fail in consequence of pinentry not being available to GPG")
+}
+

@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,22 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import org.codehaus.plexus.util.FileUtils
 
-import java.io.*;
-import org.codehaus.plexus.util.FileUtils;
-
-File buildLog = new File( basedir, "build.log" );
-String logContent = FileUtils.fileRead(buildLog);
-
-// assert that the Maven build properly failed and did not time out
-if ( !logContent.contains( "Total time: " ) || !logContent.contains( "Finished at: " ) )
-{
-	throw new Exception( "Maven build did not fail, but timed out" );
-}
-
-// assert that the Maven build failed, because pinentry is not allowed in non-interactive mode
-if ( !logContent.contains( "[GNUPG:] FAILURE sign 67108949" ) )
-{
-	throw new Exception( "Maven build did not fail in consequence of pinentry not being available to GPG" );
-}
-
+FileUtils.deleteDirectory(new File(basedir, "target"))
