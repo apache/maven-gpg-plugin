@@ -18,19 +18,19 @@
  */
 package org.apache.maven.plugins.gpg;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for {@link GpgVersion}.
  */
-public class GpgVersionTest {
+class GpgVersionTest {
     @Test
-    public void test() {
+    void test() {
         assertTrue(GpgVersion.parse("gpg (GnuPG) 2.2.1").isAtLeast(GpgVersion.parse("gpg (GnuPG) 2.2.1")));
         assertTrue(GpgVersion.parse("gpg (GnuPG) 2.2.1").isAtLeast(GpgVersion.parse("2.1")));
         assertTrue(GpgVersion.parse("gpg (GnuPG/MacGPG2) 2.2.10").isAtLeast(GpgVersion.parse("2.2.10")));
@@ -38,7 +38,7 @@ public class GpgVersionTest {
     }
 
     @Test
-    public void testOpposite() {
+    void testOpposite() {
         assertFalse(GpgVersion.parse("gpg (GnuPG) 2.2.1").isBefore(GpgVersion.parse("gpg (GnuPG) 2.2.1")));
         assertFalse(GpgVersion.parse("gpg (GnuPG) 2.2.1").isBefore(GpgVersion.parse("2.1")));
         assertFalse(GpgVersion.parse("gpg (GnuPG/MacGPG2) 2.2.10").isBefore(GpgVersion.parse("2.2.10")));
@@ -46,7 +46,7 @@ public class GpgVersionTest {
     }
 
     @Test
-    public void testEquality() {
+    void testEquality() {
         assertEquals(GpgVersion.parse("gpg (GnuPG) 2.2.1"), GpgVersion.parse("gpg (GnuPG) 2.2.1"));
         assertEquals(GpgVersion.parse("gpg (GnuPG) 2.2.1"), GpgVersion.parse("2.2.1"));
         assertEquals(GpgVersion.parse("gpg (GnuPG/MacGPG2) 2.2.10"), GpgVersion.parse("2.2.10"));

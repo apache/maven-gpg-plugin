@@ -18,18 +18,19 @@
  */
 package org.apache.maven.plugins.gpg;
 
+import java.io.IOException;
+
 import org.apache.maven.plugins.gpg.GpgVersionParser.GpgVersionConsumer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GpgVersionConsumerTest {
+class GpgVersionConsumerTest {
     @Test
-    public void test() throws Exception {
+    void test() throws IOException {
         GpgVersionConsumer consumer = new GpgVersionConsumer();
         consumer.consumeLine("gpg (GnuPG/MacGPG2) 2.2.10");
 
-        assertThat(consumer.getGpgVersion(), is(GpgVersion.parse("2.2.10")));
+        assertEquals(consumer.getGpgVersion(), GpgVersion.parse("2.2.10"));
     }
 }
