@@ -61,12 +61,24 @@ under the License.
 
   <properties>
     <mavenVersion>3.2.5</mavenVersion>
-    <javaVersion>8</javaVersion>
+    <javaVersion>11</javaVersion>
+    <maven.compiler.release>${javaVersion}</maven.compiler.release>
     <project.build.outputTimestamp>2023-05-03T01:33:44Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>dev.sigstore</groupId>
+      <artifactId>sigstore-java</artifactId>
+      <version>0.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>3.22.0</version>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
@@ -249,6 +261,15 @@ under the License.
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>.mvn/maven.config</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -301,6 +322,38 @@ under the License.
                 <gpg.homedir>${project.build.testOutputDirectory}/gnupg</gpg.homedir>
               </properties>
             </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>apache-release</id>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-gpg-plugin</artifactId>
+              <version>${project.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <configuration>
+              <public-staging>true</public-staging>
+            </configuration>
+            <executions>
+              <execution>
+                <id>sigstore-sign-release-artifacts</id>
+                <goals>
+                  <goal>sigstore</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
