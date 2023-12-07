@@ -60,7 +60,7 @@ under the License.
   </distributionManagement>
 
   <properties>
-    <mavenVersion>3.2.5</mavenVersion>
+    <mavenVersion>3.9.6</mavenVersion>
     <javaVersion>8</javaVersion>
     <surefire.version>3.1.2</surefire.version>
     <project.build.outputTimestamp>2023-05-03T01:33:44Z</project.build.outputTimestamp>
