@@ -226,39 +226,6 @@ under the License.
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <artifactSet>
-                <includes>
-                  <include>org.apache.maven.resolver:maven-resolver-util</include>
-                  <include>org.eclipse.aether:aether-util</include>
-                </includes>
-              </artifactSet>
-              <filters>
-                <filter>
-                  <artifact>org.apache.maven.resolver:maven-resolver-util</artifact>
-                  <includes>
-                    <include>org/eclipse/aether/util/artifact/SubArtifact.class</include>
-                  </includes>
-                </filter>
-                <filter>
-                  <artifact>org.eclipse.aether:aether-util</artifact>
-                  <includes>
-                    <include>org/sonatype/aether/util/artifact/SubArtifact.class</include>
-                  </includes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.simplify4u.plugins</groupId>
         <artifactId>pgpverify-maven-plugin</artifactId>
         <executions>
