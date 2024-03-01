@@ -160,7 +160,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      *
      * @since 1.6
      */
-    @Component(hint = "mng-4384")
+    @Component
     private SecDispatcher securityDispatcher;
 
     AbstractGpgSigner newSigner(MavenProject project) throws MojoExecutionException, MojoFailureException {
