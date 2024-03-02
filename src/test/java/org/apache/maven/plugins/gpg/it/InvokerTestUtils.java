@@ -53,7 +53,7 @@ public class InvokerTestUtils {
         request.setPomFile(pomFile);
 
         if (providePassphrase) {
-            request.addShellEnvironment(AbstractGpgMojo.MAVEN_GPG_PASSPHRASE, "TEST");
+            request.addShellEnvironment(AbstractGpgMojo.DEFAULT_ENV_MAVEN_GPG_PASSPHRASE, "TEST");
         }
 
         final Properties properties = new Properties();

@@ -19,8 +19,10 @@
 package org.apache.maven.plugins.gpg;
 
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
+import java.util.ArrayList;
 
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -29,6 +31,13 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.project.artifact.ProjectArtifact;
+import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.spi.connector.layout.RepositoryLayout;
+import org.eclipse.aether.spi.connector.layout.RepositoryLayoutProvider;
+import org.eclipse.aether.transfer.NoRepositoryLayoutException;
 
 /**
  * Sign project artifact, the POM, and attached artifacts with GnuPG for deployment.
@@ -69,37 +78,77 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
     @Component
     private MavenProjectHelper projectHelper;
 
+    @Component
+    private RepositoryLayoutProvider repositoryLayoutProvider;
+
+    private final RemoteRepository central =
+            new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/").build();
+
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
         // ----------------------------------------------------------------------------
         // Collect files to sign
         // ----------------------------------------------------------------------------
 
-        FilesCollector collector = new FilesCollector(project, excludes, getLog());
-        List<FilesCollector.Item> items = collector.collect();
+        ArrayList<Artifact> artifacts = new ArrayList<>();
+        try {
+            RepositoryLayout repositoryLayout = repositoryLayoutProvider.newRepositoryLayout(
+                    session.getRepositorySession(),
+                    project.getDistributionManagementArtifactRepository() != null
+                            ? RepositoryUtils.toRepo(project.getDistributionManagementArtifactRepository())
+                            : central);
 
-        // ----------------------------------------------------------------------------
-        // Sign collected files and attach all the signatures
-        // ----------------------------------------------------------------------------
+            Artifact pomArtifact = RepositoryUtils.toArtifact(new ProjectArtifact(project));
+            Artifact projectArtifact = RepositoryUtils.toArtifact(project.getArtifact());
 
-        AbstractGpgSigner signer = newSigner(project);
-        signer.setOutputDirectory(ascDirectory);
-        signer.setBuildDirectory(new File(project.getBuild().getDirectory()));
-        signer.setBaseDirectory(project.getBasedir());
+            if (pomArtifact.getFile().isFile()) {
+                File pomToSign = new File(
+                        project.getBuild().getDirectory(), project.getBuild().getFinalName() + ".pom");
+                try {
+                    FileUtils.copyFile(project.getFile(), pomToSign);
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Error copying POM for signing.", e);
+                }
+                artifacts.add(pomArtifact.setFile(pomToSign));
+            }
 
-        getLog().info("Signing " + items.size() + " file" + ((items.size() > 1) ? "s" : "") + " with "
-                + ((signer.keyname == null) ? "default" : signer.keyname) + " secret key.");
+            if (projectArtifact.getFile().isFile()) {
+                artifacts.add(projectArtifact);
+            }
 
-        for (FilesCollector.Item item : items) {
-            getLog().debug("Generating signature for " + item.getFile());
+            for (org.apache.maven.artifact.Artifact attached : project.getAttachedArtifacts()) {
+                getLog().debug("Attaching for deploy: " + attached.getId());
+                artifacts.add(RepositoryUtils.toArtifact(attached));
+            }
 
-            File signature = signer.generateSignatureForArtifact(item.getFile());
+            // ----------------------------------------------------------------------------
+            // Sign collected files and attach all the signatures
+            // ----------------------------------------------------------------------------
 
-            projectHelper.attachArtifact(
-                    project,
-                    item.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
-                    item.getClassifier(),
-                    signature);
+            AbstractGpgSigner signer = newSigner(project);
+            signer.setOutputDirectory(ascDirectory);
+            signer.setBuildDirectory(new File(project.getBuild().getDirectory()));
+            signer.setBaseDirectory(project.getBasedir());
+
+            getLog().info("Signing " + artifacts.size() + " file" + ((artifacts.size() > 1) ? "s" : "") + " with "
+                    + ((signer.keyname == null) ? "default" : signer.keyname) + " secret key.");
+
+            for (Artifact artifact : artifacts) {
+                if (!repositoryLayout.hasChecksums(artifact)) {
+                    continue;
+                }
+                getLog().debug("Generating signature for " + artifact.getFile());
+
+                File signature = signer.generateSignatureForArtifact(artifact.getFile());
+
+                projectHelper.attachArtifact(
+                        project,
+                        artifact.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
+                        artifact.getClassifier(),
+                        signature);
+            }
+        } catch (NoRepositoryLayoutException e) {
+            throw new MojoFailureException(e);
         }
     }
 }

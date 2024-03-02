@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -32,7 +33,15 @@ import org.apache.maven.project.MavenProject;
  * @author Benjamin Bentmann
  */
 public abstract class AbstractGpgMojo extends AbstractMojo {
-    public static final String MAVEN_GPG_PASSPHRASE = "MAVEN_GPG_PASSPHRASE";
+    public static final String DEFAULT_ENV_MAVEN_GPG_PASSPHRASE = "MAVEN_GPG_PASSPHRASE";
+
+    /**
+     * The env variable name where the GnuPG passphrase is set. The default value is {@code MAVEN_GPG_PASSPHRASE"}.
+     *
+     * @since 3.2.0
+     */
+    @Parameter(property = "gpg.passphraseEnvName", defaultValue = DEFAULT_ENV_MAVEN_GPG_PASSPHRASE)
+    private String passphraseEnvName;
 
     /**
      * The directory from which gpg will load keyrings. If not specified, gpg will use the value configured for its
@@ -154,6 +163,12 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     @Parameter(property = "gpg.skip", defaultValue = "false")
     private boolean skip;
 
+    /**
+     * @since 3.0.0
+     */
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    protected MavenSession session;
+
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -166,7 +181,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
             // (and sec dispatcher does not help either, is a joke)
             throw new MojoFailureException(
                     "Do not store passphrase in any file (disk or repository), rely on GnuPG agent or provide passphrase in "
-                            + MAVEN_GPG_PASSPHRASE + " environment variable.");
+                            + DEFAULT_ENV_MAVEN_GPG_PASSPHRASE + " environment variable.");
         }
 
         doExecute();
@@ -188,7 +203,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         signer.setLockMode(lockMode);
         signer.setArgs(gpgArguments);
 
-        String passphrase = System.getenv(MAVEN_GPG_PASSPHRASE);
+        String passphrase = System.getenv(passphraseEnvName);
         if (passphrase != null) {
             signer.setPassPhrase(passphrase);
         }
