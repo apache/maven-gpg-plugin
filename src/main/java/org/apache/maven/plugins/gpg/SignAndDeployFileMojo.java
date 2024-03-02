@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
@@ -174,12 +173,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     private MavenProject project;
 
     /**
-     * @since 3.0.0
-     */
-    @Parameter(defaultValue = "${session}", readonly = true, required = true)
-    private MavenSession session;
-
-    /**
      * The bundled API docs for the artifact.
      *
      * @since 1.3
@@ -245,10 +238,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
-        AbstractGpgSigner signer = newSigner(null);
-        signer.setOutputDirectory(ascDirectory);
-        signer.setBaseDirectory(new File("").getAbsoluteFile());
-
         if (offline) {
             throw new MojoFailureException("Cannot deploy artifacts when Maven is in offline mode");
         }
@@ -357,6 +346,10 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         }
 
         // sign all
+        AbstractGpgSigner signer = newSigner(null);
+        signer.setOutputDirectory(ascDirectory);
+        signer.setBaseDirectory(new File("").getAbsoluteFile());
+
         ArrayList<Artifact> signatures = new ArrayList<>();
         for (Artifact a : artifacts) {
             signatures.add(new DefaultArtifact(

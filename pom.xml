@@ -62,6 +62,7 @@ under the License.
   <properties>
     <mavenVersion>3.9.6</mavenVersion>
     <resolverVersion>1.9.18</resolverVersion>
+    <bouncycastleVersion>1.77</bouncycastleVersion>
     <javaVersion>8</javaVersion>
     <project.build.outputTimestamp>2023-05-03T01:33:44Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
@@ -119,6 +120,22 @@ under the License.
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
       <version>3.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpg-jdk18on</artifactId>
+      <version>${bouncycastleVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk18on</artifactId>
+      <version>${bouncycastleVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.kohlschutter.junixsocket</groupId>
+      <artifactId>junixsocket-core</artifactId>
+      <version>2.9.0</version>
+      <type>pom</type>
     </dependency>
 
     <dependency>
@@ -186,7 +203,7 @@ under the License.
           <configuration>
             <excludes combine.children="append">
               <!-- rat check errors seen on ASF Jenkins instance, but not on local machine... -->
-              <exclude>src/test/resources/gnupg/*</exclude>
+              <exclude>src/test/resources/gnupg/**</exclude>
             </excludes>
           </configuration>
         </plugin>
@@ -195,29 +212,8 @@ under the License.
           <artifactId>maven-invoker-plugin</artifactId>
           <version>3.6.0</version>
         </plugin>
-        <plugin>
-          <groupId>org.simplify4u.plugins</groupId>
-          <artifactId>pgpverify-maven-plugin</artifactId>
-          <version>1.17.0</version>
-          <configuration>
-            <keysMapLocation>${project.basedir}/pgp-keys-map.list</keysMapLocation>
-          </configuration>
-        </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.simplify4u.plugins</groupId>
-        <artifactId>pgpverify-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
   </build>
 
   <profiles>

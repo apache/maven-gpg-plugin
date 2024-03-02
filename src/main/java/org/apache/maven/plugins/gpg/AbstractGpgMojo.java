@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -162,6 +163,21 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     @Parameter(property = "gpg.skip", defaultValue = "false")
     private boolean skip;
 
+    /**
+     * @since 3.0.0
+     */
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    protected MavenSession session;
+
+    /**
+     * The signer to use. Values supported: {@code gpg} (to use GnuPG command line executable), or {@code bc} (to use
+     * pure Java BouncyCastle backed signer).
+     *
+     * @since 3.2.0
+     */
+    @Parameter(property = "gpg.signer", defaultValue = "gpg")
+    private String signer;
+
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -183,7 +199,14 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 
     AbstractGpgSigner newSigner(MavenProject project) throws MojoExecutionException, MojoFailureException {
-        AbstractGpgSigner signer = new GpgSigner(executable);
+        AbstractGpgSigner signer;
+        if (this.signer.equals("gpg")) {
+            signer = new GpgSigner(executable);
+        } else if (this.signer.equals("bc")) {
+            signer = new BcSigner(session.getRepositorySession(), interactive);
+        } else {
+            throw new MojoExecutionException("Unknown signer: " + this.signer);
+        }
 
         signer.setLog(getLog());
         signer.setInteractive(interactive);
@@ -196,7 +219,8 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         signer.setLockMode(lockMode);
         signer.setArgs(gpgArguments);
 
-        String passphrase = System.getenv(passphraseEnvName);
+        String passphrase =
+                (String) session.getRepositorySession().getConfigProperties().get("env." + passphraseEnvName);
         if (passphrase != null) {
             signer.setPassPhrase(passphrase);
         }
@@ -212,6 +236,8 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
                 throw new MojoExecutionException("Exception reading passphrase", e);
             }
         }
+
+        signer.setUp();
 
         return signer;
     }

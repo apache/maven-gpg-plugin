@@ -125,6 +125,8 @@ public abstract class AbstractGpgSigner {
         publicKeyring = path;
     }
 
+    public void setUp() throws MojoExecutionException {}
+
     /**
      * Create a detached signature file for the provided file.
      *
