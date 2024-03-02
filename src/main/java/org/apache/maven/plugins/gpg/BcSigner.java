@@ -47,7 +47,7 @@ import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
 
 /**
- * A signer implementation that uses the GnuPG command line executable.
+ * A signer implementation that uses pure Java Bouncy Castle implementation to sign.
  */
 @SuppressWarnings("checkstyle:magicnumber")
 public class BcSigner extends AbstractGpgSigner {
@@ -301,8 +301,6 @@ public class BcSigner extends AbstractGpgSigner {
                 }
             }
 
-            this.secretKey = secretKey;
-
             char[] keyPassword = passphrase != null ? passphrase.toCharArray() : null;
             final boolean keyPassNeeded = secretKey.getKeyEncryptionAlgorithm() != SymmetricKeyAlgorithmTags.NULL;
             if (keyPassNeeded && keyPassword == null) {
@@ -317,6 +315,7 @@ public class BcSigner extends AbstractGpgSigner {
                 }
             }
 
+            this.secretKey = secretKey;
             this.privateKey = secretKey.extractPrivateKey(
                     new BcPBESecretKeyDecryptorBuilder(new BcPGPDigestCalculatorProvider()).build(keyPassword));
             PGPSignatureSubpacketGenerator subPacketGenerator = new PGPSignatureSubpacketGenerator();
@@ -327,9 +326,6 @@ public class BcSigner extends AbstractGpgSigner {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void generateSignatureForFile(File file, File signature) throws MojoExecutionException {
         try (InputStream in = Files.newInputStream(file.toPath());
