@@ -22,22 +22,10 @@ on:
   pull_request:
 
 jobs:
-  gpg:
-    name: Install gpg4win (Windows)
-    runs-on: windows
-    steps:
-      - name: Install GnuPG
-        run: |
-          $env:PATH = "C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\ProgramData\chocolatey\bin"
-          [Environment]::SetEnvironmentVariable("Path", $env:PATH, "Machine")
-          choco install --yes gpg4win
-          echo "C:\Program Files (x86)\Gpg4win\..\GnuPG\bin" >> $env:GITHUB_PATH
-      - name: Check GnuPG
-        run: gpg --version
   build:
-    needs:
-      - gpg
     name: Verify
-    uses: apache/maven-gh-actions-shared/.github/workflows/maven-verify.yml@v3
+    uses: apache/maven-gh-actions-shared/.github/workflows/maven-verify.yml@v4-gpg
+    with:
+      install-gpg: true
 
 
