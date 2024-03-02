@@ -32,7 +32,15 @@ import org.apache.maven.project.MavenProject;
  * @author Benjamin Bentmann
  */
 public abstract class AbstractGpgMojo extends AbstractMojo {
-    public static final String MAVEN_GPG_PASSPHRASE = "MAVEN_GPG_PASSPHRASE";
+    public static final String DEFAULT_ENV_MAVEN_GPG_PASSPHRASE = "MAVEN_GPG_PASSPHRASE";
+
+    /**
+     * The env variable name where the GnuPG passphrase is set. The default value is {@code MAVEN_GPG_PASSPHRASE"}.
+     *
+     * @since 3.2.0
+     */
+    @Parameter(property = "gpg.passphraseEnvName", defaultValue = DEFAULT_ENV_MAVEN_GPG_PASSPHRASE)
+    private String passphraseEnvName;
 
     /**
      * The directory from which gpg will load keyrings. If not specified, gpg will use the value configured for its
@@ -166,7 +174,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
             // (and sec dispatcher does not help either, is a joke)
             throw new MojoFailureException(
                     "Do not store passphrase in any file (disk or repository), rely on GnuPG agent or provide passphrase in "
-                            + MAVEN_GPG_PASSPHRASE + " environment variable.");
+                            + DEFAULT_ENV_MAVEN_GPG_PASSPHRASE + " environment variable.");
         }
 
         doExecute();
@@ -188,7 +196,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         signer.setLockMode(lockMode);
         signer.setArgs(gpgArguments);
 
-        String passphrase = System.getenv(MAVEN_GPG_PASSPHRASE);
+        String passphrase = System.getenv(passphraseEnvName);
         if (passphrase != null) {
             signer.setPassPhrase(passphrase);
         }
