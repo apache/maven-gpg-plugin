@@ -61,6 +61,7 @@ under the License.
 
   <properties>
     <mavenVersion>3.9.6</mavenVersion>
+    <resolverVersion>1.9.18</resolverVersion>
     <javaVersion>8</javaVersion>
     <project.build.outputTimestamp>2023-05-03T01:33:44Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
@@ -93,37 +94,20 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-artifact</artifactId>
-      <version>${mavenVersion}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-model</artifactId>
-      <version>${mavenVersion}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
       <artifactId>maven-model-builder</artifactId>
       <version>${mavenVersion}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-settings</artifactId>
-      <version>${mavenVersion}</version>
+      <groupId>org.apache.maven.resolver</groupId>
+      <artifactId>maven-resolver-api</artifactId>
+      <version>${resolverVersion}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-artifact-transfer</artifactId>
-      <version>0.13.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>

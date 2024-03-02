@@ -46,9 +46,6 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
         <version>@project.version@</version>
-        <configuration>
-          <passphraseServerId>non-existent</passphraseServerId>
-        </configuration>
         <executions>
           <execution>
             <id>sign-artifacts</id>

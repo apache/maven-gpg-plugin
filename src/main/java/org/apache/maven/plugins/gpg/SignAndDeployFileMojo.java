@@ -25,16 +25,10 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.metadata.ArtifactMetadata;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
-import org.apache.maven.artifact.repository.MavenArtifactRepository;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
+import org.apache.maven.artifact.handler.ArtifactHandler;
+import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
@@ -52,16 +46,17 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.project.ProjectBuildingRequest;
-import org.apache.maven.project.artifact.ProjectArtifactMetadata;
-import org.apache.maven.shared.transfer.artifact.deploy.ArtifactDeployer;
-import org.apache.maven.shared.transfer.artifact.deploy.ArtifactDeployerException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.deployment.DeployRequest;
+import org.eclipse.aether.deployment.DeploymentException;
+import org.eclipse.aether.repository.RemoteRepository;
 
 /**
  * Signs artifacts and installs the artifact in the remote repository.
@@ -162,18 +157,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     /**
      */
     @Component
-    private ArtifactDeployer deployer;
-
-    /**
-     */
-    @Parameter(defaultValue = "${localRepository}", required = true, readonly = true)
-    private ArtifactRepository localRepository;
-
-    /**
-     * Component used to create an artifact
-     */
-    @Component
-    private ArtifactFactory artifactFactory;
+    private RepositorySystem repositorySystem;
 
     /**
      * The component used to validate the user-supplied artifact coordinates.
@@ -194,14 +178,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
      */
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession session;
-
-    /**
-     * Used for attaching the source and javadoc jars to the project.
-     *
-     * @since 1.3
-     */
-    @Component
-    private MavenProjectHelper projectHelper;
 
     /**
      * The bundled API docs for the artifact.
@@ -229,14 +205,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     private int retryFailedDeploymentCount;
 
     /**
-     * Parameter used to update the metadata to make the artifact as release.
-     *
-     * @since 1.3
-     */
-    @Parameter(property = "updateReleaseInfo", defaultValue = "false")
-    protected boolean updateReleaseInfo;
-
-    /**
      * A comma separated list of types for each of the extra side artifacts to deploy. If there is a mis-match in
      * the number of entries in {@link #files} or {@link #classifiers}, then an error will be raised.
      */
@@ -257,6 +225,9 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     @Parameter(property = "files")
     private String files;
 
+    @Component
+    private ArtifactHandlerManager artifactHandlerManager;
+
     private void initProperties() throws MojoExecutionException {
         // Process the supplied POM (if there is one)
         if (pomFile != null) {
@@ -273,7 +244,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     }
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
         AbstractGpgSigner signer = newSigner(null);
         signer.setOutputDirectory(ascDirectory);
         signer.setBaseDirectory(new File("").getAbsoluteFile());
@@ -290,56 +261,50 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
             throw new MojoFailureException(file.getPath() + " not found.");
         }
 
-        ArtifactRepository deploymentRepository = createDeploymentArtifactRepository(repositoryId, url);
+        RemoteRepository deploymentRepository = new RemoteRepository.Builder(repositoryId, "default", url).build();
 
-        if (StringUtils.isEmpty(deploymentRepository.getProtocol())) {
-            throw new MojoFailureException("No transfer protocol found.");
-        }
+        // create artifacts
+        List<Artifact> artifacts = new ArrayList<>();
 
-        Artifact artifact =
-                artifactFactory.createArtifactWithClassifier(groupId, artifactId, version, packaging, classifier);
+        // main artifact
+        ArtifactHandler handler = artifactHandlerManager.getArtifactHandler(packaging);
+        Artifact main = new DefaultArtifact(
+                        groupId,
+                        artifactId,
+                        classifier == null || classifier.trim().isEmpty() ? handler.getClassifier() : classifier,
+                        handler.getExtension(),
+                        version)
+                .setFile(file);
 
-        if (file.equals(getLocalRepoFile(artifact))) {
+        File localRepoFile = new File(
+                session.getRepositorySession().getLocalRepository().getBasedir(),
+                session.getRepositorySession().getLocalRepositoryManager().getPathForLocalArtifact(main));
+        if (file.equals(localRepoFile)) {
             throw new MojoFailureException("Cannot deploy artifact from the local repository: " + file);
         }
-        artifact.setFile(file);
-
-        File fileSig = signer.generateSignatureForArtifact(file);
-        ArtifactMetadata metadata = new AscArtifactMetadata(artifact, fileSig, false);
-        artifact.addMetadata(metadata);
+        artifacts.add(main);
 
         if (!"pom".equals(packaging)) {
             if (pomFile == null && generatePom) {
                 pomFile = generatePomFile();
             }
             if (pomFile != null) {
-                metadata = new ProjectArtifactMetadata(artifact, pomFile);
-                artifact.addMetadata(metadata);
-
-                fileSig = signer.generateSignatureForArtifact(pomFile);
-                metadata = new AscArtifactMetadata(artifact, fileSig, true);
-                artifact.addMetadata(metadata);
+                artifacts.add(
+                        new DefaultArtifact(main.getGroupId(), main.getArtifactId(), null, "pom", main.getVersion())
+                                .setFile(pomFile));
             }
         }
 
-        if (updateReleaseInfo) {
-            artifact.setRelease(true);
-        }
-
-        project.setArtifact(artifact);
-
-        try {
-            deploy(artifact, deploymentRepository);
-        } catch (ArtifactDeployerException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
-
         if (sources != null) {
-            projectHelper.attachArtifact(project, "jar", "sources", sources);
+            artifacts.add(
+                    new DefaultArtifact(main.getGroupId(), main.getArtifactId(), "sources", "jar", main.getVersion())
+                            .setFile(sources));
         }
 
         if (javadoc != null) {
-            projectHelper.attachArtifact(project, "jar", "javadoc", javadoc);
+            artifacts.add(
+                    new DefaultArtifact(main.getGroupId(), main.getArtifactId(), "javadoc", "jar", main.getVersion())
+                            .setFile(javadoc));
         }
 
         if (files != null) {
@@ -349,55 +314,38 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
             if (classifiers == null) {
                 throw new MojoExecutionException("You must specify 'classifiers' if you specify 'files'");
             }
-            int filesLength = StringUtils.countMatches(files, ",");
-            int typesLength = StringUtils.countMatches(types, ",");
-            int classifiersLength = StringUtils.countMatches(classifiers, ",");
-            if (typesLength != filesLength) {
+            String[] files = this.files.split(",", -1);
+            String[] types = this.types.split(",", -1);
+            String[] classifiers = this.classifiers.split(",", -1);
+            if (types.length != files.length) {
                 throw new MojoExecutionException("You must specify the same number of entries in 'files' and "
-                        + "'types' (respectively " + filesLength + " and " + typesLength + " entries )");
+                        + "'types' (respectively " + files.length + " and " + types.length + " entries )");
             }
-            if (classifiersLength != filesLength) {
+            if (classifiers.length != files.length) {
                 throw new MojoExecutionException("You must specify the same number of entries in 'files' and "
-                        + "'classifiers' (respectively " + filesLength + " and " + classifiersLength + " entries )");
+                        + "'classifiers' (respectively " + files.length + " and " + classifiers.length + " entries )");
             }
-            int fi = 0;
-            int ti = 0;
-            int ci = 0;
-            for (int i = 0; i <= filesLength; i++) {
-                int nfi = files.indexOf(',', fi);
-                if (nfi == -1) {
-                    nfi = files.length();
-                }
-                int nti = types.indexOf(',', ti);
-                if (nti == -1) {
-                    nti = types.length();
-                }
-                int nci = classifiers.indexOf(',', ci);
-                if (nci == -1) {
-                    nci = classifiers.length();
-                }
-                File file = new File(files.substring(fi, nfi));
+            for (int i = 0; i < files.length; i++) {
+                File file = new File(files[i]);
                 if (!file.isFile()) {
                     // try relative to the project basedir just in case
-                    file = new File(project.getBasedir(), files.substring(fi, nfi));
+                    file = new File(project.getBasedir(), files[i]);
                 }
                 if (file.isFile()) {
-                    if (StringUtils.isWhitespace(classifiers.substring(ci, nci))) {
-                        projectHelper.attachArtifact(
-                                project, types.substring(ti, nti).trim(), file);
+                    Artifact artifact;
+                    String ext =
+                            artifactHandlerManager.getArtifactHandler(types[i]).getExtension();
+                    if (StringUtils.isWhitespace(classifiers[i])) {
+                        artifact = new DefaultArtifact(
+                                main.getGroupId(), main.getArtifactId(), null, ext, main.getVersion());
                     } else {
-                        projectHelper.attachArtifact(
-                                project,
-                                types.substring(ti, nti).trim(),
-                                classifiers.substring(ci, nci).trim(),
-                                file);
+                        artifact = new DefaultArtifact(
+                                main.getGroupId(), main.getArtifactId(), classifiers[i], ext, main.getVersion());
                     }
+                    artifacts.add(artifact.setFile(file));
                 } else {
                     throw new MojoExecutionException("Specified side artifact " + file + " does not exist");
                 }
-                fi = nfi + 1;
-                ti = nti + 1;
-                ci = nci + 1;
             }
         } else {
             if (types != null) {
@@ -408,28 +356,26 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
             }
         }
 
-        for (Artifact attached : project.getAttachedArtifacts()) {
-            fileSig = signer.generateSignatureForArtifact(attached.getFile());
-            attached = new AttachedSignedArtifact(attached, new AscArtifactMetadata(attached, fileSig, false));
-            try {
-                deploy(attached, deploymentRepository);
-            } catch (ArtifactDeployerException e) {
-                throw new MojoExecutionException(
-                        "Error deploying attached artifact " + attached.getFile() + ": " + e.getMessage(), e);
-            }
+        // sign all
+        ArrayList<Artifact> signatures = new ArrayList<>();
+        for (Artifact a : artifacts) {
+            signatures.add(new DefaultArtifact(
+                            a.getGroupId(),
+                            a.getArtifactId(),
+                            a.getClassifier(),
+                            a.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
+                            a.getVersion())
+                    .setFile(signer.generateSignatureForArtifact(a.getFile())));
         }
-    }
+        artifacts.addAll(signatures);
 
-    /**
-     * Gets the path of the specified artifact within the local repository. Note that the returned path need not exist
-     * (yet).
-     *
-     * @param artifact The artifact whose local repo path should be determined, must not be <code>null</code>.
-     * @return The absolute path to the artifact when installed, never <code>null</code>.
-     */
-    private File getLocalRepoFile(Artifact artifact) {
-        String path = localRepository.pathOf(artifact);
-        return new File(localRepository.getBasedir(), path);
+        // deploy all
+        try {
+            deploy(deploymentRepository, artifacts);
+        } catch (DeploymentException e) {
+            throw new MojoExecutionException(
+                    "Error deploying attached artifacts " + artifacts + ": " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -469,8 +415,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
      */
     private Model readModel(File pomFile) throws MojoExecutionException {
         try (Reader reader = ReaderFactory.newXmlReader(pomFile)) {
-            final Model model = new MavenXpp3Reader().read(reader);
-            return model;
+            return new MavenXpp3Reader().read(reader);
         } catch (FileNotFoundException e) {
             throw new MojoExecutionException("POM not found " + pomFile, e);
         } catch (IOException e) {
@@ -552,15 +497,13 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     /**
      * Deploy an artifact from a particular file.
      *
-     * @param artifact the artifact definition
      * @param deploymentRepository the repository to deploy to
-     * @throws ArtifactDeployerException if an error occurred deploying the artifact
+     * @param artifacts the artifacts definition
+     * @throws DeploymentException if an error occurred deploying the artifact
      */
-    protected void deploy(Artifact artifact, ArtifactRepository deploymentRepository) throws ArtifactDeployerException {
-        final ProjectBuildingRequest buildingRequest = session.getProjectBuildingRequest();
-
+    protected void deploy(RemoteRepository deploymentRepository, List<Artifact> artifacts) throws DeploymentException {
         int retryFailedDeploymentCount = Math.max(1, Math.min(10, this.retryFailedDeploymentCount));
-        ArtifactDeployerException exception = null;
+        DeploymentException exception = null;
         for (int count = 0; count < retryFailedDeploymentCount; count++) {
             try {
                 if (count > 0) {
@@ -568,15 +511,14 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
                     getLog().info("Retrying deployment attempt " + (count + 1) + " of " + retryFailedDeploymentCount);
                     // CHECKSTYLE_ON: LineLength
                 }
-                deployer.deploy(buildingRequest, deploymentRepository, Collections.singletonList(artifact));
+                DeployRequest deployRequest = new DeployRequest();
+                deployRequest.setRepository(deploymentRepository);
+                deployRequest.setArtifacts(artifacts);
 
-                for (Object o : artifact.getMetadataList()) {
-                    ArtifactMetadata metadata = (ArtifactMetadata) o;
-                    getLog().info("Metadata[" + metadata.getKey() + "].filename = " + metadata.getRemoteFilename());
-                }
+                repositorySystem.deploy(session.getRepositorySession(), deployRequest);
                 exception = null;
                 break;
-            } catch (ArtifactDeployerException e) {
+            } catch (DeploymentException e) {
                 if (count + 1 < retryFailedDeploymentCount) {
                     getLog().warn("Encountered issue during deployment: " + e.getLocalizedMessage());
                     getLog().debug(e);
@@ -589,11 +531,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         if (exception != null) {
             throw exception;
         }
-    }
-
-    protected ArtifactRepository createDeploymentArtifactRepository(String id, String url) {
-        return new MavenArtifactRepository(
-                id, url, new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(), new ArtifactRepositoryPolicy());
     }
 
     private static class SimpleModelProblemCollector implements ModelProblemCollector {

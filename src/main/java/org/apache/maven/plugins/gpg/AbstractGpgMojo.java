@@ -25,18 +25,14 @@ import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.settings.Server;
-import org.apache.maven.settings.Settings;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 /**
  * @author Benjamin Bentmann
  */
 public abstract class AbstractGpgMojo extends AbstractMojo {
+    public static final String MAVEN_GPG_PASSPHRASE = "MAVEN_GPG_PASSPHRASE";
 
     /**
      * The directory from which gpg will load keyrings. If not specified, gpg will use the value configured for its
@@ -50,15 +46,20 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     /**
      * The passphrase to use when signing. If not given, look up the value under Maven
      * settings using server id at 'passphraseServerKey' configuration.
-     **/
+     *
+     * @deprecated Do NOT use this!
+     */
+    @Deprecated
     @Parameter(property = "gpg.passphrase")
     private String passphrase;
 
     /**
      * Server id to lookup the passphrase under Maven settings.
      * @since 1.6
+     * @deprecated Do NOT use this!
      */
-    @Parameter(property = "gpg.passphraseServerId", defaultValue = "gpg.passphrase")
+    @Deprecated
+    @Parameter(property = "gpg.passphraseServerId")
     private String passphraseServerId;
 
     /**
@@ -148,20 +149,30 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private List<String> gpgArguments;
 
     /**
-     * Current user system settings for use in Maven.
-     *
-     * @since 1.6
+     * Skip doing the gpg signing.
      */
-    @Parameter(defaultValue = "${settings}", readonly = true)
-    private Settings settings;
+    @Parameter(property = "gpg.skip", defaultValue = "false")
+    private boolean skip;
 
-    /**
-     * Maven Security Dispatcher
-     *
-     * @since 1.6
-     */
-    @Component
-    private SecDispatcher securityDispatcher;
+    @Override
+    public final void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
+            // We're skipping the signing stuff
+            return;
+        }
+        if ((passphrase != null && !passphrase.trim().isEmpty())
+                || (passphraseServerId != null && !passphraseServerId.trim().isEmpty())) {
+            // Stop propagating worst practices: passphrase MUST NOT be in any file on disk
+            // (and sec dispatcher does not help either, is a joke)
+            throw new MojoFailureException(
+                    "Do not store passphrase in any file (disk or repository), rely on GnuPG agent or provide passphrase in "
+                            + MAVEN_GPG_PASSPHRASE + " environment variable.");
+        }
+
+        doExecute();
+    }
+
+    protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 
     AbstractGpgSigner newSigner(MavenProject project) throws MojoExecutionException, MojoFailureException {
         AbstractGpgSigner signer = new GpgSigner(executable);
@@ -177,7 +188,10 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         signer.setLockMode(lockMode);
         signer.setArgs(gpgArguments);
 
-        loadGpgPassphrase();
+        String passphrase = System.getenv(MAVEN_GPG_PASSPHRASE);
+        if (passphrase != null) {
+            signer.setPassPhrase(passphrase);
+        }
 
         signer.setPassPhrase(passphrase);
         if (null == passphrase && !useAgent) {
@@ -192,26 +206,5 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         }
 
         return signer;
-    }
-
-    /**
-     * Load and decrypt gpg passphrase from Maven settings if not given from plugin configuration
-     *
-     * @throws MojoFailureException
-     */
-    private void loadGpgPassphrase() throws MojoFailureException {
-        if (this.passphrase == null || this.passphrase.isEmpty()) {
-            Server server = this.settings.getServer(passphraseServerId);
-
-            if (server != null) {
-                if (server.getPassphrase() != null) {
-                    try {
-                        this.passphrase = securityDispatcher.decrypt(server.getPassphrase());
-                    } catch (SecDispatcherException e) {
-                        throw new MojoFailureException("Unable to decrypt gpg passphrase", e);
-                    }
-                }
-            }
-        }
     }
 }
