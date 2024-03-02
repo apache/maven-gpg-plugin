@@ -86,6 +86,11 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
 
     @Override
     public void doExecute() throws MojoExecutionException, MojoFailureException {
+        // ----------------------------------------------------------------------------
+        // Collect files to sign
+        // ----------------------------------------------------------------------------
+
+        ArrayList<Artifact> artifacts = new ArrayList<>();
         try {
             RepositoryLayout repositoryLayout = repositoryLayoutProvider.newRepositoryLayout(
                     session.getRepositorySession(),
@@ -93,7 +98,6 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
                             ? RepositoryUtils.toRepo(project.getDistributionManagementArtifactRepository())
                             : central);
 
-            ArrayList<Artifact> artifacts = new ArrayList<>();
             Artifact pomArtifact = RepositoryUtils.toArtifact(new ProjectArtifact(project));
             Artifact projectArtifact = RepositoryUtils.toArtifact(project.getArtifact());
 
@@ -108,15 +112,18 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
                 artifacts.add(pomArtifact.setFile(pomToSign));
             }
 
-            // prevent "pom" packaging to be added twice (pomArtifact was already copied and added)
-            if (!pomArtifact.getFile().equals(projectArtifact.getFile())
-                    && projectArtifact.getFile().isFile()) {
+            if (projectArtifact.getFile().isFile()) {
                 artifacts.add(projectArtifact);
             }
 
             for (org.apache.maven.artifact.Artifact attached : project.getAttachedArtifacts()) {
+                getLog().debug("Attaching for deploy: " + attached.getId());
                 artifacts.add(RepositoryUtils.toArtifact(attached));
             }
+
+            // ----------------------------------------------------------------------------
+            // Sign collected files and attach all the signatures
+            // ----------------------------------------------------------------------------
 
             AbstractGpgSigner signer = newSigner(project);
             signer.setOutputDirectory(ascDirectory);
