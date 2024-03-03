@@ -155,25 +155,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     private String repositoryLayout;
 
     /**
-     */
-    @Component
-    private RepositorySystem repositorySystem;
-
-    /**
-     * The component used to validate the user-supplied artifact coordinates.
-     */
-    @Component
-    private ModelValidator modelValidator;
-
-    /**
-     * The default Maven project created when building the plugin
-     *
-     * @since 1.3
-     */
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject project;
-
-    /**
      * The bundled API docs for the artifact.
      *
      * @since 1.3
@@ -220,9 +201,28 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     private String files;
 
     /**
+     */
+    @Component
+    private RepositorySystem repositorySystem;
+
+    /**
+     * The component used to validate the user-supplied artifact coordinates.
+     */
+    @Component
+    private ModelValidator modelValidator;
+
+    /**
+     * The default Maven project created when building the plugin
+     *
+     * @since 1.3
+     */
+    @Component
+    private MavenProject project;
+
+    /**
      * @since 3.0.0
      */
-    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    @Component
     private MavenSession session;
 
     @Component

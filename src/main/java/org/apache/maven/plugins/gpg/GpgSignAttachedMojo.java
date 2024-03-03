@@ -66,7 +66,7 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
     /**
      * The maven project.
      */
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    @Component
     protected MavenProject project;
 
     /**
