@@ -24,13 +24,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.SelectorUtils;
+import org.eclipse.aether.artifact.Artifact;
 
 /**
  * Collects project artifact, the POM, and attached artifacts to be signed.
@@ -40,7 +41,7 @@ import org.codehaus.plexus.util.SelectorUtils;
 public class FilesCollector {
     private final MavenProject project;
 
-    private static final String DEFAULT_EXCLUDES[] =
+    private static final String[] DEFAULT_EXCLUDES =
             new String[] {"**/*.md5", "**/*.sha1", "**/*.sha256", "**/*.sha512", "**/*.asc", "**/*.sigstore"};
 
     private final String[] excludes;
@@ -54,7 +55,7 @@ public class FilesCollector {
             this.excludes = DEFAULT_EXCLUDES;
             return;
         }
-        String newExcludes[] = new String[excludes.length];
+        String[] newExcludes = new String[excludes.length];
         for (int i = 0; i < excludes.length; i++) {
             String pattern;
             pattern = excludes[i].trim().replace('/', File.separatorChar).replace('\\', File.separatorChar);
@@ -74,12 +75,12 @@ public class FilesCollector {
             // Project artifact
             // ----------------------------------------------------------------------------
 
-            Artifact artifact = project.getArtifact();
+            Artifact artifact = RepositoryUtils.toArtifact(project.getArtifact());
 
             File file = artifact.getFile();
 
             if (file != null && file.isFile()) {
-                items.add(new Item(file, artifact.getArtifactHandler().getExtension()));
+                items.add(new Item(file, artifact.getExtension()));
             } else if (project.getAttachedArtifacts().isEmpty()) {
                 throw new MojoFailureException("The project artifact has not been assembled yet. "
                         + "Please do not invoke this goal before the lifecycle phase \"package\".");
@@ -107,7 +108,7 @@ public class FilesCollector {
         // Attached artifacts
         // ----------------------------------------------------------------------------
 
-        for (Artifact artifact : project.getAttachedArtifacts()) {
+        for (Artifact artifact : RepositoryUtils.toArtifacts(project.getAttachedArtifacts())) {
             File file = artifact.getFile();
 
             if (isExcluded(artifact)) {
@@ -115,10 +116,7 @@ public class FilesCollector {
                 continue;
             }
 
-            items.add(new Item(
-                    file,
-                    artifact.getClassifier(),
-                    artifact.getArtifactHandler().getExtension()));
+            items.add(new Item(file, artifact.getClassifier(), artifact.getExtension()));
         }
 
         return items;

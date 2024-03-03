@@ -16,7 +16,6 @@
 # under the License.
 
 commons-io:commons-io = 0x2DB4F1EF0FA761ECC4EA935C86FDC7E2A11262CB
-javax.inject:javax.inject = noSig
 org.apiguardian:apiguardian-api = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
 org.junit.jupiter:junit-jupiter-api = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
 org.junit.jupiter:junit-jupiter-params = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
@@ -24,11 +23,6 @@ org.junit.platform:junit-platform-commons = 0xFF6E2C001948C5F2F38B0CC385911F425E
 org.opentest4j:opentest4j = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
 org.apache.maven.resolver = 0x522CA055B326A636D833EF6A0551FD3684FCBBB7
 org.apache.maven.shared:maven-invoker = 0x84789D24DF77A32433CE1F079EB80E92EB2135B1
-org.codehaus.plexus:plexus-cipher = 0x6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688
 org.codehaus.plexus:plexus-classworlds = 0xB91AB7D2121DC6B0A61AA182D7742D58455ECC7C
 org.codehaus.plexus:plexus-component-annotations = 0xFA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A
 org.codehaus.plexus:plexus-utils = 0xF254B35617DC255D9344BCFA873A8E86B4372146
-org.codehaus.plexus:plexus-sec-dispatcher = 0x2BE13D052E9AA567D657D9791FD507154FB9BA39
-org.hamcrest:hamcrest = 0xE3A9F95079E84CE201F7CF60BEDE11EAF1164480
-org.hamcrest:hamcrest-core = 0xE3A9F95079E84CE201F7CF60BEDE11EAF1164480
-org.slf4j:slf4j-api = 0x475F3B8E59E6E63AA78067482C7B12F2A511E325

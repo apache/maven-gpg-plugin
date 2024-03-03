@@ -41,12 +41,6 @@ import org.apache.maven.project.MavenProjectHelper;
 public class GpgSignAttachedMojo extends AbstractGpgMojo {
 
     /**
-     * Skip doing the gpg signing.
-     */
-    @Parameter(property = "gpg.skip", defaultValue = "false")
-    private boolean skip;
-
-    /**
      * A list of files to exclude from being signed. Can contain Ant-style wildcards and double wildcards. The default
      * excludes are <code>**&#47;*.md5 **&#47;*.sha1 **&#47;*.sha256 **&#47;*.sha512 **&#47;*.asc **&#47;*.sigstore</code>.
      *
@@ -76,12 +70,7 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
     private MavenProjectHelper projectHelper;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        if (skip) {
-            // We're skipping the signing stuff
-            return;
-        }
-
+    protected void doExecute() throws MojoExecutionException, MojoFailureException {
         // ----------------------------------------------------------------------------
         // Collect files to sign
         // ----------------------------------------------------------------------------
@@ -93,7 +82,7 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
         // Sign collected files and attach all the signatures
         // ----------------------------------------------------------------------------
 
-        AbstractGpgSigner signer = newSigner(project);
+        AbstractGpgSigner signer = newSigner();
         signer.setOutputDirectory(ascDirectory);
         signer.setBuildDirectory(new File(project.getBuild().getDirectory()));
         signer.setBaseDirectory(project.getBasedir());
