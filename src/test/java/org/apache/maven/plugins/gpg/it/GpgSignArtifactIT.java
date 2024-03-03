@@ -74,8 +74,7 @@ public class GpgSignArtifactIT {
             throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource(pomPath);
-        final InvocationRequest request =
-                InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, null, false, true);
+        final InvocationRequest request = InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, true);
         final File integrationTestRootDirectory = new File(pomFile.getParent());
         final File expectedOutputDirectory = new File(integrationTestRootDirectory + expectedFileLocation);
 

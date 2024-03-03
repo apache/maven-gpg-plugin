@@ -41,12 +41,7 @@ import org.apache.maven.shared.invoker.PrintStreamLogger;
 public class InvokerTestUtils {
 
     public static InvocationRequest createRequest(
-            File pomFile,
-            File mavenUserSettings,
-            File gpgHome,
-            String signer,
-            boolean provideKeyEnv,
-            boolean providePassphraseEnv) {
+            File pomFile, File mavenUserSettings, File gpgHome, boolean providePassphraseEnv) {
         final InvocationRequest request = new DefaultInvocationRequest();
         request.setUserSettingsFile(mavenUserSettings);
         request.setShowVersion(true);
@@ -56,9 +51,6 @@ public class InvokerTestUtils {
         request.setGoals(Arrays.asList("clean", "install"));
         request.setPomFile(pomFile);
 
-        if (provideKeyEnv) {
-            request.addShellEnvironment("MAVEN_GPG_KEY", "KEY");
-        }
         if (providePassphraseEnv) {
             request.addShellEnvironment("MAVEN_GPG_PASSPHRASE", "TEST");
         }
@@ -72,9 +64,6 @@ public class InvokerTestUtils {
             properties.setProperty("https.protocols", httpsProtocols);
         }
 
-        if (signer != null) {
-            properties.setProperty("gpg.signer", signer);
-        }
         properties.setProperty("gpg.homedir", gpgHome.getAbsolutePath());
 
         return request;

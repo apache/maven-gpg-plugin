@@ -47,8 +47,7 @@ public class GpgSignAttachedMojoIT {
         // given
         final File pomFile =
                 InvokerTestUtils.getTestResource("/it/sign-release-without-passphrase-interactive/pom.xml");
-        final InvocationRequest request =
-                InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, null, false, false);
+        final InvocationRequest request = InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, false);
 
         // require Maven interactive mode
         request.setBatchMode(false);
