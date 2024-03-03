@@ -26,7 +26,9 @@ import org.apache.maven.shared.invoker.InvocationRequest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GpgSignArtifactIT {
     private final File mavenHome;
@@ -80,7 +82,13 @@ public class GpgSignArtifactIT {
         InvokerTestUtils.executeRequest(request, mavenHome, localRepository);
 
         // then
-        assertThat(expectedOutputDirectory).exists();
-        assertThat(expectedOutputDirectory.list()).containsExactlyInAnyOrder(expectedFiles);
+        assertTrue(expectedOutputDirectory.isDirectory());
+
+        String[] outputFiles = expectedOutputDirectory.list();
+        assertNotNull(outputFiles);
+
+        Arrays.sort(outputFiles);
+        Arrays.sort(expectedFiles);
+        assertEquals(Arrays.toString(expectedFiles), Arrays.toString(outputFiles));
     }
 }

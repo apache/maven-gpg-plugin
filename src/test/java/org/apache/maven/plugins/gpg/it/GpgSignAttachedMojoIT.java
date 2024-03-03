@@ -25,7 +25,8 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GpgSignAttachedMojoIT {
 
@@ -58,11 +59,9 @@ public class GpgSignAttachedMojoIT {
         final String buildLogContent = FileUtils.fileRead(result.getBuildLog());
 
         // then
-        assertThat(invocationResult.getExitCode())
-                .as("Maven execution must fail")
-                .isNotEqualTo(0);
-        assertThat(buildLogContent)
-                .as("Maven execution failed because no pinentry program is available")
-                .contains("[GNUPG:] FAILURE sign 67108949");
+        assertNotEquals(0, invocationResult.getExitCode(), "Maven execution must fail");
+        assertTrue(
+                buildLogContent.contains("[GNUPG:] FAILURE sign 67108949"),
+                "Maven execution failed because no pinentry program is available");
     }
 }
