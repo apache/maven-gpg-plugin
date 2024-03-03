@@ -27,7 +27,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 
 /**
  * @author Benjamin Bentmann
@@ -179,9 +178,8 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         if ((passphrase != null && !passphrase.trim().isEmpty())
                 || (passphraseServerId != null && !passphraseServerId.trim().isEmpty())) {
             // Stop propagating worst practices: passphrase MUST NOT be in any file on disk
-            // (and sec dispatcher does not help either, is a joke)
             throw new MojoFailureException(
-                    "Do not store passphrase in any file (disk or repository), rely on GnuPG agent or provide passphrase in "
+                    "Do not store passphrase in any file (disk or SCM repository), rely on GnuPG agent or provide passphrase in "
                             + passphraseEnvName + " environment variable.");
         }
 
@@ -190,7 +188,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 
-    protected AbstractGpgSigner newSigner(MavenProject project) throws MojoExecutionException, MojoFailureException {
+    protected AbstractGpgSigner newSigner() throws MojoExecutionException, MojoFailureException {
         AbstractGpgSigner signer = new GpgSigner(executable);
 
         signer.setLog(getLog());

@@ -349,7 +349,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         }
 
         // sign all
-        AbstractGpgSigner signer = newSigner(null);
+        AbstractGpgSigner signer = newSigner();
         signer.setOutputDirectory(ascDirectory);
         signer.setBaseDirectory(new File("").getAbsoluteFile());
 

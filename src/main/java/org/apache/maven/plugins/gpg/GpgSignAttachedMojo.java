@@ -82,7 +82,7 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
         // Sign collected files and attach all the signatures
         // ----------------------------------------------------------------------------
 
-        AbstractGpgSigner signer = newSigner(project);
+        AbstractGpgSigner signer = newSigner();
         signer.setOutputDirectory(ascDirectory);
         signer.setBuildDirectory(new File(project.getBuild().getDirectory()));
         signer.setBaseDirectory(project.getBasedir());

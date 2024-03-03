@@ -31,8 +31,6 @@ import org.apache.maven.plugin.logging.Log;
  * @since 1.5
  */
 public abstract class AbstractGpgSigner {
-    private static final String GPG_PASSPHRASE = "gpg.passphrase";
-
     public static final String SIGNATURE_EXTENSION = ".asc";
 
     protected boolean useAgent;
