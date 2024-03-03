@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-commons-io:commons-io = 0xCD5464315F0B98C77E6E8ECD9DAADC1C9FCC82D0
+commons-io:commons-io = 0x2DB4F1EF0FA761ECC4EA935C86FDC7E2A11262CB
 org.apiguardian:apiguardian-api = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
 org.junit.jupiter:junit-jupiter-api = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
 org.junit.jupiter:junit-jupiter-engine = 0xFF6E2C001948C5F2F38B0CC385911F425EC61B51
@@ -31,15 +31,10 @@ org.apache.maven.shared:maven-artifact-transfer = 0x6A814B1F869C2BBEAB7CB7271A2A
 org.apache.maven.shared:maven-common-artifact-filters = 0xB02137D875D833D9B23392ECAE5A7FB608A0221C
 org.apache.maven.shared:maven-invoker = 0x84789D24DF77A32433CE1F079EB80E92EB2135B1
 org.apache.maven.shared:maven-shared-utils = 0x82C9EC0E52C47A936A849E0113D979595E6D01E1
-org.codehaus.plexus:plexus-classworlds = 0xFB11D4BB7B244678337AAD8BC7BF26D0BB617866
-org.codehaus.plexus:plexus-component-annotations = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
-org.codehaus.plexus:plexus-utils = 0xEA23DB1360D9029481E7F2EFECDFEA3CB4493B94
-org.codehaus.plexus:plexus-xml = 0xFA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A
-org.eclipse.aether:aether-api = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
-org.eclipse.aether:aether-util = 0xFB11D4BB7B244678337AAD8BC7BF26D0BB617866
+org.codehaus.plexus:plexus-classworlds = 0xB91AB7D2121DC6B0A61AA182D7742D58455ECC7C
+org.codehaus.plexus:plexus-component-annotations = 0xFA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A
+org.codehaus.plexus:plexus-utils = 0xF254B35617DC255D9344BCFA873A8E86B4372146
 org.hamcrest:hamcrest = 0xE3A9F95079E84CE201F7CF60BEDE11EAF1164480
 org.hamcrest:hamcrest-core = 0xE3A9F95079E84CE201F7CF60BEDE11EAF1164480
 org.slf4j:slf4j-api = 0x475F3B8E59E6E63AA78067482C7B12F2A511E325
-org.sonatype.plexus:plexus-cipher = 0x9FFED7A118D45A44E4A1E47130E6F80434A72A7F
-org.sonatype.plexus:plexus-sec-dispatcher = 0x2BCBDD0F23EA1CAFCC11D4860374CF2E8DD1BDFD
 org.sonatype.sisu = 0xBA926F64CA647B6D853A38672E2010F8A7FF4A41
