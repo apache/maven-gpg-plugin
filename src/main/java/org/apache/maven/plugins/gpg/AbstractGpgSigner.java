@@ -19,12 +19,10 @@
 package org.apache.maven.plugins.gpg;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
 
 /**
  * A base class for all classes that implements signing of files.
@@ -184,38 +182,6 @@ public abstract class AbstractGpgSigner {
      * @throws MojoExecutionException if signature generation fails
      */
     protected abstract void generateSignatureForFile(File file, File signature) throws MojoExecutionException;
-
-    private MavenProject findReactorProject(MavenProject prj) {
-        if (prj.getParent() != null
-                && prj.getParent().getBasedir() != null
-                && prj.getParent().getBasedir().exists()) {
-            return findReactorProject(prj.getParent());
-        }
-        return prj;
-    }
-
-    public String getPassphrase(MavenProject project) throws IOException {
-        String pass = null;
-
-        if (project != null) {
-            pass = project.getProperties().getProperty(GPG_PASSPHRASE);
-            if (pass == null) {
-                MavenProject prj2 = findReactorProject(project);
-                pass = prj2.getProperties().getProperty(GPG_PASSPHRASE);
-            }
-        }
-        if (pass == null) {
-            pass = new String(readPassword("GPG Passphrase: "));
-        }
-        if (project != null) {
-            findReactorProject(project).getProperties().setProperty(GPG_PASSPHRASE, pass);
-        }
-        return pass;
-    }
-
-    private char[] readPassword(String prompt) throws IOException {
-        return System.console().readPassword();
-    }
 
     private boolean isPossibleRootOfArtifact(File signatureDirectory) {
         return signatureDirectory.equals(outputDir)

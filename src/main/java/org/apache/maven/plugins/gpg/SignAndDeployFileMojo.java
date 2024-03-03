@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
@@ -220,12 +219,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     private MavenProject project;
 
     /**
-     * @since 3.0.0
-     */
-    @Component
-    private MavenSession session;
-
-    /**
      * @since 3.2.0
      */
     @Component
@@ -247,7 +240,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     }
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    protected void doExecute() throws MojoExecutionException, MojoFailureException {
         if (offline) {
             throw new MojoFailureException("Cannot deploy artifacts when Maven is in offline mode");
         }

@@ -41,7 +41,12 @@ import org.apache.maven.shared.invoker.PrintStreamLogger;
 public class InvokerTestUtils {
 
     public static InvocationRequest createRequest(
-            final File pomFile, final File mavenUserSettings, final File gpgHome) {
+            File pomFile,
+            File mavenUserSettings,
+            File gpgHome,
+            String signer,
+            boolean provideKeyEnv,
+            boolean providePassphraseEnv) {
         final InvocationRequest request = new DefaultInvocationRequest();
         request.setUserSettingsFile(mavenUserSettings);
         request.setShowVersion(true);
@@ -50,6 +55,13 @@ public class InvokerTestUtils {
         request.setTimeoutInSeconds(60); // safeguard against GPG freezes
         request.setGoals(Arrays.asList("clean", "install"));
         request.setPomFile(pomFile);
+
+        if (provideKeyEnv) {
+            request.addShellEnvironment("MAVEN_GPG_KEY", "KEY");
+        }
+        if (providePassphraseEnv) {
+            request.addShellEnvironment("MAVEN_GPG_PASSPHRASE", "TEST");
+        }
 
         final Properties properties = new Properties();
         request.setProperties(properties);
@@ -60,6 +72,9 @@ public class InvokerTestUtils {
             properties.setProperty("https.protocols", httpsProtocols);
         }
 
+        if (signer != null) {
+            properties.setProperty("gpg.signer", signer);
+        }
         properties.setProperty("gpg.homedir", gpgHome.getAbsolutePath());
 
         return request;
@@ -79,10 +94,11 @@ public class InvokerTestUtils {
             final Invoker invoker = new DefaultInvoker();
             invoker.setMavenHome(mavenHome);
             invoker.setLocalRepositoryDirectory(localRepository);
-            invoker.setInputStream(new NullInputStream(0));
-            invoker.setOutputHandler(buildLogOutputHandler);
-            invoker.setErrorHandler(buildLogOutputHandler);
             invoker.setLogger(logger);
+
+            request.setInputStream(new NullInputStream(0));
+            request.setOutputHandler(buildLogOutputHandler);
+            request.setErrorHandler(buildLogOutputHandler);
 
             result = invoker.execute(request);
         }

@@ -39,7 +39,7 @@ public class GpgSignArtifactIT {
     public GpgSignArtifactIT() throws Exception {
         this.mavenHome = new File(System.getProperty("maven.home"));
         this.localRepository = new File(System.getProperty("localRepositoryPath"));
-        this.mavenUserSettings = InvokerTestUtils.getTestResource("/it/settings-with-passphrase.xml");
+        this.mavenUserSettings = InvokerTestUtils.getTestResource("/it/settings.xml");
         this.gpgHome = new File(System.getProperty("gpg.homedir"));
     }
 
@@ -74,7 +74,8 @@ public class GpgSignArtifactIT {
             throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource(pomPath);
-        final InvocationRequest request = InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome);
+        final InvocationRequest request =
+                InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, null, false, true);
         final File integrationTestRootDirectory = new File(pomFile.getParent());
         final File expectedOutputDirectory = new File(integrationTestRootDirectory + expectedFileLocation);
 
