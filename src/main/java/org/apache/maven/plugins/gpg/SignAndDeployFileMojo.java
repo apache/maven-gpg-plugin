@@ -225,6 +225,9 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     @Component
     private MavenSession session;
 
+    /**
+     * @since 3.2.0
+     */
     @Component
     private ArtifactHandlerManager artifactHandlerManager;
 
