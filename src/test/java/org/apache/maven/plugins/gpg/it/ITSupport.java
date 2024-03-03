@@ -16,20 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.maven.plugins.gpg.it;
 
+import java.io.File;
 
-import org.codehaus.plexus.util.FileUtils
+import org.junit.jupiter.api.BeforeEach;
 
-var buildLog = new File(basedir, "build.log")
-var logContent = FileUtils.fileRead(buildLog)
+public abstract class ITSupport {
+    protected File mavenHome;
+    protected File localRepository;
+    protected File mavenUserSettings;
+    protected File gpgHome;
 
-// assert that the Maven build properly failed and did not time out
-if (!logContent.contains("Total time: ") || !logContent.contains("Finished at: ")) {
-    throw new Exception("Maven build did not fail, but timed out")
-}
-
-// gpg: assert that the Maven build failed, because pinentry is not allowed in non-interactive mode
-// bc: assert that the Maven build failed, because key to sign is encrypted by no passphrase provided
-if (!logContent.contains("[GNUPG:] FAILURE sign 67108949") && !logContent.contains("Secret key is encrypted but no passphrase provided")) {
-    throw new Exception("Maven build did not fail in consequence of pinentry not being available to GPG")
+    @BeforeEach
+    public void prepare() throws Exception {
+        this.mavenHome = new File(System.getProperty("maven.home"));
+        this.localRepository = new File(System.getProperty("localRepositoryPath"));
+        this.mavenUserSettings = InvokerTestUtils.getTestResource(System.getProperty("settingsFile"));
+        this.gpgHome = new File(System.getProperty("gpg.homedir"));
+    }
 }

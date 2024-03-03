@@ -33,10 +33,16 @@ import org.codehaus.plexus.util.cli.DefaultConsumer;
  * A signer implementation that uses the GnuPG command line executable.
  */
 public class GpgSigner extends AbstractGpgSigner {
+    public static final String NAME = "gpg";
     private String executable;
 
     public GpgSigner(String executable) {
         this.executable = executable;
+    }
+
+    @Override
+    public String signerName() {
+        return NAME;
     }
 
     /**

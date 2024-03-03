@@ -60,9 +60,10 @@ under the License.
   </distributionManagement>
 
   <properties>
+    <javaVersion>8</javaVersion>
     <mavenVersion>3.9.6</mavenVersion>
     <resolverVersion>1.9.18</resolverVersion>
-    <javaVersion>8</javaVersion>
+    <bouncycastleVersion>1.77</bouncycastleVersion>
     <project.build.outputTimestamp>2023-05-03T01:33:44Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
   </properties>
@@ -119,6 +120,22 @@ under the License.
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
       <version>3.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpg-jdk18on</artifactId>
+      <version>${bouncycastleVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk18on</artifactId>
+      <version>${bouncycastleVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.kohlschutter.junixsocket</groupId>
+      <artifactId>junixsocket-core</artifactId>
+      <version>2.9.0</version>
+      <type>pom</type>
     </dependency>
 
     <dependency>
@@ -179,8 +196,8 @@ under the License.
           <artifactId>apache-rat-plugin</artifactId>
           <configuration>
             <excludes combine.children="append">
-              <!-- rat check errors seen on ASF Jenkins instance, but not on local machine... -->
-              <exclude>src/test/resources/gnupg/**</exclude>
+              <!-- rat is too cheeky, ignore these resources -->
+              <exclude>src/test/resources/**</exclude>
             </excludes>
           </configuration>
         </plugin>
@@ -221,6 +238,67 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <configuration>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <pomIncludes>
+                <pomInclude>*</pomInclude>
+              </pomIncludes>
+              <pomExcludes>
+                <!-- not supported with gpg 2.1+ -->
+                <pomExclude>alternative-secret-keyring</pomExclude>
+              </pomExcludes>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+              <properties>
+                <gpg.homedir>${project.build.testOutputDirectory}/gnupg</gpg.homedir>
+              </properties>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>integration-test-install</id>
+                <goals>
+                  <goal>install</goal>
+                </goals>
+                <phase>integration-test</phase>
+              </execution>
+              <execution>
+                <id>gpg-integration-tests</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>integration-test</phase>
+                <configuration>
+                  <properties>
+                    <gpg.signer>gpg</gpg.signer>
+                  </properties>
+                </configuration>
+              </execution>
+              <execution>
+                <id>bc-integration-tests</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>integration-test</phase>
+                <configuration>
+                  <properties>
+                    <gpg.signer>bc</gpg.signer>
+                    <!-- must be absolute -->
+                    <gpg.keyFilePath>${project.basedir}/src/test/resources/signing-key.asc</gpg.keyFilePath>
+                  </properties>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <!-- this failsafe invocation depends on invoker:install above -->
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
               <environmentVariables>
@@ -242,27 +320,6 @@ under the License.
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-invoker-plugin</artifactId>
-            <configuration>
-              <settingsFile>src/it/settings.xml</settingsFile>
-              <pomIncludes>
-                <pomInclude>*</pomInclude>
-              </pomIncludes>
-              <pomExcludes>
-                <!-- not supported with gpg 2.1+ -->
-                <pomExclude>alternative-secret-keyring</pomExclude>
-              </pomExcludes>
-              <goals>
-                <goal>clean</goal>
-                <goal>install</goal>
-              </goals>
-              <properties>
-                <gpg.homedir>${project.build.testOutputDirectory}/gnupg</gpg.homedir>
-              </properties>
-            </configuration>
           </plugin>
         </plugins>
       </build>

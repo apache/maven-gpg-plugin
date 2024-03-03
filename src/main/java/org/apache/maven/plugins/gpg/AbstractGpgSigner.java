@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 
 /**
@@ -120,6 +121,10 @@ public abstract class AbstractGpgSigner {
     public void setPublicKeyring(String path) {
         publicKeyring = path;
     }
+
+    public abstract String signerName();
+
+    public void prepare() throws MojoFailureException {}
 
     /**
      * Create a detached signature file for the provided file.

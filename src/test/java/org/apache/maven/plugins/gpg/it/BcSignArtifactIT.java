@@ -26,11 +26,9 @@ import org.apache.maven.shared.invoker.InvocationRequest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class GpgSignArtifactIT extends ITSupport {
+public class BcSignArtifactIT extends ITSupport {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
@@ -63,7 +61,7 @@ public class GpgSignArtifactIT extends ITSupport {
         // given
         final File pomFile = InvokerTestUtils.getTestResource(pomPath);
         final InvocationRequest request =
-                InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, "gpg", true);
+                InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, "bc", true);
         final File integrationTestRootDirectory = new File(pomFile.getParent());
         final File expectedOutputDirectory = new File(integrationTestRootDirectory + expectedFileLocation);
 
