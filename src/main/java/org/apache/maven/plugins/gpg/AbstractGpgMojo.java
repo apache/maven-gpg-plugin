@@ -58,7 +58,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String keyFilePath;
 
     /**
-     * BC Signer only: The fingerprint of they key to use for signing. If no given, first key in keyring will be used.
+     * BC Signer only: The fingerprint of the key to use for signing. If not given, first key in keyring will be used.
      *
      * @since 3.2.0
      */
@@ -234,8 +234,8 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private List<String> gpgArguments;
 
     /**
-     * GPG Signer to use. Accepted values are {@code "gpg"} (the default, uses GnuPG executable) and {@code "bc"} (uses
-     * Bouncy Castle pure Java signer).
+     * The name of the Signer implementation to use. Accepted values are {@code "gpg"} (the default, uses GnuPG
+     * executable) and {@code "bc"} (uses Bouncy Castle pure Java signer).
      *
      * @since 3.2.0
      */
