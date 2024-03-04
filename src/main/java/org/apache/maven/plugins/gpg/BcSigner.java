@@ -60,7 +60,6 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
 import org.bouncycastle.util.encoders.Hex;
 import org.codehaus.plexus.util.io.CachingOutputStream;
 import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.util.ConfigUtils;
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
 
@@ -107,7 +106,7 @@ public class BcSigner extends AbstractGpgSigner {
 
         @Override
         public byte[] loadKeyRingMaterial(RepositorySystemSession session) {
-            String keyMaterial = ConfigUtils.getString(session, null, "env." + keyEnvName);
+            String keyMaterial = (String) session.getConfigProperties().get("env." + keyEnvName);
             if (keyMaterial != null) {
                 return keyMaterial.getBytes(StandardCharsets.UTF_8);
             }
@@ -116,7 +115,7 @@ public class BcSigner extends AbstractGpgSigner {
 
         @Override
         public byte[] loadKeyFingerprint(RepositorySystemSession session) {
-            String keyFingerprint = ConfigUtils.getString(session, null, "env." + keyFingerprintEnvName);
+            String keyFingerprint = (String) session.getConfigProperties().get("env." + keyFingerprintEnvName);
             if (keyFingerprint != null) {
                 if (keyFingerprint.trim().length() == 40) {
                     return Hex.decode(keyFingerprint);
