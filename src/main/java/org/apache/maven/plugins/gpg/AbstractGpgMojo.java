@@ -300,10 +300,10 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
             signer.setPassPhrase(passphrase);
         }
 
-        if (null == passphrase && !useAgent) {
-            if (!interactive) {
-                throw new MojoFailureException("Cannot obtain passphrase in batch mode");
-            }
+        // gpg signer: always failed if no passphrase and no agent and not interactive: retain this behavior
+        // bc signer: it is optimistic, will fail during prepare() only IF key is passphrase protected
+        if (GpgSigner.NAME.equals(this.signer) && null == passphrase && !useAgent && !interactive) {
+            throw new MojoFailureException("Cannot obtain passphrase in batch mode");
         }
 
         signer.prepare();
