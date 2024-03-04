@@ -28,26 +28,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GpgSignAttachedMojoIT {
-
-    private final File mavenHome;
-    private final File localRepository;
-    private final File mavenUserSettings;
-    private final File gpgHome;
-
-    public GpgSignAttachedMojoIT() throws Exception {
-        this.mavenHome = new File(System.getProperty("maven.home"));
-        this.localRepository = new File(System.getProperty("localRepositoryPath"));
-        this.mavenUserSettings = InvokerTestUtils.getTestResource(System.getProperty("settingsFile"));
-        this.gpgHome = new File(System.getProperty("gpg.homedir"));
-    }
-
+public class GpgSignAttachedMojoIT extends ITSupport {
     @Test
     void testInteractiveWithoutPassphrase() throws Exception {
         // given
         final File pomFile =
                 InvokerTestUtils.getTestResource("/it/sign-release-without-passphrase-interactive/pom.xml");
-        final InvocationRequest request = InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, false);
+        final InvocationRequest request =
+                InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, "gpg", false);
 
         // require Maven interactive mode
         request.setBatchMode(false);
