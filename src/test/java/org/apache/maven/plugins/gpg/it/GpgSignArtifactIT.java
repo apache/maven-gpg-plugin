@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.maven.shared.invoker.InvocationRequest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -76,6 +77,34 @@ public class GpgSignArtifactIT extends ITSupport {
         String[] outputFiles = expectedOutputDirectory.list();
         assertNotNull(outputFiles);
 
+        Arrays.sort(outputFiles);
+        Arrays.sort(expectedFiles);
+        assertEquals(Arrays.toString(expectedFiles), Arrays.toString(outputFiles));
+    }
+
+    @Test
+    void testWorstPracticesStillWork() throws Exception {
+        // given
+        final File pomFile = InvokerTestUtils.getTestResource("/it/sign-release-in-same-dir/pom.xml");
+        final InvocationRequest request =
+                InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, "gpg", false);
+        request.addArg("-Dgpg.bestPractices=false");
+        request.addArg("-Dgpg.passphrase=TEST");
+
+        final File integrationTestRootDirectory = new File(pomFile.getParent());
+        final File expectedOutputDirectory = new File(integrationTestRootDirectory + "/target/tarballs/");
+
+        // when
+        InvokerTestUtils.executeRequest(request, mavenHome, localRepository);
+
+        // then
+        assertTrue(expectedOutputDirectory.isDirectory());
+
+        String[] outputFiles = expectedOutputDirectory.list();
+        assertNotNull(outputFiles);
+
+        String[] expectedFiles =
+                new String[] {"sign-release-in-same-dir-1.0.jar", "sign-release-in-same-dir-1.0.jar.asc"};
         Arrays.sort(outputFiles);
         Arrays.sort(expectedFiles);
         assertEquals(Arrays.toString(expectedFiles), Arrays.toString(outputFiles));

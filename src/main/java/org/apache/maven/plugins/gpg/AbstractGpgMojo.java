@@ -274,7 +274,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * @deprecated
      */
     @Deprecated
-    @Parameter(defaultValue = "${settings}", readonly = true)
+    @Parameter(defaultValue = "${settings}", readonly = true, required = true)
     private Settings settings;
 
     /**
