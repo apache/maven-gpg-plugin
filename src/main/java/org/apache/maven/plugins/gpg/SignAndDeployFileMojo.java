@@ -456,7 +456,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         Model model = generateModel();
 
         ModelBuildingRequest request =
-                new DefaultModelBuildingRequest().setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_2_0);
+                new DefaultModelBuildingRequest().setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_STRICT);
 
         List<String> result = new ArrayList<>();
 
