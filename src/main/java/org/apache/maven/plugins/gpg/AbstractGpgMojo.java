@@ -27,6 +27,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 /**
  * @author Benjamin Bentmann
@@ -248,14 +253,47 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     @Component
     protected MavenSession session;
 
+    // === Deprecated stuff
+
+    /**
+     * Switch to lax plugin enforcement of "best practices". If set to {@code false}, plugin will retain all the
+     * backward compatibility regarding getting secrets (but will warn). By default, plugin enforces "best practices"
+     * and in such cases plugin fails.
+     *
+     * @since 3.2.0
+     * @deprecated
+     */
+    @Deprecated
+    @Parameter(property = "gpg.bestPractices", defaultValue = "true")
+    private boolean bestPractices;
+
+    /**
+     * Current user system settings for use in Maven.
+     *
+     * @since 1.6
+     * @deprecated
+     */
+    @Deprecated
+    @Parameter(defaultValue = "${settings}", readonly = true, required = true)
+    private Settings settings;
+
+    /**
+     * Maven Security Dispatcher.
+     *
+     * @since 1.6
+     * @deprecated
+     */
+    @Deprecated
+    @Component
+    private SecDispatcher secDispatcher;
+
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             // We're skipping the signing stuff
             return;
         }
-        if ((passphrase != null && !passphrase.trim().isEmpty())
-                || (passphraseServerId != null && !passphraseServerId.trim().isEmpty())) {
+        if (bestPractices && (isNotBlank(passphrase) || isNotBlank(passphraseServerId))) {
             // Stop propagating worst practices: passphrase MUST NOT be in any file on disk
             throw new MojoFailureException(
                     "Do not store passphrase in any file (disk or SCM repository), rely on GnuPG agent or provide passphrase in "
@@ -267,7 +305,19 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 
-    protected AbstractGpgSigner newSigner() throws MojoFailureException {
+    private void logBestPracticeWarning(String source) {
+        getLog().warn("");
+        getLog().warn("W A R N I N G");
+        getLog().warn("");
+        getLog().warn("Do not store passphrase in any file (disk or SCM repository),");
+        getLog().warn("instead rely on GnuPG agent in interactive sessions, or provide passphrase in ");
+        getLog().warn(passphraseEnvName + " environment variable for batch mode.");
+        getLog().warn("");
+        getLog().warn("Sensitive content loaded from " + source);
+        getLog().warn("");
+    }
+
+    protected AbstractGpgSigner newSigner(MavenProject mavenProject) throws MojoFailureException {
         AbstractGpgSigner signer;
         if (GpgSigner.NAME.equals(this.signer)) {
             signer = new GpgSigner(executable);
@@ -294,10 +344,32 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         signer.setLockMode(lockMode);
         signer.setArgs(gpgArguments);
 
+        // "new way": env prevails
         String passphrase =
                 (String) session.getRepositorySession().getConfigProperties().get("env." + passphraseEnvName);
-        if (passphrase != null) {
+        if (isNotBlank(passphrase)) {
             signer.setPassPhrase(passphrase);
+        } else if (!bestPractices) {
+            // "old way": mojo config
+            passphrase = this.passphrase;
+            if (isNotBlank(passphrase)) {
+                logBestPracticeWarning("Mojo configuration");
+                signer.setPassPhrase(passphrase);
+            } else {
+                // "old way": serverId + settings
+                passphrase = loadGpgPassphrase();
+                if (isNotBlank(passphrase)) {
+                    logBestPracticeWarning("settings.xml");
+                    signer.setPassPhrase(passphrase);
+                } else {
+                    // "old way": project properties
+                    passphrase = getPassphrase(mavenProject);
+                    if (isNotBlank(passphrase)) {
+                        logBestPracticeWarning("Project properties");
+                        signer.setPassPhrase(passphrase);
+                    }
+                }
+            }
         }
 
         // gpg signer: always failed if no passphrase and no agent and not interactive: retain this behavior
@@ -309,5 +381,57 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         signer.prepare();
 
         return signer;
+    }
+
+    private boolean isNotBlank(String string) {
+        return string != null && !string.trim().isEmpty();
+    }
+
+    // Below is attic, to be thrown out
+
+    @Deprecated
+    private static final String GPG_PASSPHRASE = "gpg.passphrase";
+
+    @Deprecated
+    private String loadGpgPassphrase() throws MojoFailureException {
+        if (isNotBlank(passphrase)) {
+            Server server = settings.getServer(passphraseServerId);
+            if (server != null) {
+                if (isNotBlank(server.getPassphrase())) {
+                    try {
+                        return secDispatcher.decrypt(server.getPassphrase());
+                    } catch (SecDispatcherException e) {
+                        throw new MojoFailureException("Unable to decrypt gpg passphrase", e);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Deprecated
+    public String getPassphrase(MavenProject project) {
+        String pass = null;
+        if (project != null) {
+            pass = project.getProperties().getProperty(GPG_PASSPHRASE);
+            if (pass == null) {
+                MavenProject prj2 = findReactorProject(project);
+                pass = prj2.getProperties().getProperty(GPG_PASSPHRASE);
+            }
+        }
+        if (project != null) {
+            findReactorProject(project).getProperties().setProperty(GPG_PASSPHRASE, pass);
+        }
+        return pass;
+    }
+
+    @Deprecated
+    private MavenProject findReactorProject(MavenProject prj) {
+        if (prj.getParent() != null
+                && prj.getParent().getBasedir() != null
+                && prj.getParent().getBasedir().exists()) {
+            return findReactorProject(prj.getParent());
+        }
+        return prj;
     }
 }
