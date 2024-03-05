@@ -29,7 +29,7 @@ Usage
 
   Signs all of a project's attached artifacts with GnuPG.
 
-  You need to have previously configured the default key.
+  You need to have previously configured the default key using GnuPG.
 
   <<<gpg>>> also needs to be on the search path.
 
@@ -60,26 +60,62 @@ Usage
 </project>
 +----------+
 
-  Then you specify the passphrase on the command line. Like this:
+  Ideally, if invoked on workstation, you should rely on gpg-agent to
+  collect passphrase from, as in that way no secrets will enter terminal history nor
+  any file on disk. In agent-less (batch) sessions, typically on CI, you should provide
+  passphrases via environment variable (see goals).
+
+  <<Note:>> When using the GPG Plugin in combination with the Maven Release Plugin,
+  on a developer Workstation, you should rely on gpg-agent, but have it "primed",
+  as Release plugin invokes build in batch mode, that will prevent agent to present
+  the "pinentry pop up". If fully unattended release is being done, for example
+  on a CI system, then with <<<useAgent>>> set to <<<false>>> one can pass
+  the passphrase via environment variable.
+
+  <<To prime gpg-agent caches>>, one can perform simple "sign" operation on
+  workstation like this <<<echo "test" | gpg --clearsign>>> or can use
+  gpg command {{{https://www.gnupg.org/documentation/manuals/gnupg/Invoking-gpg_002dpreset_002dpassphrase.html}gpg-preset-passphrase}}.
+
+  General remark regarding environment variables: Examples below are NOT
+  instructions how to invoke Maven, as if you'd follow these examples
+  literally, it would defy the goal of not leaking cleartext passphrases,
+  as these would end up in terminal history! You should set these environment
+  variables on your own discretion in some secure manner.
+
++----------+
+MAVEN_GPG_PASSPHRASE=thephrase mvn release:perform
++----------+
+
+  One "real life" example, on Un*x systems could be this:
+
++----------+
+read -s -p "Enter your GnuPG key passphrase: " MAVEN_GPG_PASSPHRASE; mvn release:perform
++----------+
+
+  Finally, the passphrase can be given on the command line as well, but this is not recommended,
+  and plugin will emit warnings. This mode of invocation is highly discouraged,
+  as passphrase in cleartext is recorded into Terminal history.
 
 +----------+
 mvn verify -Dgpg.passphrase=thephrase
 +----------+
 
-  If you don't specify a passphrase, it will prompt for one.
+* Security considerations
 
-  <<Note:>> When using the GPG Plugin in combination with the Maven Release Plugin, you might need to specify the passphrase
-  like this:
+  In the future, plugin will operate in <<<bestPractices>>> mode enabled, and will fail
+  the build if any violation of those is detected. The goal of this change was to protect
+  plugin users from possible "leaks" of sensitive information (like passphrase is).
+  Sensitive information like passphrases should never be stored on disks (plaintext
+  or quasi-encrypted), nor should be used in way they may "leak" into other files
+  (for example bash terminal history).
 
-+----------+
-mvn release:perform -Darguments=-Dgpg.passphrase=thephrase
-+----------+
-
-  This accounts for the fact, that the Release Plugin forks Maven and system properties of the current Maven session are
-  unfortunately not automatically propagated to the forked Maven session (see also {{{https://issues.apache.org/jira/browse/MGPG-9}MGPG-9}}).
-
+  Hence, examples below will work by emit warnings. In the future, once "best practices"
+  become enforced, these examples will not work anymore.
 
 * Configure passphrase in settings.xml
+
+  <<NOTE:>> These techniques below are highly discouraged. Ideally sensitive information
+  should enter via gpg-agent or via environment variables.
 
   Instead of specifying the passphrase on the command line, you can place it in your local <<<settings.xml>>>
   either in clear or {{{/guides/mini/guide-encryption.html}encrypted}} text.

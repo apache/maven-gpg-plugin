@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,11 +73,6 @@ public class BcSigner extends AbstractGpgSigner {
 
     public interface Loader {
         /**
-         * Returns {@code true} if this loader requires user interactivity.
-         */
-        boolean isInteractive();
-
-        /**
          * Returns the key ring material, or {@code null}.
          */
         default byte[] loadKeyRingMaterial(RepositorySystemSession session) throws IOException {
@@ -93,17 +89,12 @@ public class BcSigner extends AbstractGpgSigner {
         /**
          * Returns the key password, or {@code null}.
          */
-        default char[] loadPassword(RepositorySystemSession session, long keyId) throws IOException {
+        default char[] loadPassword(RepositorySystemSession session, byte[] fingerprint) throws IOException {
             return null;
         }
     }
 
     public final class GpgEnvLoader implements Loader {
-        @Override
-        public boolean isInteractive() {
-            return false;
-        }
-
         @Override
         public byte[] loadKeyRingMaterial(RepositorySystemSession session) {
             String keyMaterial = (String) session.getConfigProperties().get("env." + keyEnvName);
@@ -135,15 +126,12 @@ public class BcSigner extends AbstractGpgSigner {
         private static final long MAX_SIZE = 5 * 1024 + 1L;
 
         @Override
-        public boolean isInteractive() {
-            return false;
-        }
-
-        @Override
         public byte[] loadKeyRingMaterial(RepositorySystemSession session) throws IOException {
             Path keyPath = Paths.get(keyFilePath);
             if (!keyPath.isAbsolute()) {
-                keyPath = session.getLocalRepository().getBasedir().toPath().resolve(keyPath);
+                keyPath = Paths.get(System.getProperty("user.home"))
+                        .resolve(keyPath)
+                        .toAbsolutePath();
             }
             if (Files.isRegularFile(keyPath)) {
                 if (Files.size(keyPath) < MAX_SIZE) {
@@ -171,19 +159,25 @@ public class BcSigner extends AbstractGpgSigner {
 
     public final class GpgAgentPasswordLoader implements Loader {
         @Override
-        public boolean isInteractive() {
-            return true;
-        }
-
-        @Override
-        public char[] loadPassword(RepositorySystemSession session, long keyId) throws IOException {
+        public char[] loadPassword(RepositorySystemSession session, byte[] fingerprint) throws IOException {
+            if (!useAgent) {
+                return null;
+            }
             List<String> socketLocations = Arrays.stream(agentSocketLocations.split(","))
                     .filter(s -> s != null && !s.isEmpty())
                     .collect(Collectors.toList());
             for (String socketLocation : socketLocations) {
                 try {
-                    return load(keyId, Paths.get(System.getProperty("user.home"), socketLocation))
-                            .toCharArray();
+                    Path socketLocationPath = Paths.get(socketLocation);
+                    if (!socketLocationPath.isAbsolute()) {
+                        socketLocationPath = Paths.get(System.getProperty("user.home"))
+                                .resolve(socketLocationPath)
+                                .toAbsolutePath();
+                    }
+                    String pw = load(fingerprint, socketLocationPath);
+                    if (pw != null) {
+                        return pw.toCharArray();
+                    }
                 } catch (SocketException e) {
                     // try next location
                 }
@@ -191,7 +185,7 @@ public class BcSigner extends AbstractGpgSigner {
             return null;
         }
 
-        private String load(long keyId, Path socketPath) throws IOException {
+        private String load(byte[] fingerprint, Path socketPath) throws IOException {
             try (AFUNIXSocket sock = AFUNIXSocket.newInstance()) {
                 sock.connect(AFUNIXSocketAddress.of(socketPath));
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -210,22 +204,41 @@ public class BcSigner extends AbstractGpgSigner {
                         os.flush();
                         expectOK(in);
                     }
-                    String hexKeyId = Long.toHexString(keyId & 0xFFFFFFFFL);
+                    String hexKeyFingerprint = Hex.toHexString(fingerprint);
+                    String displayFingerprint = hexKeyFingerprint.toUpperCase(Locale.ROOT);
                     // https://unix.stackexchange.com/questions/71135/how-can-i-find-out-what-keys-gpg-agent-has-cached-like-how-ssh-add-l-shows-yo
-                    String instruction = "GET_PASSPHRASE " + hexKeyId + " " + "Passphrase+incorrect"
-                            + " GnuPG+Key+Passphrase Enter+passphrase+for+encrypted+GnuPG+key+" + hexKeyId
+                    String instruction = "GET_PASSPHRASE "
+                            + (!isInteractive ? "--no-ask " : "")
+                            + hexKeyFingerprint
+                            + " "
+                            + "X "
+                            + "GnuPG+Passphrase "
+                            + "Please+enter+the+passphrase+to+unlock+the+OpenPGP+secret+key+with+fingerprint:+" + displayFingerprint
                             + "+to+use+it+for+signing+Maven+Artifacts\n";
                     os.write((instruction).getBytes());
                     os.flush();
-                    return new String(Hex.decode(expectOK(in).trim()));
+                    String pw = mayExpectOK(in);
+                    if (pw != null) {
+                        return new String(Hex.decode(pw.trim()));
+                    }
+                    return null;
                 }
             }
         }
 
-        private String expectOK(BufferedReader in) throws IOException {
+        private void expectOK(BufferedReader in) throws IOException {
             String response = in.readLine();
             if (!response.startsWith("OK")) {
                 throw new IOException("Expected OK but got this instead: " + response);
+            }
+        }
+
+        private String mayExpectOK(BufferedReader in) throws IOException {
+            String response = in.readLine();
+            if (response.startsWith("ERR")) {
+                return null;
+            } else if (!response.startsWith("OK")) {
+                throw new IOException("Expected OK/ERR but got this instead: " + response);
             }
             return response.substring(Math.min(response.length(), 3));
         }
@@ -265,7 +278,6 @@ public class BcSigner extends AbstractGpgSigner {
     public void prepare() throws MojoFailureException {
         try {
             List<Loader> loaders = Stream.of(new GpgEnvLoader(), new GpgConfLoader(), new GpgAgentPasswordLoader())
-                    .filter(l -> this.isInteractive || !l.isInteractive())
                     .collect(Collectors.toList());
 
             byte[] keyRingMaterial = null;
@@ -327,7 +339,7 @@ public class BcSigner extends AbstractGpgSigner {
             final boolean keyPassNeeded = secretKey.getKeyEncryptionAlgorithm() != SymmetricKeyAlgorithmTags.NULL;
             if (keyPassNeeded && keyPassword == null) {
                 for (Loader loader : loaders) {
-                    keyPassword = loader.loadPassword(session, secretKey.getKeyID());
+                    keyPassword = loader.loadPassword(session, secretKey.getFingerprint());
                     if (keyPassword != null) {
                         break;
                     }

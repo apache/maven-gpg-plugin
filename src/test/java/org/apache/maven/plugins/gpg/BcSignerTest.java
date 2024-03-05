@@ -54,6 +54,7 @@ class BcSignerTest {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));
+        // first: interactive session: it will pop up a pinentry dialogue, enter "TEST"
         BcSigner signer = new BcSigner(
                 session,
                 "unimportant",
@@ -61,6 +62,20 @@ class BcSignerTest {
                 ".gnupg/S.gpg-agent",
                 new File("src/test/resources/signing-key.asc").getAbsolutePath(),
                 null);
+        signer.setUseAgent(true);
+        signer.setInteractive(true);
+        signer.prepare();
+
+        // second: non-interactive: will use agent but no 2nd popup will appear
+        signer = new BcSigner(
+                session,
+                "unimportant",
+                "unimportant",
+                ".gnupg/S.gpg-agent",
+                new File("src/test/resources/signing-key.asc").getAbsolutePath(),
+                null);
+        signer.setUseAgent(true);
+        signer.setInteractive(false);
         signer.prepare();
     }
 }

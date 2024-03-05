@@ -51,11 +51,13 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String agentSocketLocations;
 
     /**
-     * BC Signer only: The path of the exported key in TSK format, and probably passphrase protected. If relative,
-     * the file is resolved against Maven local repository root.
+     * BC Signer only: The path of the exported key in
+     * <a href="https://openpgp.dev/book/private_keys.html#transferable-secret-key-format">TSK format</a>,
+     * and may be passphrase protected. If relative, the file is resolved against user home directory.
      * <p>
-     * <em>Note: it is not recommended to have sensitive files on disk or SCM repository, this mode is more to be used
-     * in local environment (workstations) or for testing purposes.</em>
+     * <em>Note: it is not recommended to have sensitive files checked into SCM repository. Key file should reside on
+     * developer workstation, outside of SCM tracked repository. For CI-like use cases you should set the
+     * key material as env variable instead.</em>
      *
      * @since 3.2.0
      */
@@ -71,9 +73,11 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String keyFingerprint;
 
     /**
-     * BC Signer only: The env variable name where the GnuPG key is set. The default value is {@code MAVEN_GPG_KEY}.
+     * BC Signer only: The env variable name where the GnuPG key is set.
      * To use BC Signer you must provide GnuPG key, as it does not use GnuPG home directory to extract/find the
-     * key (while it does use GnuPG Agent to ask for password in interactive mode).
+     * key (while it does use GnuPG Agent to ask for password in interactive mode). The key should be in
+     * <a href="https://openpgp.dev/book/private_keys.html#transferable-secret-key-format">TSK format</a> and may
+     * be passphrase protected.
      *
      * @since 3.2.0
      */
@@ -82,7 +86,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     /**
      * BC Signer only: The env variable name where the GnuPG key fingerprint is set, if the provided keyring contains
-     * multiple keys. The default value is {@code MAVEN_GPG_KEY_FINGERPRINT}.
+     * multiple keys.
      *
      * @since 3.2.0
      */
@@ -90,8 +94,8 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String keyFingerprintEnvName;
 
     /**
-     * The env variable name where the GnuPG passphrase is set. The default value is {@code MAVEN_GPG_PASSPHRASE}.
-     * This is the recommended way to pass passphrase for signing in batch mode execution of Maven.
+     * The env variable name where the GnuPG passphrase is set. This is the recommended way to pass passphrase
+     * for signing in batch mode execution of Maven.
      *
      * @since 3.2.0
      */
@@ -109,23 +113,25 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     /**
      * The passphrase to use when signing. If not given, look up the value under Maven
-     * settings using server id at 'passphraseServerKey' configuration. <em>Do not use this parameter, if set, the
-     * plugin will fail. Passphrase should be provided only via gpg-agent (interactive) or via env variable
-     * (non-interactive).</em>
+     * settings using server id at 'passphraseServerKey' configuration. <em>Do not use this parameter, it leaks
+     * sensitive data. Passphrase should be provided only via gpg-agent or via env variable.
+     * If parameter {@link #bestPractices} set to {@code true}, plugin fails when this parameter is configured.</em>
      *
-     * @deprecated Do not use this configuration, plugin will fail if set.
+     * @deprecated Do not use this configuration, it may leak sensitive information. Rely on gpg-agent or env
+     * variables instead.
      **/
     @Deprecated
     @Parameter(property = "gpg.passphrase")
     private String passphrase;
 
     /**
-     * Server id to lookup the passphrase under Maven settings. <em>Do not use this parameter, if set, the
-     * plugin will fail. Passphrase should be provided only via gpg-agent (interactive) or via env variable
-     * (non-interactive).</em>
+     * Server id to lookup the passphrase under Maven settings. <em>Do not use this parameter, it leaks
+     * sensitive data. Passphrase should be provided only via gpg-agent or via env variable.
+     * If parameter {@link #bestPractices} set to {@code true}, plugin fails when this parameter is configured.</em>
      *
      * @since 1.6
-     * @deprecated Do not use this configuration, plugin will fail if set.
+     * @deprecated Do not use this configuration, it may leak sensitive information. Rely on gpg-agent or env
+     * variables instead.
      **/
     @Deprecated
     @Parameter(property = "gpg.passphraseServerId")
@@ -138,22 +144,21 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String keyname;
 
     /**
-     * GPG Signer only: Passes <code>--use-agent</code> or <code>--no-use-agent</code> to gpg. If using an agent, the
-     * passphrase is optional as the agent will provide it. For gpg2, specify true as --no-use-agent was removed in
-     * gpg2 and doesn't ask for a passphrase anymore. Deprecated, and better to rely on session "interactive" setting
-     * (if interactive, agent will be used, otherwise not).
-     *
-     * @deprecated
+     * All signers: whether gpg-agent is allowed to be used or not. If enabled, passphrase is optional, as agent may
+     * provide it. Have to be noted, that in "batch" mode, gpg-agent will be prevented to pop up pinentry
+     * dialogue, hence best is to "prime" the agent caches beforehand.
+     * <p>
+     * GPG Signer: Passes <code>--use-agent</code> or <code>--no-use-agent</code> option to gpg if it is version 2.1
+     * or older. Otherwise, will use an agent. In non-interactive mode gpg options are appended with
+     * <code>--pinentry-mode error</code>, preventing gpg agent to pop up pinentry dialogue. Agent will be able to
+     * hand over only cached passwords.
+     * <p>
+     * BC Signer: Allows signer to communicate with gpg agent. In non-interactive mode it uses
+     * <code>--no-ask</code> option with the <code>GET_PASSPHRASE</code> function. Agent will be able to hand over
+     * only cached passwords.
      */
-    @Deprecated
     @Parameter(property = "gpg.useagent", defaultValue = "true")
     private boolean useAgent;
-
-    /**
-     * Detect is session interactive or not.
-     */
-    @Parameter(defaultValue = "${settings.interactiveMode}", readonly = true)
-    private boolean interactive;
 
     /**
      * GPG Signer only: The path to the GnuPG executable to use for artifact signing. Defaults to either "gpg" or
@@ -182,7 +187,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * ‘private-keys-v1.d’ directory below the GnuPG home directory.
      *
      * @since 1.2
-     * @deprecated
+     * @deprecated Obsolete option since GnuPG 2.1 version.
      */
     @Deprecated
     @Parameter(property = "gpg.secretKeyring")
@@ -198,7 +203,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * ‘pubring.kbx’ file below the GnuPG home directory.
      *
      * @since 1.2
-     * @deprecated
+     * @deprecated Obsolete option since GnuPG 2.1 version.
      */
     @Deprecated
     @Parameter(property = "gpg.publicKeyring")
@@ -224,7 +229,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private boolean skip;
 
     /**
-     * Sets the arguments to be passed to gpg. Example:
+     * GPG Signer only: Sets the arguments to be passed to gpg. Example:
      *
      * <pre>
      * &lt;gpgArguments&gt;
@@ -256,24 +261,24 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     // === Deprecated stuff
 
     /**
-     * Switch to lax plugin enforcement of "best practices". If set to {@code false}, plugin will retain all the
-     * backward compatibility regarding getting secrets (but will warn). By default, plugin enforces "best practices"
-     * and in such cases plugin fails.
+     * Switch to improve plugin enforcement of "best practices". If set to {@code false}, plugin retains all the
+     * backward compatibility regarding getting secrets (but will warn). If set to {@code true}, plugin will fail
+     * if any "bad practices" regarding sensitive data handling are detected. By default, plugin remains backward
+     * compatible (this flag is {@code false}). Somewhere in the future, when this parameter enabling transitioning
+     * from older plugin versions is removed, the logic using this flag will be modified like it is set to {@code true}.
+     * It is warmly advised to configure this parameter to {@code true} and migrate project and user environment
+     * regarding how sensitive information is stored.
      *
      * @since 3.2.0
-     * @deprecated
      */
-    @Deprecated
-    @Parameter(property = "gpg.bestPractices", defaultValue = "true")
+    @Parameter(property = "gpg.bestPractices", defaultValue = "false")
     private boolean bestPractices;
 
     /**
      * Current user system settings for use in Maven.
      *
      * @since 1.6
-     * @deprecated
      */
-    @Deprecated
     @Parameter(defaultValue = "${settings}", readonly = true, required = true)
     private Settings settings;
 
@@ -281,7 +286,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * Maven Security Dispatcher.
      *
      * @since 1.6
-     * @deprecated
+     * @deprecated Provides quasi-encryption, should be avoided.
      */
     @Deprecated
     @Component
@@ -310,7 +315,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         getLog().warn("W A R N I N G");
         getLog().warn("");
         getLog().warn("Do not store passphrase in any file (disk or SCM repository),");
-        getLog().warn("instead rely on GnuPG agent in interactive sessions, or provide passphrase in ");
+        getLog().warn("instead rely on GnuPG agent or provide passphrase in ");
         getLog().warn(passphraseEnvName + " environment variable for batch mode.");
         getLog().warn("");
         getLog().warn("Sensitive content loaded from " + source);
@@ -334,7 +339,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         }
 
         signer.setLog(getLog());
-        signer.setInteractive(interactive);
+        signer.setInteractive(settings.isInteractiveMode());
         signer.setKeyName(keyname);
         signer.setUseAgent(useAgent);
         signer.setHomeDirectory(homedir);
@@ -371,13 +376,6 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
                 }
             }
         }
-
-        // gpg signer: always failed if no passphrase and no agent and not interactive: retain this behavior
-        // bc signer: it is optimistic, will fail during prepare() only IF key is passphrase protected
-        if (GpgSigner.NAME.equals(this.signer) && null == passphrase && !useAgent && !interactive) {
-            throw new MojoFailureException("Cannot obtain passphrase in batch mode");
-        }
-
         signer.prepare();
 
         return signer;
@@ -419,7 +417,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
                 pass = prj2.getProperties().getProperty(GPG_PASSPHRASE);
             }
         }
-        if (project != null) {
+        if (project != null && pass != null) {
             findReactorProject(project).getProperties().setProperty(GPG_PASSPHRASE, pass);
         }
         return pass;

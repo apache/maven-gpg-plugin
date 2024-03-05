@@ -135,7 +135,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
 
     /**
      * URL where the artifact will be deployed. <br/>
-     * ie ( file:///C:/m2-repo or scp://host.com/path/to/repo )
+     * ie ( file:///C:/m2-repo or https://host.com/path/to/repo )
      */
     @Parameter(property = "url", required = true)
     private String url;
