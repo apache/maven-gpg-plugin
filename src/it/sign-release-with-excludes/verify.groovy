@@ -30,6 +30,12 @@ var expectedFiles = [
 
 for (File file : artifactDir.listFiles()) {
     var fileName = file.getName()
+
+    //maven4: skip consumer POM
+    if (fileName.endsWith("consumer.pom") || fileName.endsWith("consumer.pom.asc")) {
+        continue
+    }
+
     println "Checking if file is expected: $file"
 
     var expected = false;
