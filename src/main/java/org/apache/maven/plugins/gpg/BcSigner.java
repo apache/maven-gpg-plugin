@@ -213,7 +213,8 @@ public class BcSigner extends AbstractGpgSigner {
                             + " "
                             + "X "
                             + "GnuPG+Passphrase "
-                            + "Please+enter+the+passphrase+to+unlock+the+OpenPGP+secret+key+with+fingerprint:+" + displayFingerprint
+                            + "Please+enter+the+passphrase+to+unlock+the+OpenPGP+secret+key+with+fingerprint:+"
+                            + displayFingerprint
                             + "+to+use+it+for+signing+Maven+Artifacts\n";
                     os.write((instruction).getBytes());
                     os.flush();
