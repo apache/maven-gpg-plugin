@@ -32,16 +32,61 @@ Deploy Signed Artifacts
 mvn deploy
 +----------+
 
- If you have configured this plugin according to the instructions in the
- {{{../usage.html}usage page}}, you just need to specify the passphrase for
- your private key on the command line like this:
+  If you have configured this plugin according to the instructions in the
+  {{{../usage.html}usage page}}, nothing changes for interactive sessions:
 
 +----------+
-mvn deploy -Dgpg.passphrase=thephrase
+mvn deploy
 +----------+
 
-  If you don't specify a passphrase, it will prompt for one.
+  And the gpg-agent will prompt you for passphrase.
 
+  General remark regarding environment variables: Examples below are NOT
+  instructions how to invoke Maven, as if you'd follow these examples
+  literally, it would defy the goal of not leaking cleartext passphrases,
+  as these would end up in terminal history! You should set these environment
+  variables on your own discretion in some secure manner.
+
+  If you use "batch" build (or build is invoked by Maven Release Plugin),
+  then gpg-agent will be unable to ask interactively for password. In such
+  cases you want to "prime" the agent with passwords first. See {{{../usage.html}usage page}}
+  for details how to "prime" gpg-agent.
+
+  In "agent-less" (CI like usage) mode one can supply passphrase via environment
+  variable only.
+
++----------+
+MAVEN_GPG_PASSPHRASE=thephrase mvn --batch-mode deploy
++----------+
+
+* Sign using BC Signer
+
+  By default the plugin uses the "gpg" Signer (that relies on GnuPG tool installed
+  on host OS). The "bc" Signer on the other hand implements signing in pure
+  Java using Bouncy Castle libraries.
+
+  The "bc" signer, unlike "gpg", does not and cannot make use of <<<~/.gnupg>>>
+  directory in user home, and have to have configured both, the key used
+  to sign and the passphrase (if key is passphrase protected). The key is expected to be in
+  TSK format (see {{{https://openpgp.dev/book/private_keys.html#transferable-secret-key-format}"Transferable Secret Keys"}} format).
+
++----------+
+mvn deploy -Dgpg.signer=bc -Dgpg.keyFilePath=path/to/key
++----------+
+
+  In interactive sessions, similarly as with "gpg" Signer, gpg-agent will be used to
+  ask for password. In batch sessions, you can use environment variables to achieve
+  similar thing:
+
++----------+
+MAVEN_GPG_PASSPHRASE=thephrase mvn deploy -Dgpg.signer=bc -Dgpg.keyFilePath=path/to/key
++----------+
+
+  Ultimately, you can place both, they key and passphrase into environment variables:
+
++----------+
+MAVEN_GPG_KEY=thekeymaterial MAVEN_GPG_PASSPHRASE=thephrase mvn deploy -Dgpg.signer=bc
++----------+
 
 * Install/Deploy without configuring the plugin in the POM
 

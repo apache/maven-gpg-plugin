@@ -40,6 +40,25 @@ ${project.name}
   General instructions on how to use the GPG Plugin can be found on the {{{./usage.html}usage page}}. Some more
   specific use cases are described in the examples given below.
 
+  Since 3.2.0, plugin can enforce "best practices", and will fail the build if any violation are detected.
+  In short, intent is to stop users putting secrets (plaintext or quasi-encrypted) in their Maven configuration
+  files (settings.xml, POMs) or use secrets in a way they leave trace (like in terminal history). In this mode,
+  plugin leaves two options to obtain passphrase: use of gpg-agent (with pinentry in interactive sessions, or pre-seeded
+  "cached" passwords in non-interactive mode), and use of environment variables in batch/non-interactive/no-agent
+  sessions. To enable "best practices" configure the plugin accordingly (see goals, look for <<<bestPractices>>>
+  configuration). By default, the plugin does not enforce these, but does emit warnings.
+
+  To "prime" the GnuPG agent, you have several options: either just "sign" something beforehand (usable on
+  workstations) like <<<echo "test" | gpg --clearsign>>>, or use
+  {{{https://www.gnupg.org/documentation/manuals/gnupg/Invoking-gpg_002dpreset_002dpassphrase.html}gpg-preset-passphrase}}
+  GnuPG command, that will "cache" the password in gpg-agent for given login session, cache content is lost between
+  reboots. Note: this tool, while is part of GnuPG suite, may not be on path. Check your OS documentation for it.
+  For example, on modern versions of Fedora this tool is not on path, but is located in <<</usr/libexec/gpg-preset-passphrase>>>.
+
+  <<Note:>> The GpgSigner, that uses GnuPG tool installed and configured on the host OS, while it does contain support
+  for older GnuPGP versions, is tested (locally by developers and on CI systems) only by using
+  {{{https://www.gnupg.org/download/index.html}latest "stable" GnuPG version}} (scroll to bottom of page for EOL information).
+
   In case you still have questions regarding the plugin's usage, please have a look at the {{{./faq.html}FAQ}} and feel
   free to contact the {{{./mailing-lists.html}user mailing list}}. The posts to the mailing list are archived and could
   already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching
