@@ -16,4 +16,4 @@
 # under the License.
 
 _extends: maven-gh-actions-shared
-tag-template: maven-invoker-$NEXT_MINOR_VERSION
+tag-template: maven-gpg-plugin-$NEXT_MINOR_VERSION
