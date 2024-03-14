@@ -22,7 +22,7 @@ under the License.
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.maven.its.gpg.nma</groupId>
+  <groupId>org.apache.maven.its.gpg.swpfmc</groupId>
   <artifactId>test</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
@@ -48,6 +48,8 @@ under the License.
         <version>@project.version@</version>
         <configuration>
           <!-- load passphrase from settings.xml -->
+          <!-- but not the default -->
+          <passphraseServerId>gpg.passphrase-sign-with-passphase-from-maven-settings</passphraseServerId>
         </configuration>
         <executions>
           <execution>

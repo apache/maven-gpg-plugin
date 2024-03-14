@@ -392,7 +392,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     @Deprecated
     private String loadGpgPassphrase() throws MojoFailureException {
-        if (isNotBlank(passphrase)) {
+        if (isNotBlank(passphraseServerId)) {
             Server server = settings.getServer(passphraseServerId);
             if (server != null) {
                 if (isNotBlank(server.getPassphrase())) {

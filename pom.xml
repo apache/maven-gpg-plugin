@@ -274,9 +274,6 @@ under the License.
                 <goal>clean</goal>
                 <goal>install</goal>
               </goals>
-              <properties>
-                <gpg.homedir>${project.build.testOutputDirectory}/gnupg</gpg.homedir>
-              </properties>
             </configuration>
             <executions>
               <execution>
@@ -299,6 +296,7 @@ under the License.
                 <configuration>
                   <properties>
                     <gpg.signer>gpg</gpg.signer>
+                    <gpg.homedir>${project.build.testOutputDirectory}/gnupg</gpg.homedir>
                   </properties>
                 </configuration>
               </execution>
