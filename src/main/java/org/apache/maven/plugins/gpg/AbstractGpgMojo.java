@@ -121,7 +121,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * variables instead.
      **/
     @Deprecated
-    @Parameter(property = "gpg.passphrase")
+    @Parameter(property = GPG_PASSPHRASE)
     private String passphrase;
 
     /**
@@ -134,7 +134,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * variables instead.
      **/
     @Deprecated
-    @Parameter(property = "gpg.passphraseServerId")
+    @Parameter(property = "gpg.passphraseServerId", defaultValue = GPG_PASSPHRASE)
     private String passphraseServerId;
 
     /**
@@ -392,7 +392,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     @Deprecated
     private String loadGpgPassphrase() throws MojoFailureException {
-        if (isNotBlank(passphrase)) {
+        if (isNotBlank(passphraseServerId)) {
             Server server = settings.getServer(passphraseServerId);
             if (server != null) {
                 if (isNotBlank(server.getPassphrase())) {

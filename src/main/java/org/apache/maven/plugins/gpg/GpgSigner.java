@@ -178,6 +178,8 @@ public class GpgSigner extends AbstractGpgSigner {
         // Execute the command line
         // ----------------------------------------------------------------------------
 
+        getLog().debug("CMD: " + cmd);
+
         try {
             int exitCode = CommandLineUtils.executeCommandLine(cmd, in, new DefaultConsumer(), new DefaultConsumer());
 

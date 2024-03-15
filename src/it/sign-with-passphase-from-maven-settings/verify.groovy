@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var artifactDir = new File(localRepositoryPath, "org/apache/maven/its/gpg/nma/test/1.0")
+var artifactDir = new File(localRepositoryPath, "org/apache/maven/its/gpg/swpfmc/test/1.0")
 
 var expectedFiles = [
     "test-1.0.pom",
