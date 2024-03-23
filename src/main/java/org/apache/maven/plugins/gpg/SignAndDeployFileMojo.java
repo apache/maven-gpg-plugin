@@ -142,15 +142,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     private String repositoryId;
 
     /**
-     * The type of remote repository layout to deploy to. Try <i>legacy</i> for a Maven 1.x-style repository layout.
-     *
-     * @deprecated Maven3 does not support "legacy" (Maven1) layout anymore. This parameter is unused.
-     */
-    @Deprecated
-    @Parameter(property = "repositoryLayout", defaultValue = "default")
-    private String repositoryLayout;
-
-    /**
      * The bundled API docs for the artifact.
      *
      * @since 1.3
