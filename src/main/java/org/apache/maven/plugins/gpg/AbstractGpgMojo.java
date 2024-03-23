@@ -258,8 +258,6 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     @Component
     protected MavenSession session;
 
-    // === Deprecated stuff
-
     /**
      * Switch to improve plugin enforcement of "best practices". If set to {@code false}, plugin retains all the
      * backward compatibility regarding getting secrets (but will warn). If set to {@code true}, plugin will fail
@@ -280,7 +278,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * @since 1.6
      */
     @Parameter(defaultValue = "${settings}", readonly = true, required = true)
-    private Settings settings;
+    protected Settings settings;
 
     /**
      * Maven Security Dispatcher.

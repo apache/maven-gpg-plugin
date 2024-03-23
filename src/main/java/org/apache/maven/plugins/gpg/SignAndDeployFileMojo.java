@@ -73,12 +73,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     private File ascDirectory;
 
     /**
-     * Flag whether Maven is currently in online/offline mode.
-     */
-    @Parameter(defaultValue = "${settings.offline}", readonly = true)
-    private boolean offline;
-
-    /**
      * GroupId of the artifact to be deployed. Retrieved from POM file if specified.
      */
     @Parameter(property = "groupId")
@@ -149,7 +143,10 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
 
     /**
      * The type of remote repository layout to deploy to. Try <i>legacy</i> for a Maven 1.x-style repository layout.
+     *
+     * @deprecated Maven3 does not support "legacy" (Maven1) layout anymore. This parameter is unused.
      */
+    @Deprecated
     @Parameter(property = "repositoryLayout", defaultValue = "default")
     private String repositoryLayout;
 
@@ -241,7 +238,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
 
     @Override
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
-        if (offline) {
+        if (settings.isOffline()) {
             throw new MojoFailureException("Cannot deploy artifacts when Maven is in offline mode");
         }
 
@@ -252,8 +249,6 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         if (!file.exists()) {
             throw new MojoFailureException(file.getPath() + " not found.");
         }
-
-        RemoteRepository deploymentRepository = new RemoteRepository.Builder(repositoryId, "default", url).build();
 
         // create artifacts
         List<Artifact> artifacts = new ArrayList<>();
@@ -369,6 +364,8 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         artifacts.addAll(signatures);
 
         // deploy all
+        RemoteRepository deploymentRepository = repositorySystem.newDeploymentRepository(
+                session.getRepositorySession(), new RemoteRepository.Builder(repositoryId, "default", url).build());
         try {
             deploy(deploymentRepository, artifacts);
         } catch (DeploymentException e) {
