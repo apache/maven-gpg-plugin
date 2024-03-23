@@ -340,7 +340,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         signer.setBaseDirectory(new File("").getAbsoluteFile());
 
         getLog().info("Signer '" + signer.signerName() + "' is signing " + artifacts.size() + " file"
-                + ((artifacts.size() > 1) ? "s" : ""));
+                + ((artifacts.size() > 1) ? "s" : "") + " with key " + signer.getKeyInfo());
 
         ArrayList<Artifact> signatures = new ArrayList<>();
         for (Artifact a : artifacts) {

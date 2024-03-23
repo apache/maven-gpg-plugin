@@ -33,6 +33,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -359,6 +360,15 @@ public class BcSigner extends AbstractGpgSigner {
         } catch (PGPException | IOException e) {
             throw new MojoFailureException(e);
         }
+    }
+
+    @Override
+    public String getKeyInfo() {
+        Iterator<String> userIds = secretKey.getPublicKey().getUserIDs();
+        if (userIds.hasNext()) {
+            return userIds.next();
+        }
+        return Hex.toHexString(secretKey.getPublicKey().getFingerprint());
     }
 
     @Override

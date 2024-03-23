@@ -34,7 +34,7 @@ import org.codehaus.plexus.util.cli.DefaultConsumer;
  */
 public class GpgSigner extends AbstractGpgSigner {
     public static final String NAME = "gpg";
-    private String executable;
+    private final String executable;
 
     public GpgSigner(String executable) {
         this.executable = executable;
@@ -43,6 +43,11 @@ public class GpgSigner extends AbstractGpgSigner {
     @Override
     public String signerName() {
         return NAME;
+    }
+
+    @Override
+    public String getKeyInfo() {
+        return keyname != null ? keyname : "default";
     }
 
     /**

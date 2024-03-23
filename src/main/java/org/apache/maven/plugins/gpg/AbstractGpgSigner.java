@@ -124,10 +124,24 @@ public abstract class AbstractGpgSigner {
 
     public abstract String signerName();
 
+    /**
+     * Must be invoked BEFORE signing!
+     *
+     * @since 3.2.0
+     */
     public void prepare() throws MojoFailureException {}
 
     /**
+     * Should return some identification about the used key for logging purposes.
+     * Can be invoked only AFTER {@link #prepare()} was invoked.
+     *
+     * @since 3.2.2
+     */
+    public abstract String getKeyInfo();
+
+    /**
      * Create a detached signature file for the provided file.
+     * Can be invoked only AFTER {@link #prepare()} was invoked.
      *
      * @param file The file to sign
      * @return A reference to the generated signature file
