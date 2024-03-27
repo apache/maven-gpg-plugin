@@ -122,9 +122,14 @@ public class BcSigner extends AbstractGpgSigner {
 
     public final class GpgConfLoader implements Loader {
         /**
-         * Maximum key size, see <a href="https://wiki.gnupg.org/LargeKeys">Large Keys</a>.
+         * Maximum file size allowed to load (as we load it into heap).
+         * <p>
+         * This barrier exists to prevent us to load big/huge files, if this code is pointed at one
+         * (by mistake or by malicious intent).
+         *
+         * @see <a href="https://wiki.gnupg.org/LargeKeys">Large Keys</a>
          */
-        private static final long MAX_SIZE = 16 * 1024 + 1L;
+        private static final long MAX_SIZE = 64 * 1024 + 1L;
 
         @Override
         public byte[] loadKeyRingMaterial(RepositorySystemSession session) throws IOException {
