@@ -354,6 +354,9 @@ public class BcSigner extends AbstractGpgSigner {
             this.secretKey = secretKey;
             this.privateKey = secretKey.extractPrivateKey(
                     new BcPBESecretKeyDecryptorBuilder(new BcPGPDigestCalculatorProvider()).build(keyPassword));
+            if (keyPassword != null) {
+                Arrays.fill(keyPassword, ' ');
+            }
             PGPSignatureSubpacketGenerator subPacketGenerator = new PGPSignatureSubpacketGenerator();
             subPacketGenerator.setIssuerFingerprint(false, secretKey);
             this.hashSubPackets = subPacketGenerator.generate();
