@@ -143,7 +143,7 @@ public class BcSigner extends AbstractGpgSigner {
                 if (Files.size(keyPath) < MAX_SIZE) {
                     return Files.readAllBytes(keyPath);
                 } else {
-                    throw new IOException("Refusing to load file " + keyPath + "; is larger than 64KB");
+                    throw new IOException("Refusing to load file " + keyPath + "; is larger than 64KiB");
                 }
             }
             return null;
