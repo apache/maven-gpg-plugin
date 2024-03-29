@@ -129,7 +129,7 @@ public class BcSigner extends AbstractGpgSigner {
          *
          * @see <a href="https://wiki.gnupg.org/LargeKeys">Large Keys</a>
          */
-        private static final long MAX_SIZE = 64 * 1024 + 1L;
+        private static final long MAX_SIZE = 64 * 1000 + 1L;
 
         @Override
         public byte[] loadKeyRingMaterial(RepositorySystemSession session) throws IOException {
@@ -143,7 +143,7 @@ public class BcSigner extends AbstractGpgSigner {
                 if (Files.size(keyPath) < MAX_SIZE) {
                     return Files.readAllBytes(keyPath);
                 } else {
-                    throw new IOException("Refusing to load file " + keyPath + "; is larger than 64KB");
+                    throw new IOException("Refusing to load file " + keyPath + "; is larger than 64 kB");
                 }
             }
             return null;
@@ -180,10 +180,7 @@ public class BcSigner extends AbstractGpgSigner {
                                 .resolve(socketLocationPath)
                                 .toAbsolutePath();
                     }
-                    String pw = load(fingerprint, socketLocationPath);
-                    if (pw != null) {
-                        return pw.toCharArray();
-                    }
+                    return load(fingerprint, socketLocationPath);
                 } catch (SocketException e) {
                     // try next location
                 }
@@ -191,7 +188,7 @@ public class BcSigner extends AbstractGpgSigner {
             return null;
         }
 
-        private String load(byte[] fingerprint, Path socketPath) throws IOException {
+        private char[] load(byte[] fingerprint, Path socketPath) throws IOException {
             try (AFUNIXSocket sock = AFUNIXSocket.newInstance()) {
                 sock.connect(AFUNIXSocketAddress.of(socketPath));
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -224,11 +221,7 @@ public class BcSigner extends AbstractGpgSigner {
                             + "+to+use+it+for+signing+Maven+Artifacts\n";
                     os.write((instruction).getBytes());
                     os.flush();
-                    String pw = mayExpectOK(in);
-                    if (pw != null) {
-                        return new String(Hex.decode(pw.trim()));
-                    }
-                    return null;
+                    return mayExpectOK(in);
                 }
             }
         }
@@ -240,14 +233,16 @@ public class BcSigner extends AbstractGpgSigner {
             }
         }
 
-        private String mayExpectOK(BufferedReader in) throws IOException {
+        private char[] mayExpectOK(BufferedReader in) throws IOException {
             String response = in.readLine();
             if (response.startsWith("ERR")) {
                 return null;
             } else if (!response.startsWith("OK")) {
                 throw new IOException("Expected OK/ERR but got this instead: " + response);
             }
-            return response.substring(Math.min(response.length(), 3));
+            return new String(Hex.decode(
+                            response.substring(Math.min(response.length(), 3)).trim()))
+                    .toCharArray();
         }
     }
 
@@ -359,6 +354,9 @@ public class BcSigner extends AbstractGpgSigner {
             this.secretKey = secretKey;
             this.privateKey = secretKey.extractPrivateKey(
                     new BcPBESecretKeyDecryptorBuilder(new BcPGPDigestCalculatorProvider()).build(keyPassword));
+            if (keyPassword != null) {
+                Arrays.fill(keyPassword, ' ');
+            }
             PGPSignatureSubpacketGenerator subPacketGenerator = new PGPSignatureSubpacketGenerator();
             subPacketGenerator.setIssuerFingerprint(false, secretKey);
             this.hashSubPackets = subPacketGenerator.generate();
