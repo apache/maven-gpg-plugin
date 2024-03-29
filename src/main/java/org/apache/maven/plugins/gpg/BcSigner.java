@@ -129,7 +129,7 @@ public class BcSigner extends AbstractGpgSigner {
          *
          * @see <a href="https://wiki.gnupg.org/LargeKeys">Large Keys</a>
          */
-        private static final long MAX_SIZE = 64 * 1024 + 1L;
+        private static final long MAX_SIZE = 64 * 1000 + 1L;
 
         @Override
         public byte[] loadKeyRingMaterial(RepositorySystemSession session) throws IOException {
@@ -143,7 +143,7 @@ public class BcSigner extends AbstractGpgSigner {
                 if (Files.size(keyPath) < MAX_SIZE) {
                     return Files.readAllBytes(keyPath);
                 } else {
-                    throw new IOException("Refusing to load file " + keyPath + "; is larger than 64kB");
+                    throw new IOException("Refusing to load file " + keyPath + "; is larger than 64 kB");
                 }
             }
             return null;
