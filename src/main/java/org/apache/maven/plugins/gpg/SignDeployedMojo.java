@@ -55,7 +55,9 @@ import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.util.artifact.SubArtifact;
 
 /**
- * Signs deployed artifacts and deploys the signatures in the remote repository next to signed artifacts.
+ * Resolves given artifacts from a given remote repository, signs them, and deploys the signatures next to signed
+ * artifacts, and cleans up afterward. This mojo will use "own" local repository for all the operations to not
+ * "pollute" user local repository, and also to be able to fully clean up (delete) after job done.
  *
  * @since 3.2.3
  */
