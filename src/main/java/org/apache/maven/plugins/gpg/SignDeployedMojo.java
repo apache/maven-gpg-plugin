@@ -20,7 +20,9 @@ package org.apache.maven.plugins.gpg;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -73,22 +76,29 @@ public class SignDeployedMojo extends AbstractGpgMojo {
     private String repositoryId;
 
     /**
-     * Should generate for artifacts "javadoc" sub-artifacts?
+     * Should generate coordinates "javadoc" sub-artifacts?
      */
     @Parameter(property = "javadoc", defaultValue = "true", required = true)
     private boolean javadoc;
 
     /**
-     * Should generate for artifacts "sources" sub-artifacts?
+     * Should generate coordinates "sources" sub-artifacts?
      */
     @Parameter(property = "sources", defaultValue = "true", required = true)
     private boolean sources;
 
     /**
-     * Comma separated list of (main or all) GAVs that are deployed and needs to be signed.
-     * Format of each entry should be {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>}.
+     * This field can contain multiple things:
+     * <ul>
+     *     <li>Path to a file that contains one GAV at a line. File may also contain empty lines or lines starting
+     *     with {@code #} that are ignored.</li>
+     *     <li>Comma separated list of GAVs that are deployed and needs to be signed.
+     *      Format of each entry should be {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>}.</li>
+     * </ul>
+     * <p>
+     * Note: format of each entry must be {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>}.
      */
-    @Parameter(property = "artifacts")
+    @Parameter(property = "artifacts", required = true)
     private String artifacts;
 
     @Component
@@ -142,6 +152,8 @@ public class SignDeployedMojo extends AbstractGpgMojo {
 
             // sign all
             AbstractGpgSigner signer = newSigner(null);
+            signer.setOutputDirectory(tempDirectory.toFile());
+
             getLog().info("Signer '" + signer.signerName() + "' is signing " + artifacts.size() + " file"
                     + ((artifacts.size() > 1) ? "s" : "") + " with key " + signer.getKeyInfo());
 
@@ -182,12 +194,31 @@ public class SignDeployedMojo extends AbstractGpgMojo {
         }
     }
 
-    protected Collection<Artifact> collectArtifacts(
-            RepositorySystemSession session, RemoteRepository remoteRepository) {
-        HashSet<Artifact> result = new HashSet<>();
+    protected Collection<Artifact> collectArtifacts(RepositorySystemSession session, RemoteRepository remoteRepository)
+            throws IOException {
+        Set<Artifact> result = null;
         if (artifacts != null) {
-            return Arrays.stream(artifacts.split(",")).map(DefaultArtifact::new).collect(Collectors.toSet());
+            try {
+                Path path = Paths.get(artifacts);
+                if (Files.isRegularFile(path)) {
+                    try (Stream<String> lines = Files.lines(path)) {
+                        result = lines.filter(l -> !l.isEmpty() && !l.startsWith("#"))
+                                .map(DefaultArtifact::new)
+                                .collect(Collectors.toSet());
+                    }
+                }
+            } catch (InvalidPathException e) {
+                // ignore
+            }
+            if (result == null) {
+                result = Arrays.stream(artifacts.split(","))
+                        .map(DefaultArtifact::new)
+                        .collect(Collectors.toSet());
+            }
         }
-        throw new IllegalStateException("No source to collect from");
+        if (result == null) {
+            throw new IllegalStateException("No source to collect from");
+        }
+        return result;
     }
 }
