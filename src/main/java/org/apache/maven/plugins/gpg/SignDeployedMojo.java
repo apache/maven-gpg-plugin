@@ -198,7 +198,7 @@ public class SignDeployedMojo extends AbstractGpgMojo {
                     "Error resolving deployed artifacts " + artifacts + ": " + e.getMessage(), e);
         } catch (DeploymentException e) {
             throw new MojoExecutionException(
-                    "Error deploying attached artifacts " + artifacts + ": " + e.getMessage(), e);
+                    "Error deploying signatures: " + e.getMessage(), e);
         } finally {
             if (tempDirectory != null) {
                 getLog().info("Cleaning up...");
