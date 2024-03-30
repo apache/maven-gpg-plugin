@@ -92,11 +92,10 @@ public class SignDeployedMojo extends AbstractGpgMojo {
      * <ul>
      *     <li>Path to a file that contains one GAV at a line. File may also contain empty lines or lines starting
      *     with {@code #} that are ignored.</li>
-     *     <li>Comma separated list of GAVs that are deployed and needs to be signed.
-     *      Format of each entry should be {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>}.</li>
+     *     <li>Comma separated list of GAVs that are deployed and needs to be signed.</li>
      * </ul>
      * <p>
-     * Note: format of each entry must be {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>}.
+     * Note: format of GAV entries must be {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>}.
      */
     @Parameter(property = "artifacts", required = true)
     private String artifacts;
