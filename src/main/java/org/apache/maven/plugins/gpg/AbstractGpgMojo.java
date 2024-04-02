@@ -287,7 +287,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * @deprecated Provides quasi-encryption, should be avoided.
      */
     @Deprecated
-    @Component
+    @Component(hint = "mng-4384")
     private SecDispatcher secDispatcher;
 
     @Override
