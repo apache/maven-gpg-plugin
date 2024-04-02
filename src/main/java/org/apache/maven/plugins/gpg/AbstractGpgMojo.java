@@ -19,6 +19,7 @@
 package org.apache.maven.plugins.gpg;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
@@ -30,6 +31,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
@@ -287,8 +290,8 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * @deprecated Provides quasi-encryption, should be avoided.
      */
     @Deprecated
-    @Component
-    private SecDispatcher secDispatcher;
+    private final SecDispatcher secDispatcher =
+            new DefaultSecDispatcher(new DefaultPlexusCipher(), Collections.emptyMap(), "~/.m2/settings-security.xml");
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
