@@ -58,7 +58,7 @@ import org.eclipse.aether.deployment.DeploymentException;
 import org.eclipse.aether.repository.RemoteRepository;
 
 /**
- * Signs artifacts and installs the artifact in the remote repository.
+ * Signs artifacts and deploys the artifacts and signatures in the remote repository.
  *
  * @author Daniel Kulp
  * @since 1.0-beta-4
