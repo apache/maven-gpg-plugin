@@ -131,13 +131,14 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * Server id to lookup the passphrase under Maven settings. <em>Do not use this parameter, it leaks
      * sensitive data. Passphrase should be provided only via gpg-agent or via env variable.
      * If parameter {@link #bestPractices} set to {@code true}, plugin fails when this parameter is configured.</em>
+     * Is programatically defaulted to {@link #GPG_PASSPHRASE}.
      *
      * @since 1.6
      * @deprecated Do not use this configuration, it may leak sensitive information. Rely on gpg-agent or env
      * variables instead.
      **/
     @Deprecated
-    @Parameter(property = "gpg.passphraseServerId", defaultValue = GPG_PASSPHRASE)
+    @Parameter(property = "gpg.passphraseServerId")
     private String passphraseServerId;
 
     /**
@@ -299,11 +300,18 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
             // We're skipping the signing stuff
             return;
         }
-        if (bestPractices && (isNotBlank(passphrase) || isNotBlank(passphraseServerId))) {
-            // Stop propagating worst practices: passphrase MUST NOT be in any file on disk
-            throw new MojoFailureException(
-                    "Do not store passphrase in any file (disk or SCM repository), rely on GnuPG agent or provide passphrase in "
-                            + passphraseEnvName + " environment variable.");
+        if (bestPractices) {
+            if (isNotBlank(passphrase) || isNotBlank(passphraseServerId)) {
+                // Stop propagating worst practices: passphrase MUST NOT be in any file on disk
+                throw new MojoFailureException(
+                        "Do not store passphrase in any file (disk or SCM repository), rely on GnuPG agent or provide passphrase in "
+                                + passphraseEnvName + " environment variable.");
+            }
+        } else {
+            if (passphraseServerId == null) {
+                // default it programmatically: this is needed to handle different cases re bestPractices
+                passphraseServerId = GPG_PASSPHRASE;
+            }
         }
 
         doExecute();
