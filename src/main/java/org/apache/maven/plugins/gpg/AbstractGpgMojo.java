@@ -308,7 +308,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
                                 + passphraseEnvName + " environment variable.");
             }
         } else {
-            if (passphraseServerId == null) {
+            if (!isNotBlank(passphraseServerId)) {
                 // default it programmatically: this is needed to handle different cases re bestPractices
                 passphraseServerId = GPG_PASSPHRASE;
             }
