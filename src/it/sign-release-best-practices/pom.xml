@@ -77,6 +77,9 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <version>@version.maven-source-plugin@</version>
+        <configuration>
+          <forceCreation>true</forceCreation>
+        </configuration>
         <executions>
           <execution>
             <id>attach-sources</id>
