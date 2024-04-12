@@ -301,12 +301,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
             return;
         }
         if (bestPractices) {
-            if (isNotBlank(passphrase) || isNotBlank(passphraseServerId)) {
-                // Stop propagating worst practices: passphrase MUST NOT be in any file on disk
-                throw new MojoFailureException(
-                        "Do not store passphrase in any file (disk or SCM repository), rely on GnuPG agent or provide passphrase in "
-                                + passphraseEnvName + " environment variable.");
-            }
+            enforceBestPractices();
         } else {
             if (!isNotBlank(passphraseServerId)) {
                 // default it programmatically: this is needed to handle different cases re bestPractices
@@ -315,6 +310,16 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         }
 
         doExecute();
+    }
+
+    protected void enforceBestPractices() throws MojoFailureException {
+        // if any of those are not blank: meaning user did explicitly configure these
+        if (isNotBlank(passphrase) || isNotBlank(passphraseServerId)) {
+            // Stop propagating worst practices: passphrase MUST NOT be in any file on disk
+            throw new MojoFailureException(
+                    "Do not store passphrase in any file (disk or SCM repository), rely on GnuPG agent or provide passphrase in "
+                            + passphraseEnvName + " environment variable.");
+        }
     }
 
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;

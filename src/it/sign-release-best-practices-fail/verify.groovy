@@ -17,13 +17,8 @@
  * under the License.
  */
 
-
-import org.codehaus.plexus.util.FileUtils
-
-var buildLog = new File(basedir, "build.log")
-var logContent = FileUtils.fileRead(buildLog)
+File buildLog = new File(basedir, "build.log")
+String logContent = new File(basedir, "build.log").text
 
 // assert that bestPractice+worstPractice => MojoFailure
-if (!logContent.contains("MojoFailureException: Do not store passphrase in any file")) {
-    throw new Exception("Maven build did not fail in consequence of bestPractices+worstPractices")
-}
+assert logContent.contains("MojoFailureException: Do not store passphrase in any file")
