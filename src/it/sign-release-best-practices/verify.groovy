@@ -32,7 +32,5 @@ for (String expectedFile : expectedFiles) {
 
     println "Checking for existence of $file"
 
-    if (!file.isFile()) {
-        throw new Exception("Missing file $file")
-    }
+    assert file.isFile()
 }
