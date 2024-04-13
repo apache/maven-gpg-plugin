@@ -16,21 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var artifactDir = new File(localRepositoryPath, "org/apache/maven/its/gpg/sr/test/1.0")
 
-var expectedFiles = [
-    "test-1.0.pom",
-    "test-1.0.pom.asc",
-    "test-1.0.jar",
-    "test-1.0.jar.asc",
-    "test-1.0-sources.jar",
-    "test-1.0-sources.jar.asc"
-]
+File buildLog = new File(basedir, "build.log")
+String logContent = new File(basedir, "build.log").text
 
-for (String expectedFile : expectedFiles) {
-    var file = new File(artifactDir, expectedFile)
-
-    println "Checking for existence of $file"
-
-    assert file.isFile()
-}
+// assert that bestPractice+worstPractice => MojoFailure
+assert logContent.contains("MojoFailureException: Do not store passphrase in any file")
