@@ -23,7 +23,7 @@ under the License.
   <parent>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-plugins</artifactId>
-    <version>41</version>
+    <version>42</version>
     <relativePath />
   </parent>
 
@@ -35,7 +35,7 @@ under the License.
   <description>Signs the project artifacts with GnuPG.</description>
 
   <prerequisites>
-    <maven>3.2.5</maven>
+    <maven>3.6.3</maven>
   </prerequisites>
 
   <scm>
@@ -67,18 +67,6 @@ under the License.
     <project.build.outputTimestamp>2024-04-16T13:24:03Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.junit</groupId>
-        <artifactId>junit-bom</artifactId>
-        <version>5.10.2</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <dependencies>
     <dependency>
