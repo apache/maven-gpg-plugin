@@ -250,7 +250,7 @@ under the License.
         <plugin>
           <groupId>org.simplify4u.plugins</groupId>
           <artifactId>pgpverify-maven-plugin</artifactId>
-          <version>1.17.0</version>
+          <version>1.18.2</version>
           <configuration>
             <keysMapLocation>${project.basedir}/pgp-keys-map.list</keysMapLocation>
           </configuration>
