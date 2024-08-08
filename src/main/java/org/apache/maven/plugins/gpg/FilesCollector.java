@@ -41,8 +41,9 @@ import org.eclipse.aether.artifact.Artifact;
 public class FilesCollector {
     private final MavenProject project;
 
-    private static final String[] DEFAULT_EXCLUDES =
-            new String[] {"**/*.md5", "**/*.sha1", "**/*.sha256", "**/*.sha512", "**/*.asc", "**/*.sigstore"};
+    private static final String[] DEFAULT_EXCLUDES = new String[] {
+        "**/*.md5", "**/*.sha1", "**/*.sha256", "**/*.sha512", "**/*.asc", "**/.sigstore", "**/*.sigstore.json"
+    };
 
     private final String[] excludes;
 
