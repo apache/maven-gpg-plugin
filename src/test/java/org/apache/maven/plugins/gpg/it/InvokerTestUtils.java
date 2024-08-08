@@ -46,8 +46,8 @@ public class InvokerTestUtils {
         request.setShowVersion(true);
         request.setDebug(true);
         request.setShowErrors(true);
-        request.setTimeoutInSeconds(60);
-        request.addArg("clean"); // safeguard against GPG freezes
+        request.setTimeoutInSeconds(60); // safeguard against GPG freezes
+        request.addArg("clean");
         request.addArg("install");
         request.setPomFile(pomFile);
 
