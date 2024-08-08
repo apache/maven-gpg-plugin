@@ -23,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.io.input.NullInputStream;
@@ -47,8 +46,9 @@ public class InvokerTestUtils {
         request.setShowVersion(true);
         request.setDebug(true);
         request.setShowErrors(true);
-        request.setTimeoutInSeconds(60); // safeguard against GPG freezes
-        request.setGoals(Arrays.asList("clean", "install"));
+        request.setTimeoutInSeconds(60);
+        request.addArg("clean"); // safeguard against GPG freezes
+        request.addArg("install");
         request.setPomFile(pomFile);
 
         if (providePassphraseEnv) {
