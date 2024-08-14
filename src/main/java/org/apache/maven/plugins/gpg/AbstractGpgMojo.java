@@ -337,20 +337,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     }
 
     protected AbstractGpgSigner newSigner(MavenProject mavenProject) throws MojoFailureException {
-        AbstractGpgSigner signer;
-        if (GpgSigner.NAME.equals(this.signer)) {
-            signer = new GpgSigner(executable);
-        } else if (BcSigner.NAME.equals(this.signer)) {
-            signer = new BcSigner(
-                    session.getRepositorySession(),
-                    keyEnvName,
-                    keyFingerprintEnvName,
-                    agentSocketLocations,
-                    keyFilePath,
-                    keyFingerprint);
-        } else {
-            throw new MojoFailureException("Unknown signer: " + this.signer);
-        }
+        AbstractGpgSigner signer = createSigner(this.signer);
 
         signer.setLog(getLog());
         signer.setInteractive(settings.isInteractiveMode());
@@ -392,6 +379,24 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         }
         signer.prepare();
 
+        return signer;
+    }
+
+    protected AbstractGpgSigner createSigner(String name) throws MojoFailureException {
+        AbstractGpgSigner signer;
+        if (GpgSigner.NAME.equals(name)) {
+            signer = new GpgSigner(executable);
+        } else if (BcSigner.NAME.equals(name)) {
+            signer = new BcSigner(
+                    session.getRepositorySession(),
+                    keyEnvName,
+                    keyFingerprintEnvName,
+                    agentSocketLocations,
+                    keyFilePath,
+                    keyFingerprint);
+        } else {
+            throw new MojoFailureException("Unknown signer: " + name);
+        }
         return signer;
     }
 
