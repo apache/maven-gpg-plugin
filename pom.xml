@@ -70,6 +70,12 @@ under the License.
 
   <dependencies>
     <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <version>${mavenVersion}</version>
@@ -106,6 +112,12 @@ under the License.
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-settings-builder</artifactId>
+      <version>${mavenVersion}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven.resolver</groupId>
       <artifactId>maven-resolver-api</artifactId>
       <version>${resolverVersion}</version>
@@ -126,7 +138,10 @@ under the License.
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-xml</artifactId>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
@@ -148,29 +163,6 @@ under the License.
       <artifactId>junixsocket-core</artifactId>
       <version>2.10.0</version>
       <type>pom</type>
-    </dependency>
-    <!-- These two below must go in pair -->
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-sec-dispatcher</artifactId>
-      <version>2.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-cipher</artifactId>
-      <version>2.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>

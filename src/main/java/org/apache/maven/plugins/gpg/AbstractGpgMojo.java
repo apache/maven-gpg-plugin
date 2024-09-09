@@ -18,23 +18,23 @@
  */
 package org.apache.maven.plugins.gpg;
 
+import javax.inject.Inject;
+
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
-import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
-import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
+import org.apache.maven.settings.building.SettingsProblem;
+import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
+import org.apache.maven.settings.crypto.SettingsDecrypter;
+import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 
 /**
  * @author Benjamin Bentmann
@@ -257,12 +257,6 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String signer;
 
     /**
-     * @since 3.0.0
-     */
-    @Component
-    protected MavenSession session;
-
-    /**
      * Switch to improve plugin enforcement of "best practices". If set to {@code false}, plugin retains all the
      * backward compatibility regarding getting secrets (but will warn). If set to {@code true}, plugin will fail
      * if any "bad practices" regarding sensitive data handling are detected. By default, plugin remains backward
@@ -285,14 +279,16 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     protected Settings settings;
 
     /**
-     * Maven Security Dispatcher.
-     *
-     * @since 1.6
-     * @deprecated Provides quasi-encryption, should be avoided.
+     * @since 3.0.0
      */
-    @Deprecated
-    private final SecDispatcher secDispatcher =
-            new DefaultSecDispatcher(new DefaultPlexusCipher(), Collections.emptyMap(), "~/.m2/settings-security.xml");
+    @Inject
+    protected MavenSession session;
+
+    /**
+     * @since 3.2.6
+     */
+    @Inject
+    protected SettingsDecrypter settingsDecrypter;
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
@@ -415,11 +411,23 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
             Server server = settings.getServer(passphraseServerId);
             if (server != null) {
                 if (isNotBlank(server.getPassphrase())) {
-                    try {
-                        return secDispatcher.decrypt(server.getPassphrase());
-                    } catch (SecDispatcherException e) {
-                        throw new MojoFailureException("Unable to decrypt gpg passphrase", e);
+                    SettingsDecryptionResult result =
+                            settingsDecrypter.decrypt(new DefaultSettingsDecryptionRequest(server));
+                    for (SettingsProblem problem : result.getProblems()) {
+                        switch (problem.getSeverity()) {
+                            case WARNING:
+                            case ERROR:
+                                getLog().warn(problem.getMessage(), problem.getException());
+                                break;
+                            case FATAL:
+                                getLog().error(problem.getMessage(), problem.getException());
+                                throw new MojoFailureException(problem.getMessage(), problem.getException());
+                            default:
+                                throw new IllegalStateException("Unknown severity: "
+                                        + problem.getSeverity().toString());
+                        }
                     }
+                    return result.getServer().getPassphrase();
                 }
             }
         }
