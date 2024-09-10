@@ -43,5 +43,16 @@ under the License.
        </p>
      </answer>
    </faq>
+   <faq id="no-pinentry">
+     <question>Why am I getting "gpg: signing failed: No pinentry" while releasing?</question>
+     <answer>
+       <p>
+         When plugin used in combination with <a href="https://maven.apache.org/maven-release/maven-release-plugin/">Maven Release Plugin</a>
+         the GPG signing will happen in "batch mode". This implies that you must either use GPG passphrase passed in
+         via environment variable (preferred on systems like CI systems are), or, if on Workstation, using primed
+         gpg-agent is needed. Read more here about <a href="usage.html#sign-artifacts-with-gnupg">GPG Agent priming</a>.
+       </p>
+     </answer>
+   </faq>
  </part>
 </faqs>
