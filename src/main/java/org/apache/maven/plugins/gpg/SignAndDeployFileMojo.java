@@ -21,8 +21,8 @@ package org.apache.maven.plugins.gpg;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +46,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
-import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
@@ -401,8 +399,8 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
      * @throws MojoExecutionException If the file doesn't exist of cannot be read.
      */
     private Model readModel(File pomFile) throws MojoExecutionException {
-        try (Reader reader = ReaderFactory.newXmlReader(pomFile)) {
-            return new MavenXpp3Reader().read(reader);
+        try (InputStream inputStream = Files.newInputStream(pomFile.toPath())) {
+            return new MavenXpp3Reader().read(inputStream);
         } catch (FileNotFoundException e) {
             throw new MojoExecutionException("POM not found " + pomFile, e);
         } catch (IOException e) {
@@ -425,8 +423,8 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
             File tempFile = Files.createTempFile("mvndeploy", ".pom").toFile();
             tempFile.deleteOnExit();
 
-            try (Writer fw = WriterFactory.newXmlWriter(tempFile)) {
-                new MavenXpp3Writer().write(fw, model);
+            try (OutputStream outputStream = Files.newOutputStream(tempFile.toPath())) {
+                new MavenXpp3Writer().write(outputStream, model);
             }
 
             return tempFile;
