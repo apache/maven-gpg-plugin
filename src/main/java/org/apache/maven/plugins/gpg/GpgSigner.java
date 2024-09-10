@@ -74,7 +74,7 @@ public class GpgSigner extends AbstractGpgSigner {
             throw new MojoExecutionException("Could not determine gpg version");
         }
 
-        getLog().debug(gpgVersion.toString());
+        getLog().debug("GPG Version: " + gpgVersion);
 
         if (args != null) {
             for (String arg : args) {
