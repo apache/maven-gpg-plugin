@@ -112,11 +112,20 @@ public class GpgSigner extends AbstractGpgSigner {
             cmd.createArg().setValue("--passphrase-fd");
             cmd.createArg().setValue("0");
 
-            // Prepare the input stream which will be used to pass the passphrase to the executable
-            if (!passphrase.endsWith(System.lineSeparator())) {
-                in = new ByteArrayInputStream((passphrase + System.lineSeparator()).getBytes());
+            // obey passphraseLf
+            if (passphraseLf != null) {
+                if (passphraseLf) {
+                    in = new ByteArrayInputStream((passphrase + '\n').getBytes());
+                } else {
+                    in = new ByteArrayInputStream((passphrase).getBytes());
+                }
             } else {
-                in = new ByteArrayInputStream(passphrase.getBytes());
+                // Prepare the input stream which will be used to pass the passphrase to the executable
+                if (!passphrase.endsWith(System.lineSeparator())) {
+                    in = new ByteArrayInputStream((passphrase + System.lineSeparator()).getBytes());
+                } else {
+                    in = new ByteArrayInputStream(passphrase.getBytes());
+                }
             }
         }
 
