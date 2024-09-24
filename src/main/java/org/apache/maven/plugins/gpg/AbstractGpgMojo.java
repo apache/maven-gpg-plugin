@@ -271,6 +271,22 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private boolean bestPractices;
 
     /**
+     * Whether to terminate the passphrase with LF character or not, as on some systems and some GPG executable combinations
+     * lack of trailing LF may cause GPG to not detect passphrase on STDIN. Since 3.2.0 it was always appended, unless
+     * passphrase itself ended with it. Note: before 3.2.7 the "line separator" was used for termination, that on
+     * other hand caused issues on Windows, where line separator is CRLF while GPG handles LF only.
+     * This parameter affects ONLY the GPG signer, not the BC signer.
+     * <p>
+     * By default, this parameter is {@code true}.
+     *
+     * @since 3.2.7
+     * @see <a href="https://issues.apache.org/jira/browse/MGPG-99">MGPG-99</a>
+     * @see <a href="https://issues.apache.org/jira/browse/MGPG-136">MGPG-136</a>
+     */
+    @Parameter(property = "gpg.terminatePassphrase", defaultValue = "true")
+    private boolean terminatePassphrase;
+
+    /**
      * Current user system settings for use in Maven.
      *
      * @since 1.6
@@ -345,6 +361,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         signer.setPublicKeyring(publicKeyring);
         signer.setLockMode(lockMode);
         signer.setArgs(gpgArguments);
+        signer.setTerminatePassphrase(terminatePassphrase);
 
         // "new way": env prevails
         String passphrase =
