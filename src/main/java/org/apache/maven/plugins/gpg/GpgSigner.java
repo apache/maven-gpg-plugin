@@ -116,7 +116,7 @@ public class GpgSigner extends AbstractGpgSigner {
             if (passphraseLf && !passphrase.endsWith("\n")) {
                 in = new ByteArrayInputStream((passphrase + "\n").getBytes());
             } else {
-                in = new ByteArrayInputStream((passphrase).getBytes());
+                in = new ByteArrayInputStream(passphrase.getBytes());
             }
         }
 
