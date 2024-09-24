@@ -273,7 +273,9 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     /**
      * Whether to terminate the passphrase with LF character or not, as on some systems and some GPG executable combinations
      * lack of trailing LF may cause GPG to not detect passphrase on STDIN. Since 3.2.0 it was always appended, unless
-     * passphrase itself ended with it. This parameter affects ONLY the GPG signer, not the BC signer.
+     * passphrase itself ended with it. Note: before 3.2.7 the "line separator" was used for termination, that on
+     * other hand caused issues on Windows, where line separator is CRLF while GPG handles LF only.
+     * This parameter affects ONLY the GPG signer, not the BC signer.
      * <p>
      * By default, this parameter is {@code true}.
      *
