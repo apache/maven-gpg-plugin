@@ -272,8 +272,8 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     /**
      * Whether to append the passphrase with LF character or not, as on some systems and some GPG executable combinations
-     * lack of this character may cause GPG to not detected passphrase on STDIN. Since 3.2.0 it was appended.
-     * This parameter affects ONLY the GPG signer, not the BC signer.
+     * lack of this character may cause GPG to not detect passphrase on STDIN. Since 3.2.0 it was always appended, unless
+     * passphrase itself ended with line separator. This parameter affects ONLY the GPG signer, not the BC signer.
      * <p>
      * By default, this parameter is {@code true} to retain same behaviour as before.
      *
