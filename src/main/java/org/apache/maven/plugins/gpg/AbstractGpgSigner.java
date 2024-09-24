@@ -46,7 +46,7 @@ public abstract class AbstractGpgSigner {
 
     protected String passphrase;
 
-    protected boolean passphraseLf;
+    protected boolean terminatePassphrase;
 
     private File outputDir;
 
@@ -100,8 +100,8 @@ public abstract class AbstractGpgSigner {
         passphrase = s;
     }
 
-    public void setPassphraseLf(boolean b) {
-        this.passphraseLf = b;
+    public void setTerminatePassphrase(boolean b) {
+        this.terminatePassphrase = b;
     }
 
     public void setOutputDirectory(File out) {
