@@ -272,23 +272,17 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     /**
      * Whether to append the passphrase with LF character or not, as on some systems and some GPG executable combinations
-     * lack of this character may cause some issues. Since 3.2.0 this character was appended, but as
-     * {@link System#lineSeparator()} which in turn causes issues in binary handling of stdin (as I assume GPG does),
-     * since on windows this is {@code "\r\n"} (while on Unix-relatives is only {@code "\n"}, and GPG handles only
-     * {@code "\n"}. This may lead to "corruption" of passphrase with one extra {@code "\r"} character. This parameter
-     * affects ONLY the GPG signer, not the BC signer.
+     * lack of this character may cause GPG to not detected passphrase on STDIN. Since 3.2.0 it was appended.
+     * This parameter affects ONLY the GPG signer, not the BC signer.
      * <p>
-     * By default, this parameter is {@code null} and plugin will behave as pre-3.2.7 versions. If this parameter is
-     * explicitly set to {@code true}, it will append passphrase with {@code "\n"} character ONLY (as opposed to pre-3.2.7
-     * behaviour where it used {@link System#lineSeparator()} and used {@code "\r\n"}. If this parameter is
-     * explicitly set to {@code false}, the passphrase is used as-is, nothing is appended.
+     * By default, this parameter is {@code true} to retain same behaviour as before.
      *
      * @since 3.2.7
      * @see <a href="https://issues.apache.org/jira/browse/MGPG-99">MGPG-99</a>
      * @see <a href="https://issues.apache.org/jira/browse/MGPG-136">MGPG-136</a>
      */
-    @Parameter(property = "gpg.passphraseLf")
-    private Boolean passphraseLf;
+    @Parameter(property = "gpg.passphraseLf", defaultValue = "true")
+    private boolean passphraseLf;
 
     /**
      * Current user system settings for use in Maven.
