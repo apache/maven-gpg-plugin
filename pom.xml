@@ -28,7 +28,7 @@ under the License.
   </parent>
 
   <artifactId>maven-gpg-plugin</artifactId>
-  <version>3.2.7</version>
+  <version>3.2.8-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Apache Maven GPG Plugin</name>
@@ -41,7 +41,7 @@ under the License.
   <scm>
     <connection>scm:git:https://gitbox.apache.org/repos/asf/maven-gpg-plugin.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/maven-gpg-plugin.git</developerConnection>
-    <tag>maven-gpg-plugin-3.2.7</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/apache/maven-gpg-plugin/tree/${project.scm.tag}</url>
   </scm>
   <issueManagement>
@@ -64,7 +64,7 @@ under the License.
     <mavenVersion>3.9.9</mavenVersion>
     <resolverVersion>1.9.22</resolverVersion>
     <bouncycastleVersion>1.78.1</bouncycastleVersion>
-    <project.build.outputTimestamp>2024-09-24T13:00:59Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-09-24T13:01:28Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
   </properties>
 
