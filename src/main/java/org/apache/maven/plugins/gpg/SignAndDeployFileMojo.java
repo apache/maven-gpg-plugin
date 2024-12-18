@@ -18,6 +18,8 @@
  */
 package org.apache.maven.plugins.gpg;
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,7 +43,6 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.model.validation.ModelValidator;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -185,30 +186,36 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     @Parameter(property = "files")
     private String files;
 
-    /**
-     */
-    @Component
-    private RepositorySystem repositorySystem;
+    private final RepositorySystem repositorySystem;
 
     /**
      * The component used to validate the user-supplied artifact coordinates.
      */
-    @Component
-    private ModelValidator modelValidator;
+    private final ModelValidator modelValidator;
 
     /**
      * The default Maven project created when building the plugin
      *
      * @since 1.3
      */
-    @Component
-    private MavenProject project;
+    private final MavenProject project;
 
     /**
      * @since 3.2.0
      */
-    @Component
-    private ArtifactHandlerManager artifactHandlerManager;
+    private final ArtifactHandlerManager artifactHandlerManager;
+
+    @Inject
+    public SignAndDeployFileMojo(
+            RepositorySystem repositorySystem,
+            ModelValidator modelValidator,
+            MavenProject project,
+            ArtifactHandlerManager artifactHandlerManager) {
+        this.repositorySystem = repositorySystem;
+        this.modelValidator = modelValidator;
+        this.project = project;
+        this.artifactHandlerManager = artifactHandlerManager;
+    }
 
     private void initProperties() throws MojoExecutionException {
         // Process the supplied POM (if there is one)

@@ -38,7 +38,6 @@ import java.util.stream.Stream;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
@@ -106,11 +105,15 @@ public class SignDeployedMojo extends AbstractGpgMojo {
     @Parameter(property = "artifacts")
     private String artifacts;
 
-    @Component
-    private RepositorySystem repositorySystem;
+    private final RepositorySystem repositorySystem;
+
+    private final Map<String, ArtifactCollectorSPI> artifactCollectors;
 
     @Inject
-    private Map<String, ArtifactCollectorSPI> artifactCollectors;
+    public SignDeployedMojo(RepositorySystem repositorySystem, Map<String, ArtifactCollectorSPI> artifactCollectors) {
+        this.repositorySystem = repositorySystem;
+        this.artifactCollectors = artifactCollectors;
+    }
 
     @Override
     protected void doExecute() throws MojoExecutionException, MojoFailureException {

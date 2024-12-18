@@ -18,12 +18,13 @@
  */
 package org.apache.maven.plugins.gpg;
 
+import javax.inject.Inject;
+
 import java.io.File;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -60,14 +61,18 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
     /**
      * The maven project.
      */
-    @Component
-    protected MavenProject project;
+    protected final MavenProject project;
 
     /**
      * Maven ProjectHelper
      */
-    @Component
-    private MavenProjectHelper projectHelper;
+    private final MavenProjectHelper projectHelper;
+
+    @Inject
+    public GpgSignAttachedMojo(MavenProject project, MavenProjectHelper projectHelper) {
+        this.project = project;
+        this.projectHelper = projectHelper;
+    }
 
     @Override
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
