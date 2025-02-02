@@ -49,7 +49,7 @@ ${project.name}
   configuration). By default, the plugin does not enforce these, but does emit warnings.
 
   To "prime" the GnuPG agent, you have several options: either just "sign" something beforehand (usable on
-  workstations) like <<<echo "test" | gpg --clearsign>>>, or use
+  workstations) like <<<echo "test" | gpg --clearsign>>> (optionally using a dedicated private key with <<<--local-user \<keyname\>>>), or use
   {{{https://www.gnupg.org/documentation/manuals/gnupg/Invoking-gpg_002dpreset_002dpassphrase.html}gpg-preset-passphrase}}
   GnuPG command, that will "cache" the password in gpg-agent for given login session, cache content is lost between
   reboots. Note: this tool, while is part of GnuPG suite, may not be on path. Check your OS documentation for it.
