@@ -100,11 +100,13 @@ public class GpgSignAttachedMojo extends AbstractGpgMojo {
 
             File signature = signer.generateSignatureForArtifact(item.getFile());
 
+            String classifier = item.getClassifier();
+            // FilesCollector generates items with an empty classifier when the original artifact used null.
+            // Prefer null as other plugins may have problems with project attachments with "" as the classifier
+            classifier = classifier == null || classifier.isEmpty() ? null : classifier;
+
             projectHelper.attachArtifact(
-                    project,
-                    item.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION,
-                    item.getClassifier(),
-                    signature);
+                    project, item.getExtension() + AbstractGpgSigner.SIGNATURE_EXTENSION, classifier, signature);
         }
     }
 }
