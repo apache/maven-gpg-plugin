@@ -80,7 +80,7 @@ public class InvokerTestUtils {
 
         final File buildLog =
                 new File(request.getBaseDirectory(request.getPomFile().getParentFile()), "build.log");
-        try (final PrintStream buildLogStream = new PrintStream(buildLog)) {
+        try (PrintStream buildLogStream = new PrintStream(buildLog)) {
             final InvocationOutputHandler buildLogOutputHandler = new PrintStreamHandler(buildLogStream, false);
             final InvokerLogger logger = new PrintStreamLogger(buildLogStream, InvokerLogger.DEBUG);
 
