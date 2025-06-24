@@ -30,5 +30,4 @@ org.apache.maven.shared:maven-invoker = 0x84789D24DF77A32433CE1F079EB80E92EB2135
 org.apache.maven.shared:maven-shared-utils = 0x84789D24DF77A32433CE1F079EB80E92EB2135B1
 org.codehaus.plexus:plexus-classworlds = 0xB91AB7D2121DC6B0A61AA182D7742D58455ECC7C
 org.codehaus.plexus:plexus-component-annotations = 0xFA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A
-org.codehaus.plexus:plexus-utils = 0x84789D24DF77A32433CE1F079EB80E92EB2135B1
-org.codehaus.plexus:plexus-xml = 0x84789D24DF77A32433CE1F079EB80E92EB2135B1
+org.codehaus.plexus:plexus-utils = 0x32118CF76C9EC5D918E54967CA80D1F0EB6CA4BA
