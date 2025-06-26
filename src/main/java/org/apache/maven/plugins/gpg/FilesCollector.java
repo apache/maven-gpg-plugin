@@ -119,10 +119,7 @@ public class FilesCollector {
                 continue;
             }
 
-            items.add(new Item(
-                    file,
-                    artifact.getClassifier().trim().isEmpty() ? null : artifact.getClassifier(),
-                    artifact.getExtension()));
+            items.add(new Item(file, artifact.getClassifier(), artifact.getExtension()));
         }
 
         return items;
@@ -157,7 +154,7 @@ public class FilesCollector {
 
         public Item(File file, String classifier, String extension) {
             this.file = requireNonNull(file);
-            this.classifier = classifier; // nullable
+            this.classifier = classifier == null || classifier.trim().isEmpty() ? null : classifier; // nullable
             this.extension = requireNonNull(extension);
         }
 
