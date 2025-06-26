@@ -33,6 +33,8 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.eclipse.aether.artifact.Artifact;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Collects project artifact, the POM, and attached artifacts to be signed.
  *
@@ -81,7 +83,7 @@ public class FilesCollector {
             File file = artifact.getFile();
 
             if (file != null && file.isFile()) {
-                items.add(new Item(file, artifact.getExtension()));
+                items.add(new Item(file, null, artifact.getExtension()));
             } else if (project.getAttachedArtifacts().isEmpty()) {
                 throw new MojoFailureException("The project artifact has not been assembled yet. "
                         + "Please do not invoke this goal before the lifecycle phase \"package\".");
@@ -103,7 +105,7 @@ public class FilesCollector {
             throw new MojoExecutionException("Error copying POM for signing.", e);
         }
 
-        items.add(new Item(pomToSign, "pom"));
+        items.add(new Item(pomToSign, null, "pom"));
 
         // ----------------------------------------------------------------------------
         // Attached artifacts
@@ -147,29 +149,32 @@ public class FilesCollector {
 
     public static class Item {
         private final File file;
-
         private final String classifier;
-
         private final String extension;
 
         public Item(File file, String classifier, String extension) {
-            this.file = file;
-            this.classifier = classifier;
-            this.extension = extension;
+            this.file = requireNonNull(file);
+            this.classifier = classifier == null || classifier.trim().isEmpty() ? null : classifier; // nullable
+            this.extension = requireNonNull(extension);
         }
 
-        public Item(File file, String extension) {
-            this(file, null, extension);
-        }
-
+        /**
+         * The artifact backing file, never {@code null}.
+         */
         public File getFile() {
             return file;
         }
 
+        /**
+         * The classifier, if present, or {@code null}.
+         */
         public String getClassifier() {
             return classifier;
         }
 
+        /**
+         * The file extension (without leading period), never {@code null}.
+         */
         public String getExtension() {
             return extension;
         }
