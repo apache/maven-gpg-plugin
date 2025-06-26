@@ -33,6 +33,8 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.eclipse.aether.artifact.Artifact;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Collects project artifact, the POM, and attached artifacts to be signed.
  *
@@ -153,10 +155,10 @@ public class FilesCollector {
         private final String classifier;
         private final String extension;
 
-        private Item(File file, String classifier, String extension) {
-            this.file = file;
-            this.classifier = classifier;
-            this.extension = extension;
+        public Item(File file, String classifier, String extension) {
+            this.file = requireNonNull(file);
+            this.classifier = classifier; // nullable
+            this.extension = requireNonNull(extension);
         }
 
         /**
