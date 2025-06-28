@@ -45,12 +45,12 @@ under the License.
     <url>https://github.com/apache/maven-gpg-plugin/tree/${project.scm.tag}</url>
   </scm>
   <issueManagement>
-    <system>jira</system>
-    <url>https://issues.apache.org/jira/browse/MGPG</url>
-  </issueManagement>
-  <ciManagement>
     <system>GitHub Issues</system>
     <url>https://github.com/apache/maven-gpg-plugin/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-gpg-plugin/</url>
   </ciManagement>
   <distributionManagement>
     <site>
