@@ -166,21 +166,21 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
     private int retryFailedDeploymentCount;
 
     /**
-     * A comma separated list of types for each of the extra side artifacts to deploy. If there is a mis-match in
+     * A comma separated list of types for each of the extra side artifacts to deploy. If there is a mismatch in
      * the number of entries in {@link #files} or {@link #classifiers}, then an error will be raised.
      */
     @Parameter(property = "types")
     private String types;
 
     /**
-     * A comma separated list of classifiers for each of the extra side artifacts to deploy. If there is a mis-match in
+     * A comma separated list of classifiers for each of the extra side artifacts to deploy. If there is a mismatch in
      * the number of entries in {@link #files} or {@link #types}, then an error will be raised.
      */
     @Parameter(property = "classifiers")
     private String classifiers;
 
     /**
-     * A comma separated list of files for each of the extra side artifacts to deploy. If there is a mis-match in
+     * A comma separated list of files for each of the extra side artifacts to deploy. If there is a mismatch in
      * the number of entries in {@link #types} or {@link #classifiers}, then an error will be raised.
      */
     @Parameter(property = "files")

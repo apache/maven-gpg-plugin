@@ -126,7 +126,7 @@ public class FilesCollector {
     }
 
     /**
-     * Tests whether or not a name matches at least one exclude pattern.
+     * Tests whether a name matches at least one exclude pattern.
      *
      * @param artifact the artifact to match. Must not be <code>null</code>.
      * @return <code>true</code> when the name matches at least one exclude pattern, or <code>false</code>
