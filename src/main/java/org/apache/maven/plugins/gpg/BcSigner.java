@@ -170,7 +170,7 @@ public class BcSigner extends AbstractGpgSigner {
                 return null;
             }
             List<String> socketLocations = Arrays.stream(agentSocketLocations.split(","))
-                    .filter(s -> s != null && !s.isEmpty())
+                    .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
             for (String socketLocation : socketLocations) {
                 try {
