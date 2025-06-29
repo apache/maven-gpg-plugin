@@ -45,7 +45,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     public static final String DEFAULT_ENV_MAVEN_GPG_PASSPHRASE = "MAVEN_GPG_PASSPHRASE";
 
     /**
-     * BC Signer only: The comma separate list of Unix Domain Socket paths, to use to communicate with GnuPG agent.
+     * BC Signer only: The comma separated list of Unix Domain Socket paths, to use to communicate with GnuPG agent.
      * If relative, they are resolved against user home directory.
      *
      * @since 3.2.0
@@ -118,7 +118,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * The passphrase to use when signing. If not given, look up the value under Maven
      * settings using server id at 'passphraseServerKey' configuration. <em>Do not use this parameter, it leaks
      * sensitive data. Passphrase should be provided only via gpg-agent or via env variable.
-     * If parameter {@link #bestPractices} set to {@code true}, plugin fails when this parameter is configured.</em>
+     * If parameter {@link #bestPractices} is set to {@code true}, the plugin fails when this parameter is configured.</em>
      *
      * @deprecated Do not use this configuration, it may leak sensitive information. Rely on gpg-agent or env
      * variables instead.
@@ -128,10 +128,10 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String passphrase;
 
     /**
-     * Server id to lookup the passphrase under Maven settings. <em>Do not use this parameter, it leaks
+     * Server id to look up the passphrase under Maven settings. <em>Do not use this parameter. It leaks
      * sensitive data. Passphrase should be provided only via gpg-agent or via env variable.
-     * If parameter {@link #bestPractices} set to {@code true}, plugin fails when this parameter is configured.</em>
-     * Is programatically defaulted to {@link #GPG_PASSPHRASE}.
+     * If the parameter {@link #bestPractices} is set to {@code true}, the plugin fails when this parameter is configured.</em>
+     * Programmatically defaults to {@link #GPG_PASSPHRASE}.
      *
      * @since 1.6
      * @deprecated Do not use this configuration, it may leak sensitive information. Rely on gpg-agent or env
@@ -214,7 +214,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String publicKeyring;
 
     /**
-     * GPG Signer only: The lock mode to use when invoking gpg. By default no lock mode will be specified. Valid
+     * GPG Signer only: The lock mode to use when invoking gpg. By default, no lock mode will be specified. Valid
      * values are {@code once}, {@code multiple} and {@code never}. The lock mode gets translated into the
      * corresponding {@code --lock-___} command line argument. Improper usage of this option may lead to data and
      * key corruption.
