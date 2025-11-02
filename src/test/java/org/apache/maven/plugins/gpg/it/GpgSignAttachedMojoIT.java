@@ -28,9 +28,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GpgSignAttachedMojoIT extends ITSupport {
+class GpgSignAttachedMojoIT extends ITSupport {
     @Test
-    void testInteractiveWithoutPassphrase() throws Exception {
+    void interactiveWithoutPassphrase() throws Exception {
         // given
         final File pomFile =
                 InvokerTestUtils.getTestResource("/it/sign-release-without-passphrase-interactive/pom.xml");

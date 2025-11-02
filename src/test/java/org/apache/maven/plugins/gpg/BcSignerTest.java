@@ -50,7 +50,7 @@ class BcSignerTest {
      */
     @Disabled
     @Test
-    void testAgent() throws Exception {
+    void agent() throws Exception {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));

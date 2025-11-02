@@ -58,7 +58,7 @@ public class BcSignArtifactIT extends ITSupport {
 
     @MethodSource("data")
     @ParameterizedTest
-    void testPlacementOfArtifactInOutputDirectory(String pomPath, String expectedFileLocation, String[] expectedFiles)
+    void placementOfArtifactInOutputDirectory(String pomPath, String expectedFileLocation, String[] expectedFiles)
             throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource(pomPath);
