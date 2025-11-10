@@ -66,6 +66,9 @@ under the License.
     <bouncycastleVersion>1.82</bouncycastleVersion>
     <project.build.outputTimestamp>2025-06-28T08:53:44Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
+
+    <version.maven-invoker-plugin>3.9.1</version.maven-invoker-plugin>
+
   </properties>
 
   <dependencies>
