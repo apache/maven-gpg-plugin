@@ -63,7 +63,7 @@ under the License.
     <javaVersion>8</javaVersion>
     <mavenVersion>3.9.11</mavenVersion>
     <resolverVersion>1.9.22</resolverVersion>
-    <bouncycastleVersion>1.82</bouncycastleVersion>
+    <bouncycastleVersion>1.83</bouncycastleVersion>
     <project.build.outputTimestamp>2025-06-28T08:53:44Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
 
