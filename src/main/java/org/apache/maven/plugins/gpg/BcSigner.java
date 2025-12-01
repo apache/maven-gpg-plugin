@@ -252,7 +252,7 @@ public class BcSigner extends AbstractGpgSigner {
     private final String agentSocketLocations;
     private final String keyFilePath;
     private final String keyFingerprint;
-    private PGPSecretKey secretKey;
+    PGPSecretKey secretKey;
     private PGPPrivateKey privateKey;
     private PGPSignatureSubpacketVector hashSubPackets;
 

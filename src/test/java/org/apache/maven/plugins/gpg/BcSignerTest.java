@@ -20,12 +20,17 @@ package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 
+import org.apache.maven.plugin.MojoFailureException;
+import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.internal.impl.DefaultLocalPathComposer;
 import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
 import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.repository.NoLocalRepositoryManagerException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests for {@link BcSigner}.
@@ -75,6 +80,90 @@ class BcSignerTest {
                 new File("src/test/resources/signing-key.asc").getAbsolutePath(),
                 null);
         signer.setUseAgent(true);
+        signer.setInteractive(false);
+        signer.prepare();
+    }
+
+    @Test
+    void testSingleKeyAsc() throws NoLocalRepositoryManagerException, MojoFailureException {
+        DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
+        session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
+                .newInstance(session, new LocalRepository("target/local-repo")));
+        BcSigner signer = new BcSigner(
+                session,
+                "unimportant",
+                "unimportant",
+                "undefined",
+                new File("src/test/resources/signing-key.asc").getAbsolutePath(),
+                "583C18F38D66BE2A3833548F8E3F6C0F255684D1"); // fingerprint only contained key
+        signer.setPassPhrase("TEST");
+        signer.setUseAgent(false);
+        signer.setInteractive(false);
+        signer.prepare();
+        // check key algorithm, must be ElGamal
+        assertEquals(
+                PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT,
+                signer.secretKey.getPublicKey().getAlgorithm());
+    }
+
+    @Test
+    void testFirstSubkeyFromAsc() throws NoLocalRepositoryManagerException, MojoFailureException {
+        DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
+        session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
+                .newInstance(session, new LocalRepository("target/local-repo")));
+        BcSigner signer = new BcSigner(
+                session,
+                "unimportant",
+                "unimportant",
+                "undefined",
+                new File("src/test/resources/signing-key-with-multiple-subkeys.asc").getAbsolutePath(),
+                "583C18F38D66BE2A3833548F8E3F6C0F255684D1"); // fingerprint 1st subkey
+        signer.setPassPhrase("TEST");
+        signer.setUseAgent(false);
+        signer.setInteractive(false);
+        signer.prepare();
+        // check key algorithm, must be ElGamal
+        assertEquals(
+                PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT,
+                signer.secretKey.getPublicKey().getAlgorithm());
+    }
+
+    @Test
+    void testSecondSubkeyFromAsc() throws NoLocalRepositoryManagerException, MojoFailureException {
+        DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
+        session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
+                .newInstance(session, new LocalRepository("target/local-repo")));
+        BcSigner signer = new BcSigner(
+                session,
+                "unimportant",
+                "unimportant",
+                "undefined",
+                new File("src/test/resources/signing-key-with-multiple-subkeys.asc").getAbsolutePath(),
+                "7EB913227724A94C160596926356A7B4E9AF6EFB"); // fingerprint 2nd subkey
+        signer.setPassPhrase("TEST");
+        signer.setUseAgent(false);
+        signer.setInteractive(false);
+        signer.prepare();
+        // check key algorithm, must be RSA
+        assertEquals(
+                PublicKeyAlgorithmTags.RSA_GENERAL,
+                signer.secretKey.getPublicKey().getAlgorithm());
+    }
+
+    @Test
+    void testKeyFromKeyringFromConf() throws NoLocalRepositoryManagerException, MojoFailureException {
+        DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
+        session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
+                .newInstance(session, new LocalRepository("target/local-repo")));
+        BcSigner signer = new BcSigner(
+                session,
+                "unimportant",
+                "unimportant",
+                "undefined",
+                new File("src/test/resources/gnupg/secring.gpg").getAbsolutePath(),
+                null);
+        signer.setPassPhrase("TEST");
+        signer.setUseAgent(false);
         signer.setInteractive(false);
         signer.prepare();
     }
