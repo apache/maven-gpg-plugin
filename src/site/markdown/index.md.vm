@@ -1,82 +1,50 @@
- ------
- Introduction
- ------
- Dennis Lundberg
- ------
- 2013-07-22
- ------
+---
+title: Introduction
+author: 
+  - Dennis Lundberg
+date: 2013-07-22
+---
 
-~~ Licensed to the Apache Software Foundation (ASF) under one
-~~ or more contributor license agreements.  See the NOTICE file
-~~ distributed with this work for additional information
-~~ regarding copyright ownership.  The ASF licenses this file
-~~ to you under the Apache License, Version 2.0 (the
-~~ "License"); you may not use this file except in compliance
-~~ with the License.  You may obtain a copy of the License at
-~~
-~~   http://www.apache.org/licenses/LICENSE-2.0
-~~
-~~ Unless required by applicable law or agreed to in writing,
-~~ software distributed under the License is distributed on an
-~~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-~~ KIND, either express or implied.  See the License for the
-~~ specific language governing permissions and limitations
-~~ under the License.
+<!-- Licensed to the Apache Software Foundation (ASF) under one-->
+<!-- or more contributor license agreements.  See the NOTICE file-->
+<!-- distributed with this work for additional information-->
+<!-- regarding copyright ownership.  The ASF licenses this file-->
+<!-- to you under the Apache License, Version 2.0 (the-->
+<!-- "License"); you may not use this file except in compliance-->
+<!-- with the License.  You may obtain a copy of the License at-->
+<!---->
+<!--   http://www.apache.org/licenses/LICENSE-2.0-->
+<!---->
+<!-- Unless required by applicable law or agreed to in writing,-->
+<!-- software distributed under the License is distributed on an-->
+<!-- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY-->
+<!-- KIND, either express or implied.  See the License for the-->
+<!-- specific language governing permissions and limitations-->
+<!-- under the License.-->
+# ${project.name}
 
-${project.name}
+This plugin signs all of the project&apos;s attached artifacts with GnuPG.
 
-  This plugin signs all of the project's attached artifacts with GnuPG.
+#[[##]]# Goals Overview
 
-* Goals Overview
+- [gpg:sign](./sign-mojo.html) Sign project artifact, the POM, and attached artifacts with GnuPG for deployment.
+- [gpg:sign-and-deploy-file](./sign-and-deploy-file-mojo.html) Signs artifacts and installs the artifact in the remote repository.
+#[[##]]# Usage
 
-  * {{{./sign-mojo.html}gpg:sign}} Sign project artifact, the POM, and attached artifacts with GnuPG for deployment.
+General instructions on how to use the GPG Plugin can be found on the [usage page](./usage.html). Some more specific use cases are described in the examples given below.
 
-  * {{{./sign-and-deploy-file-mojo.html}gpg:sign-and-deploy-file}} Signs artifacts and installs the artifact in the remote repository.
+Since 3\.2\.0, plugin can enforce &quot;best practices&quot;, and will fail the build if any violation are detected. In short, intent is to stop users putting secrets \(plaintext or quasi-encrypted\) in their Maven configuration files \(settings.xml, POMs\) or use secrets in a way they leave trace \(like in terminal history\). In this mode, plugin leaves two options to obtain passphrase: use of gpg-agent \(with pinentry in interactive sessions, or pre-seeded &quot;cached&quot; passwords in non-interactive mode\), and use of environment variables in batch/non-interactive/no-agent sessions. To enable &quot;best practices&quot; configure the plugin accordingly \(see goals, look for `bestPractices` configuration\). By default, the plugin does not enforce these, but does emit warnings.
 
-  []
+To &quot;prime&quot; the GnuPG agent, you have several options: either just &quot;sign&quot; something beforehand \(usable on workstations\) like `echo "test" | gpg --clearsign` \(optionally using a dedicated private key with [`--local-user <keyname>>>), or use gpg-preset-passphrase GnuPG command, that will "cache" the password in gpg-agent for given login session, cache content is lost between reboots. Note: this tool, while is part of GnuPG suite, may not be on path. Check your OS documentation for it. For example, on modern versions of Fedora this tool is not on path, but is located in <<</usr/libexec/gpg-preset-passphrase`](https://www.gnupg.org/documentation/manuals/gnupg/Invoking-gpg_002dpreset_002dpassphrase.html).
 
-* Usage
+**Note:** The GpgSigner, that uses GnuPG tool installed and configured on the host OS, while it does contain support for older GnuPGP versions, is tested \(locally by developers and on CI systems\) only by using [latest &quot;stable&quot; GnuPG version](https://www.gnupg.org/download/index.html) \(scroll to bottom of page for EOL information\).
 
-  General instructions on how to use the GPG Plugin can be found on the {{{./usage.html}usage page}}. Some more
-  specific use cases are described in the examples given below.
+In case you still have questions regarding the plugin&apos;s usage, please have a look at the [FAQ](./faq.html) and feel free to contact the [user mailing list](./mailing-lists.html). The posts to the mailing list are archived and could already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching the [mail archive](./mailing-lists.html).
 
-  Since 3.2.0, plugin can enforce "best practices", and will fail the build if any violation are detected.
-  In short, intent is to stop users putting secrets (plaintext or quasi-encrypted) in their Maven configuration
-  files (settings.xml, POMs) or use secrets in a way they leave trace (like in terminal history). In this mode,
-  plugin leaves two options to obtain passphrase: use of gpg-agent (with pinentry in interactive sessions, or pre-seeded
-  "cached" passwords in non-interactive mode), and use of environment variables in batch/non-interactive/no-agent
-  sessions. To enable "best practices" configure the plugin accordingly (see goals, look for <<<bestPractices>>>
-  configuration). By default, the plugin does not enforce these, but does emit warnings.
+If you feel like the plugin is missing a feature or has a defect, you can fill a feature request or bug report in our [issue tracker](./issue-management.html). When creating a new issue, please provide a comprehensive description of your concern. Especially for fixing bugs it is crucial that the developers can reproduce your problem. For this reason, entire debug logs, POMs or most preferably little demo projects attached to the issue are very much appreciated. Of course, patches are welcome, too. Contributors can check out the project from our [source repository](./scm.html) and will find supplementary information in the [guide to helping with Maven](/guides/development/guide-helping.html).
 
-  To "prime" the GnuPG agent, you have several options: either just "sign" something beforehand (usable on
-  workstations) like <<<echo "test" | gpg --clearsign>>> (optionally using a dedicated private key with <<<--local-user \<keyname\>>>), or use
-  {{{https://www.gnupg.org/documentation/manuals/gnupg/Invoking-gpg_002dpreset_002dpassphrase.html}gpg-preset-passphrase}}
-  GnuPG command, that will "cache" the password in gpg-agent for given login session, cache content is lost between
-  reboots. Note: this tool, while is part of GnuPG suite, may not be on path. Check your OS documentation for it.
-  For example, on modern versions of Fedora this tool is not on path, but is located in <<</usr/libexec/gpg-preset-passphrase>>>.
+#[[##]]# Examples
 
-  <<Note:>> The GpgSigner, that uses GnuPG tool installed and configured on the host OS, while it does contain support
-  for older GnuPGP versions, is tested (locally by developers and on CI systems) only by using
-  {{{https://www.gnupg.org/download/index.html}latest "stable" GnuPG version}} (scroll to bottom of page for EOL information).
+To provide you with better understanding of some usages of the GPG Plugin, you can take a look at the following example:
 
-  In case you still have questions regarding the plugin's usage, please have a look at the {{{./faq.html}FAQ}} and feel
-  free to contact the {{{./mailing-lists.html}user mailing list}}. The posts to the mailing list are archived and could
-  already contain the answer to your question as part of an older thread. Hence, it is also worth browsing/searching
-  the {{{./mailing-lists.html}mail archive}}.
-
-  If you feel like the plugin is missing a feature or has a defect, you can fill a feature request or bug report in our
-  {{{./issue-management.html}issue tracker}}. When creating a new issue, please provide a comprehensive description of your
-  concern. Especially for fixing bugs it is crucial that the developers can reproduce your problem. For this reason,
-  entire debug logs, POMs or most preferably little demo projects attached to the issue are very much appreciated.
-  Of course, patches are welcome, too. Contributors can check out the project from our
-  {{{./scm.html}source repository}} and will find supplementary information in the
-  {{{/guides/development/guide-helping.html}guide to helping with Maven}}.
-
-* Examples
-
-  To provide you with better understanding of some usages of the GPG Plugin,
-  you can take a look at the following example:
-
-  * {{{./examples/deploy-signed-artifacts.html}Deploy Signed Artifacts}}
-
-  []
+- [Deploy Signed Artifacts](./examples/deploy-signed-artifacts.html)
