@@ -54,9 +54,13 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String agentSocketLocations;
 
     /**
-     * BC Signer only: The path of the exported key in
+     * BC Signer only: The path of the exported key ring in
      * <a href="https://openpgp.dev/book/private_keys.html#transferable-secret-key-format">TSK format</a>,
      * and may be passphrase protected. If relative, the file is resolved against user home directory.
+     * Both binary as well as <a href="https://www.rfc-editor.org/rfc/rfc4880#section-6.2">ASCII armored encoding</a>
+     * is supported.
+     * <p>
+     * Either this or {@link #keyEnvName} is mandatory for the BC signer.
      * <p>
      * <em>Note: it is not recommended to have sensitive files checked into SCM repository. Key file should reside on
      * developer workstation, outside of SCM tracked repository. For CI-like use cases you should set the
@@ -68,7 +72,11 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String keyFilePath;
 
     /**
-     * BC Signer only: The fingerprint of the key to use for signing. If not given, first key in keyring will be used.
+     * BC Signer only: The fingerprint of the primary or secondary key (subkey) to use for signing.
+     * If not given the first key in the keyring will be used.
+     * Note that in contrast to {@link #keyname} user IDs are not supported here.
+     * @see <a href="https://www.rfc-editor.org/rfc/rfc4880#section-12.2">Open PGP Fingerprints</a>
+     * @see #keyFingerprintEnvName
      *
      * @since 3.2.0
      */
@@ -81,6 +89,10 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * key (while it does use GnuPG Agent to ask for password in interactive mode). The key should be in
      * <a href="https://openpgp.dev/book/private_keys.html#transferable-secret-key-format">TSK format</a> and may
      * be passphrase protected.
+     * Both binary as well as <a href="https://www.rfc-editor.org/rfc/rfc4880#section-6.2">ASCII armored encoding</a>
+     * is supported.
+     * <p>
+     * Either this or {@link #keyFilePath} is mandatory for the BC signer.
      *
      * @since 3.2.0
      */
@@ -88,9 +100,13 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     private String keyEnvName;
 
     /**
-     * BC Signer only: The env variable name where the GnuPG key fingerprint is set, if the provided keyring contains
-     * multiple keys.
+     * BC Signer only: The env variable name where the GnuPG key fingerprint is set.
+     * If set must contain the fingerprint of the primary or secondary key (subkey) to use for signing.
+     * If not given the first key in the keyring will be used.
+     * Note that in contrast to {@link #keyname} user IDs are not supported here.
+     * @see <a href="https://www.rfc-editor.org/rfc/rfc4880#section-12.2">Open PGP Fingerprints</a>
      *
+     * @see #keyFingerprint
      * @since 3.2.0
      */
     @Parameter(property = "gpg.keyFingerprintEnvName", defaultValue = DEFAULT_ENV_MAVEN_GPG_FINGERPRINT)
@@ -143,6 +159,10 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
 
     /**
      * GPG Signer only: The "name" of the key to sign with. Passed to gpg as <code>--local-user</code>.
+     * The value may be one of the formats supported by GPG outlined in <a href="https://www.gnupg.org/documentation/manuals/gnupg/Specify-a-User-ID.html">
+     * identifying a key/user</a>.
+     * This supports both primary and secondary keys (subkeys).
+     * If not given the default primary key is used.
      */
     @Parameter(property = "gpg.keyname")
     private String keyname;

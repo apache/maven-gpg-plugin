@@ -85,7 +85,7 @@ class BcSignerTest {
     }
 
     @Test
-    void testSingleKeyAsc() throws NoLocalRepositoryManagerException, MojoFailureException {
+    void testSingleKeyAscViaSubkeyFingerprint() throws NoLocalRepositoryManagerException, MojoFailureException {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));
@@ -104,6 +104,26 @@ class BcSignerTest {
         assertEquals(
                 PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT,
                 signer.secretKey.getPublicKey().getAlgorithm());
+    }
+
+    @Test
+    void testPrimaryKeyAsc() throws NoLocalRepositoryManagerException, MojoFailureException {
+        DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
+        session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
+                .newInstance(session, new LocalRepository("target/local-repo")));
+        BcSigner signer = new BcSigner(
+                session,
+                "unimportant",
+                "unimportant",
+                "undefined",
+                new File("src/test/resources/signing-key-with-multiple-subkeys.asc").getAbsolutePath(),
+                "CD251351B3EC94057BC44FD683CAA88765254A26"); // fingerprint is the primary key
+        signer.setPassPhrase("TEST");
+        signer.setUseAgent(false);
+        signer.setInteractive(false);
+        signer.prepare();
+        // check key algorithm, must be DSA
+        assertEquals(PublicKeyAlgorithmTags.DSA, signer.secretKey.getPublicKey().getAlgorithm());
     }
 
     @Test
