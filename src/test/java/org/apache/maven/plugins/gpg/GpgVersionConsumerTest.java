@@ -18,8 +18,6 @@
  */
 package org.apache.maven.plugins.gpg;
 
-import java.io.IOException;
-
 import org.apache.maven.plugins.gpg.GpgVersionParser.GpgVersionConsumer;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GpgVersionConsumerTest {
     @Test
-    void test() throws IOException {
+    void test() throws Exception {
         GpgVersionConsumer consumer = new GpgVersionConsumer();
         consumer.consumeLine("gpg (GnuPG/MacGPG2) 2.2.10");
 
