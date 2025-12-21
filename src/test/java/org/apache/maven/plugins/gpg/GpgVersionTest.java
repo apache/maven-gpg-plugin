@@ -38,7 +38,7 @@ class GpgVersionTest {
     }
 
     @Test
-    void testOpposite() {
+    void opposite() {
         assertFalse(GpgVersion.parse("gpg (GnuPG) 2.2.1").isBefore(GpgVersion.parse("gpg (GnuPG) 2.2.1")));
         assertFalse(GpgVersion.parse("gpg (GnuPG) 2.2.1").isBefore(GpgVersion.parse("2.1")));
         assertFalse(GpgVersion.parse("gpg (GnuPG/MacGPG2) 2.2.10").isBefore(GpgVersion.parse("2.2.10")));
@@ -46,7 +46,7 @@ class GpgVersionTest {
     }
 
     @Test
-    void testEquality() {
+    void equality() {
         assertEquals(GpgVersion.parse("gpg (GnuPG) 2.2.1"), GpgVersion.parse("gpg (GnuPG) 2.2.1"));
         assertEquals(GpgVersion.parse("gpg (GnuPG) 2.2.1"), GpgVersion.parse("2.2.1"));
         assertEquals(GpgVersion.parse("gpg (GnuPG/MacGPG2) 2.2.10"), GpgVersion.parse("2.2.10"));

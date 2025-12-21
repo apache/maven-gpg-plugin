@@ -20,13 +20,11 @@ package org.apache.maven.plugins.gpg;
 
 import java.io.File;
 
-import org.apache.maven.plugin.MojoFailureException;
 import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.internal.impl.DefaultLocalPathComposer;
 import org.eclipse.aether.internal.impl.SimpleLocalRepositoryManagerFactory;
 import org.eclipse.aether.repository.LocalRepository;
-import org.eclipse.aether.repository.NoLocalRepositoryManagerException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -55,7 +53,7 @@ class BcSignerTest {
      */
     @Disabled
     @Test
-    void testAgent() throws Exception {
+    void agent() throws Exception {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));
@@ -85,7 +83,7 @@ class BcSignerTest {
     }
 
     @Test
-    void testSingleKeyAscViaSubkeyFingerprint() throws NoLocalRepositoryManagerException, MojoFailureException {
+    void singleKeyAscViaSubkeyFingerprint() throws Exception {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));
@@ -107,7 +105,7 @@ class BcSignerTest {
     }
 
     @Test
-    void testPrimaryKeyAsc() throws NoLocalRepositoryManagerException, MojoFailureException {
+    void primaryKeyAsc() throws Exception {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));
@@ -127,7 +125,7 @@ class BcSignerTest {
     }
 
     @Test
-    void testFirstSubkeyFromAsc() throws NoLocalRepositoryManagerException, MojoFailureException {
+    void firstSubkeyFromAsc() throws Exception {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));
@@ -149,7 +147,7 @@ class BcSignerTest {
     }
 
     @Test
-    void testSecondSubkeyFromAsc() throws NoLocalRepositoryManagerException, MojoFailureException {
+    void secondSubkeyFromAsc() throws Exception {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));
@@ -171,7 +169,7 @@ class BcSignerTest {
     }
 
     @Test
-    void testKeyFromKeyringFromConf() throws NoLocalRepositoryManagerException, MojoFailureException {
+    void keyFromKeyringFromConf() throws Exception {
         DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
         session.setLocalRepositoryManager(new SimpleLocalRepositoryManagerFactory(new DefaultLocalPathComposer())
                 .newInstance(session, new LocalRepository("target/local-repo")));

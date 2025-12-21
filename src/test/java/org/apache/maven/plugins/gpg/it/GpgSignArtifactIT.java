@@ -59,7 +59,7 @@ public class GpgSignArtifactIT extends ITSupport {
 
     @MethodSource("data")
     @ParameterizedTest
-    void testPlacementOfArtifactInOutputDirectory(String pomPath, String expectedFileLocation, String[] expectedFiles)
+    void placementOfArtifactInOutputDirectory(String pomPath, String expectedFileLocation, String[] expectedFiles)
             throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource(pomPath);
@@ -83,7 +83,7 @@ public class GpgSignArtifactIT extends ITSupport {
     }
 
     @Test
-    void testWorstPracticesStillWork() throws Exception {
+    void worstPracticesStillWork() throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource("/it/sign-release-in-same-dir/pom.xml");
         final InvocationRequest request =
