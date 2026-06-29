@@ -86,7 +86,7 @@ public class GpgSigner extends AbstractGpgSigner {
 
         if (homeDir != null) {
             cmd.createArg().setValue("--homedir");
-            cmd.createArg().setFile(homeDir);
+            cmd.createArg().setValue(homeDir.getAbsolutePath().replace('\\', '/'));
         }
 
         if (gpgVersion.isBefore(GpgVersion.parse("2.1"))) {
@@ -178,9 +178,9 @@ public class GpgSigner extends AbstractGpgSigner {
         }
 
         cmd.createArg().setValue("--output");
-        cmd.createArg().setFile(signature);
+        cmd.createArg().setValue(signature.getAbsolutePath().replace('\\', '/'));
 
-        cmd.createArg().setFile(file);
+        cmd.createArg().setValue(file.getAbsolutePath().replace('\\', '/'));
 
         // ----------------------------------------------------------------------------
         // Execute the command line
