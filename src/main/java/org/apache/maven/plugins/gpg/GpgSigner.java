@@ -61,6 +61,8 @@ public class GpgSigner extends AbstractGpgSigner {
 
         Commandline cmd = new Commandline();
 
+        cmd.addEnvironment("MSYS_NO_PATHCONV", "1");
+
         if (executable != null && !executable.isEmpty()) {
             cmd.setExecutable(executable);
         } else {
