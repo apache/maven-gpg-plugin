@@ -51,6 +51,20 @@ public class GpgSigner extends AbstractGpgSigner {
     }
 
     /**
+     * Converts a Windows path to MinGW format only if GPG is running in a MinGW/Cygwin environment.
+     * For example, converts "D:/a/b/c" to "/d/a/b/c".
+     * This prevents MSYS2/GPG from incorrectly prepending the current working directory.
+     */
+    private String convertPathForGpg(String path, boolean isMinGWorCygwin) {
+        String forwardPath = path.replace('\\', '/');
+        if (isMinGWorCygwin && forwardPath.length() >= 2 && forwardPath.charAt(1) == ':') {
+            char driveLetter = Character.toLowerCase(forwardPath.charAt(0));
+            return "/" + driveLetter + forwardPath.substring(2);
+        }
+        return forwardPath;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -76,6 +90,11 @@ public class GpgSigner extends AbstractGpgSigner {
             throw new MojoExecutionException("Could not determine gpg version");
         }
 
+        boolean isMinGWorCygwin = versionParser.isMinGWorCygwin();
+        if (isMinGWorCygwin) {
+            getLog().debug("GPG detected as MinGW/Cygwin build - will use MinGW path format");
+        }
+
         getLog().debug("GPG Version: " + gpgVersion);
 
         if (args != null) {
@@ -86,7 +105,7 @@ public class GpgSigner extends AbstractGpgSigner {
 
         if (homeDir != null) {
             cmd.createArg().setValue("--homedir");
-            cmd.createArg().setValue(homeDir.getAbsolutePath().replace('\\', '/'));
+            cmd.createArg().setValue(convertPathForGpg(homeDir.getAbsolutePath(), isMinGWorCygwin));
         }
 
         if (gpgVersion.isBefore(GpgVersion.parse("2.1"))) {
@@ -178,9 +197,9 @@ public class GpgSigner extends AbstractGpgSigner {
         }
 
         cmd.createArg().setValue("--output");
-        cmd.createArg().setValue(signature.getAbsolutePath().replace('\\', '/'));
+        cmd.createArg().setValue(convertPathForGpg(signature.getAbsolutePath(), isMinGWorCygwin));
 
-        cmd.createArg().setValue(file.getAbsolutePath().replace('\\', '/'));
+        cmd.createArg().setValue(convertPathForGpg(file.getAbsolutePath(), isMinGWorCygwin));
 
         // ----------------------------------------------------------------------------
         // Execute the command line

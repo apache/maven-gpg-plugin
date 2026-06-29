@@ -79,6 +79,10 @@ public class GpgVersionParser {
         return consumer.getGpgVersion();
     }
 
+    public boolean isMinGWorCygwin() {
+        return consumer.isMinGWorCygwin();
+    }
+
     /**
      * Consumes the output of {@code gpg --version}
      *
@@ -89,6 +93,7 @@ public class GpgVersionParser {
         private final Pattern gpgVersionPattern = Pattern.compile("gpg \\([^)]+\\) .+");
 
         private GpgVersion gpgVersion;
+        private boolean isMinGWorCygwin = false;
 
         @Override
         public void consumeLine(String line) throws IOException {
@@ -96,10 +101,21 @@ public class GpgVersionParser {
             if (m.matches()) {
                 gpgVersion = GpgVersion.parse(m.group());
             }
+
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                String lowerLine = line.toLowerCase();
+                if (lowerLine.contains("cygwin") || lowerLine.contains("mingw") || lowerLine.contains("msys")) {
+                    isMinGWorCygwin = true;
+                }
+            }
         }
 
         public GpgVersion getGpgVersion() {
             return gpgVersion;
+        }
+
+        public boolean isMinGWorCygwin() {
+            return isMinGWorCygwin;
         }
     }
 }
