@@ -19,18 +19,23 @@
 package org.apache.maven.plugins.gpg;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.Os;
-import org.codehaus.plexus.util.cli.CommandLineException;
-import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.codehaus.plexus.util.cli.Commandline;
-import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
  * Parse the output of <code>gpg --version</code> and exposes these as dedicated objects.
+ *
+ * Uses ProcessBuilder for execution to avoid Windows cmd.exe nested quoting issues,
+ * matching GpgSigner implementation. Direct ProcessBuilder usage without external
+ * command-line parsing libraries.
  *
  * Supported:
  * <ul>
@@ -54,21 +59,85 @@ public class GpgVersionParser {
     }
 
     public static GpgVersionParser parse(String executable) throws MojoExecutionException {
-        Commandline cmd = new Commandline();
+        String gpgExecutable = (executable != null && !executable.isEmpty())
+                ? executable
+                : "gpg" + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : "");
 
-        if (executable != null && !executable.isEmpty()) {
-            cmd.setExecutable(executable);
-        } else {
-            cmd.setExecutable("gpg" + (Os.isFamily(Os.FAMILY_WINDOWS) ? ".exe" : ""));
-        }
+        List<String> command = new ArrayList<>();
+        command.add(gpgExecutable);
+        command.add("--version");
 
-        cmd.createArg().setValue("--version");
+        Map<String, String> environment = new HashMap<>();
 
         GpgVersionConsumer out = new GpgVersionConsumer();
 
         try {
-            CommandLineUtils.executeCommandLine(cmd, null, out, null);
-        } catch (CommandLineException e) {
+            ProcessExecutor executor = new ProcessExecutor(new Log() {
+                @Override
+                public boolean isDebugEnabled() {
+                    return false;
+                }
+
+                @Override
+                public void debug(CharSequence content) {}
+
+                @Override
+                public void debug(CharSequence content, Throwable error) {}
+
+                @Override
+                public void debug(Throwable error) {}
+
+                @Override
+                public boolean isInfoEnabled() {
+                    return false;
+                }
+
+                @Override
+                public void info(CharSequence content) {}
+
+                @Override
+                public void info(CharSequence content, Throwable error) {}
+
+                @Override
+                public void info(Throwable error) {}
+
+                @Override
+                public boolean isWarnEnabled() {
+                    return false;
+                }
+
+                @Override
+                public void warn(CharSequence content) {}
+
+                @Override
+                public void warn(CharSequence content, Throwable error) {}
+
+                @Override
+                public void warn(Throwable error) {}
+
+                @Override
+                public boolean isErrorEnabled() {
+                    return false;
+                }
+
+                @Override
+                public void error(CharSequence content) {}
+
+                @Override
+                public void error(CharSequence content, Throwable error) {}
+
+                @Override
+                public void error(Throwable error) {}
+            });
+
+            List<String> output = executor.executeAndCollectOutput(command, environment);
+
+            for (String line : output) {
+                out.consumeLine(line);
+            }
+        } catch (ProcessExecutor.ProcessExecutionException e) {
+            throw new MojoExecutionException("gpg --version exited with exit code: " + e.getExitCode(), e);
+        } catch (IOException | InterruptedException e) {
             throw new MojoExecutionException("failed to execute gpg", e);
         }
 
@@ -85,12 +154,11 @@ public class GpgVersionParser {
      * @author Robert Scholte
      * @since 3.0.0
      */
-    static class GpgVersionConsumer implements StreamConsumer {
+    static class GpgVersionConsumer {
         private final Pattern gpgVersionPattern = Pattern.compile("gpg \\([^)]+\\) .+");
 
         private GpgVersion gpgVersion;
 
-        @Override
         public void consumeLine(String line) throws IOException {
             Matcher m = gpgVersionPattern.matcher(line);
             if (m.matches()) {
