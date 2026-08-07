@@ -30,13 +30,13 @@ There are different ways how a passphrase can be retrieved. They are outlined in
 
 <!-- MACRO{toc|fromDepth=2} -->
 
-General remark regarding environment variables: Examples below are NOT instructions how to invoke Maven, as if you&apos;d follow these examples literally, it would defy the goal of not leaking cleartext passphrases, as these would end up in terminal history\! You should set these environment variables on your own discretion in some secure manner.
+General remark regarding environment variables: Examples below are NOT instructions how to invoke Maven, as if you&apos;d follow these examples literally, it would defy the goal of not leaking cleartext passphrases, as these would end up in terminal history! You should set these environment variables on your own discretion in some secure manner.
 
-In the future, plugin will operate in `bestPractices` mode enabled, and will fail the build if credentials are given in a unsafe manner. The goal of this change was to protect plugin users from possible &quot;leaks&quot; of sensitive information \(like passphrase is\). Sensitive information like passphrases should never be stored on disks \(plaintext or quasi-encrypted\), nor should be used in a way they may &quot;leak&quot; into other files \(for example bash terminal history\).
+In the future, plugin will operate in `bestPractices` mode enabled, and will fail the build if credentials are given in a unsafe manner. The goal of this change was to protect plugin users from possible &quot;leaks&quot; of sensitive information (like passphrase is). Sensitive information like passphrases should never be stored on disks (plaintext or quasi-encrypted), nor should be used in a way they may &quot;leak&quot; into other files (for example bash terminal history).
 
 ## Retrieve passphrase via gpg-agent
 
-Ideally, if invoked on workstation, you should rely on [gpg-agent](https://www.gnupg.org/documentation/manuals/gnupg/Invoking-GPG_002dAGENT.html) to collect passphrase from, as in that way no secrets will enter terminal history nor any file on disk. In agent-less \(batch\) sessions, typically on CI, you should provide passphrases via environment variable \(see goals\).
+Ideally, if invoked on workstation, you should rely on [gpg-agent](https://www.gnupg.org/documentation/manuals/gnupg/Invoking-GPG_002dAGENT.html) to collect passphrase from, as in that way no secrets will enter terminal history nor any file on disk. In agent-less (batch) sessions, typically on CI, you should provide passphrases via environment variable (see goals).
 
 **Note:** When using the GPG Plugin in combination with the Maven Release Plugin, on a developer Workstation, you should rely on gpg-agent, but have it &quot;primed&quot;, as Release plugin invokes build in batch mode, that will prevent agent to present the &quot;pinentry pop up&quot;. If fully unattended release is being done, for example on a CI system, then with `useAgent` set to `false` one can pass the passphrase via environment variable.
 
@@ -44,8 +44,8 @@ Ideally, if invoked on workstation, you should rely on [gpg-agent](https://www.g
 
 ## Retrieve passphrase via environment variable
 
-In &quot;agent-less&quot; \(CI like usage\) mode one can supply passphrase via environment variable only.
-General remark regarding environment variables: Examples below are NOT instructions how to invoke Maven, as if you&apos;d follow these examples literally, it would defy the goal of not leaking cleartext passphrases, as these would end up in terminal history\! You should set these environment variables on your own discretion in some secure manner.
+In &quot;agent-less&quot; (CI like usage) mode one can supply passphrase via environment variable only.
+General remark regarding environment variables: Examples below are NOT instructions how to invoke Maven, as if you&apos;d follow these examples literally, it would defy the goal of not leaking cleartext passphrases, as these would end up in terminal history! You should set these environment variables on your own discretion in some secure manner.
 
 ```
 MAVEN_GPG_PASSPHRASE=thephrase mvn release:perform
