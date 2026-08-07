@@ -76,7 +76,7 @@ However, if there are other plugins configured for phases after the `verify` pha
 
 #[[##]]# Sign using GnuPG
 
-**Note:** The GpgSigner, that uses GnuPG tool installed and configured on the host OS, while it does contain support for older GnuPGP versions, is tested \(locally by developers and on CI systems\) only by using [latest &quot;stable&quot; GnuPG version](https://www.gnupg.org/download/index.html) \(scroll to bottom of page for EOL information\).
+**Note:** The GpgSigner, that uses GnuPG tool installed and configured on the host OS, while it does contain support for older GnuPGP versions, is tested (locally by developers and on CI systems) only by using [latest &quot;stable&quot; GnuPG version](https://www.gnupg.org/download/index.html) (scroll to bottom of page for EOL information).
 
 #[[###]]# Prerequisites
 
@@ -89,14 +89,14 @@ Refer to [Passphrases](passphrase.html) on how an optional passphrase may be pas
 
 #[[##]]# Sign using Bouncy Castle
 
-By default the plugin uses the &quot;gpg&quot; Signer \(that relies on GnuPG tool installed on host OS\). The &quot;bc&quot; Signer on the other hand implements signing in pure Java using Bouncy Castle libraries.
+By default the plugin uses the &quot;gpg&quot; Signer (that relies on GnuPG tool installed on host OS). The &quot;bc&quot; Signer on the other hand implements signing in pure Java using Bouncy Castle libraries.
 
 #[[###]]# Prerequisites
 
-- Secret key to use for signing in TSK format \(see [&quot;Transferable Secret Keys&quot;](https://openpgp.dev/book/private_keys.html#transferable-secret-key-format) format\).
+- Secret key to use for signing in TSK format (see [&quot;Transferable Secret Keys&quot;](https://openpgp.dev/book/private_keys.html#transferable-secret-key-format) format).
 - Parameter `gpg.signer` set to `bc`
 
-The &quot;bc&quot; signer, unlike &quot;gpg&quot;, does not and cannot make use of `~/.gnupg` directory in user home, and have to have configured both, the key used to sign and the passphrase \(if key is passphrase protected\).
+The &quot;bc&quot; signer, unlike &quot;gpg&quot;, does not and cannot make use of `~/.gnupg` directory in user home, and have to have configured both, the key used to sign and the passphrase (if key is passphrase protected).
 
 ```
 mvn deploy -Dgpg.signer=bc -Dgpg.keyFilePath=path/to/key
