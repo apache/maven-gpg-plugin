@@ -22,6 +22,9 @@ var expectedFiles = [
     "_remote.repositories",
     "test-1.0.pom",
     "test-1.0.pom.asc",
+    // maven4 installs the build POM next to the consumer POM, and signs both
+    "test-1.0-build.pom",
+    "test-1.0-build.pom.asc",
     "test-1.0.jar",
     "test-1.0.jar.asc",
     "test-1.0-sources.jar",
@@ -30,11 +33,6 @@ var expectedFiles = [
 
 for (File file : artifactDir.listFiles()) {
     var fileName = file.getName()
-
-    //maven4: skip consumer POM
-    if (fileName.endsWith("consumer.pom") || fileName.endsWith("consumer.pom.asc")) {
-        continue
-    }
 
     println "Checking if file is expected: $file"
 
