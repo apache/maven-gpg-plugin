@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+---
+title: Frequently Asked Questions
+---
 
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
@@ -19,40 +21,35 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<faqs xmlns="http://maven.apache.org/FML/1.0.1"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/FML/1.0.1 http://maven.apache.org/xsd/fml-1.0.1.xsd"
-  id="FAQ" title="Frequently Asked Questions">
- <part id="General">
-   <faq id="question1">
-     <question>What is GnuPG?</question>
-     <answer>
-       <p>
-         You can read more about GnuPG at <a href="http://www.gnupg.org/">their web site</a>.
-       </p>
-     </answer>
-   </faq>
-   <faq id="site-descriptor">
-     <question>Why is the site descriptor not signed?</question>
-     <answer>
-       <p>
-         The <code>site.xml</code> that can be deployed alongside parent POMs was originally attached to the project in such a
-         way that the GPG Plugin could not get hold of it. To enable signing of the site descriptor, you need to update to
-         Maven Site Plugin 2.1.1+ which contains the required fix (see also
-         <a href="https://issues.apache.org/jira/browse/MSITE-478">MSITE-478</a>).
-       </p>
-     </answer>
-   </faq>
-   <faq id="no-pinentry">
-     <question>Why am I getting "gpg: signing failed: No pinentry" while releasing?</question>
-     <answer>
-       <p>
-         When plugin used in combination with <a href="https://maven.apache.org/maven-release/maven-release-plugin/">Maven Release Plugin</a>
-         the GPG signing will happen in "batch mode". This implies that you must either use GPG passphrase passed in
-         via environment variable (preferred on systems like CI systems are), or, if on Workstation, using primed
-         gpg-agent is needed. Read more here about <a href="passphrase.html#Retrieve_passphrase_via_gpg-agent">GPG Agent priming</a>.
-       </p>
-     </answer>
-   </faq>
- </part>
-</faqs>
+<a id="top"></a>
+
+# Frequently Asked Questions
+
+1. [What is GnuPG?](#question1)
+2. [Why is the site descriptor not signed?](#site-descriptor)
+3. [Why am I getting "gpg: signing failed: No pinentry" while releasing?](#no-pinentry)
+
+<a id="question1"></a>
+
+### What is GnuPG?
+
+You can read more about GnuPG at [their web site](http://www.gnupg.org/).
+
+<a id="site-descriptor"></a>
+
+### Why is the site descriptor not signed?
+
+The `site.xml` that can be deployed alongside parent POMs was originally attached to the project in such a way
+that the GPG Plugin could not get hold of it. To enable signing of the site descriptor, you need to update to
+Maven Site Plugin 2.1.1+ which contains the required fix (see also
+[MSITE-478](https://issues.apache.org/jira/browse/MSITE-478)).
+
+<a id="no-pinentry"></a>
+
+### Why am I getting "gpg: signing failed: No pinentry" while releasing?
+
+When plugin used in combination with
+[Maven Release Plugin](https://maven.apache.org/maven-release/maven-release-plugin/) the GPG signing will
+happen in "batch mode". This implies that you must either use GPG passphrase passed in via environment
+variable (preferred on systems like CI systems are), or, if on Workstation, using primed gpg-agent is needed.
+Read more here about [GPG Agent priming](passphrase.html#Retrieve_passphrase_via_gpg-agent).
