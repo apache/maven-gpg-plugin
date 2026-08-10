@@ -27,7 +27,7 @@ under the License.
 
 1. [What is GnuPG?](#question1)
 2. [Why is the site descriptor not signed?](#site-descriptor)
-3. [Why am I getting "gpg: signing failed: No pinentry" while releasing?](#no-pinentry)
+3. [Why am I getting &quot;gpg: signing failed: No pinentry&quot; while releasing?](#no-pinentry)
 
 <a id="question1"></a>
 
@@ -46,10 +46,10 @@ Maven Site Plugin 2.1.1+ which contains the required fix (see also
 
 <a id="no-pinentry"></a>
 
-### Why am I getting "gpg: signing failed: No pinentry" while releasing?
+### Why am I getting &quot;gpg: signing failed: No pinentry&quot; while releasing?
 
 When plugin used in combination with
 [Maven Release Plugin](https://maven.apache.org/maven-release/maven-release-plugin/) the GPG signing will
-happen in "batch mode". This implies that you must either use GPG passphrase passed in via environment
+happen in &quot;batch mode&quot;. This implies that you must either use GPG passphrase passed in via environment
 variable (preferred on systems like CI systems are), or, if on Workstation, using primed gpg-agent is needed.
 Read more here about [GPG Agent priming](passphrase.html#Retrieve_passphrase_via_gpg-agent).
