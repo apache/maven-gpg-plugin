@@ -59,6 +59,11 @@ import org.eclipse.aether.repository.RemoteRepository;
 /**
  * Signs artifacts and deploys the artifacts and signatures in the remote repository.
  *
+ * <p>Deployment uses Maven Resolver's HTTP POST deploy API. That is not accepted by every remote
+ * repository. If your host rejects it, sign with {@code gpg:sign} and deploy with a tool that
+ * speaks the repository's own API, for example
+ * <a href="https://github.com/maveniverse/njord">Njord</a>.
+ *
  * @author Daniel Kulp
  * @since 1.0-beta-4
  */

@@ -30,7 +30,7 @@ This plugin signs artifacts according to [OpenPGP standard](https://www.ietf.org
 #[[##]]# Goals Overview
 
 - [gpg:sign](./sign-mojo.html) Sign project artifact, the POM, and attached artifacts with GnuPG for deployment.
-- [gpg:sign-and-deploy-file](./sign-and-deploy-file-mojo.html) Signs artifacts and installs the artifact in the remote repository.
+- [gpg:sign-and-deploy-file](./sign-and-deploy-file-mojo.html) Signs artifacts and deploys them with Maven Resolver HTTP POST. Not every remote repository accepts that deploy API; see [Njord](https://github.com/maveniverse/njord) for an alternative.
 - [gpg:sign-deployed](./sign-deployed-mojo.html) Resolves given artifacts from a given remote repository, signs them, and deploys the signatures next to signed artifacts.
 
 #[[##]]# Usage
