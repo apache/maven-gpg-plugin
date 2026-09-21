@@ -22,7 +22,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.executor.ExecutorRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -63,7 +63,7 @@ public class GpgSignArtifactIT extends ITSupport {
             throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource(pomPath);
-        final InvocationRequest request =
+        final ExecutorRequest.Builder request =
                 InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, "gpg", true);
         final File integrationTestRootDirectory = new File(pomFile.getParent());
         final File expectedOutputDirectory = new File(integrationTestRootDirectory + expectedFileLocation);
@@ -86,10 +86,10 @@ public class GpgSignArtifactIT extends ITSupport {
     void worstPracticesStillWork() throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource("/it/sign-release-in-same-dir/pom.xml");
-        final InvocationRequest request =
+        final ExecutorRequest.Builder request =
                 InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, "gpg", false);
-        request.addArg("-Dgpg.bestPractices=false");
-        request.addArg("-Dgpg.passphrase=TEST");
+        request.argument("-Dgpg.bestPractices=false");
+        request.argument("-Dgpg.passphrase=TEST");
 
         final File integrationTestRootDirectory = new File(pomFile.getParent());
         final File expectedOutputDirectory = new File(integrationTestRootDirectory + "/target/tarballs/");
