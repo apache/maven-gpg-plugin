@@ -20,83 +20,92 @@ package org.apache.maven.plugins.gpg.it;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Properties;
+import java.nio.file.Files;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.io.input.NullInputStream;
-import org.apache.maven.shared.invoker.DefaultInvocationRequest;
-import org.apache.maven.shared.invoker.DefaultInvoker;
-import org.apache.maven.shared.invoker.InvocationOutputHandler;
-import org.apache.maven.shared.invoker.InvocationRequest;
-import org.apache.maven.shared.invoker.InvocationResult;
-import org.apache.maven.shared.invoker.Invoker;
-import org.apache.maven.shared.invoker.InvokerLogger;
-import org.apache.maven.shared.invoker.MavenInvocationException;
-import org.apache.maven.shared.invoker.PrintStreamHandler;
-import org.apache.maven.shared.invoker.PrintStreamLogger;
+import org.apache.maven.executor.ExecutorRequest;
+import org.apache.maven.executor.ExecutorResult;
+import org.apache.maven.executor.forked.ForkedMavenExecutor;
 
 public class InvokerTestUtils {
 
-    public static InvocationRequest createRequest(
-            File pomFile, File mavenUserSettings, File gpgHome, String signer, boolean providePassphraseEnv) {
-        final InvocationRequest request = new DefaultInvocationRequest();
-        request.setUserSettingsFile(mavenUserSettings);
-        request.setShowVersion(true);
-        request.setDebug(true);
-        request.setShowErrors(true);
-        request.setTimeoutInSeconds(60); // safeguard against GPG freezes
-        request.addArg("clean");
-        request.addArg("install");
-        request.setPomFile(pomFile);
-
-        if (providePassphraseEnv) {
-            request.addShellEnvironment("MAVEN_GPG_PASSPHRASE", "TEST");
+    /**
+     * Builds the request for a {@code clean install} of the IT project, in batch mode unless {@code interactive}.
+     */
+    public static ExecutorRequest.Builder createRequest(
+            File pomFile,
+            File mavenUserSettings,
+            File gpgHome,
+            String signer,
+            boolean providePassphraseEnv,
+            boolean interactive) {
+        final List<String> arguments = new ArrayList<>();
+        if (!interactive) {
+            arguments.add("-B");
         }
-
-        final Properties properties = new Properties();
-        request.setProperties(properties);
+        arguments.add("-V");
+        arguments.add("-X");
+        arguments.add("-e");
+        arguments.add("-s");
+        arguments.add(mavenUserSettings.getAbsolutePath());
+        arguments.add("-f");
+        arguments.add(pomFile.getAbsolutePath());
 
         // Required for JRE 7 to connect to Maven Central with TLSv1.2
         final String httpsProtocols = System.getProperty("https.protocols");
         if (httpsProtocols != null && !httpsProtocols.isEmpty()) {
-            properties.setProperty("https.protocols", httpsProtocols);
+            arguments.add("-Dhttps.protocols=" + httpsProtocols);
         }
 
         if (signer != null) {
-            properties.setProperty("gpg.signer", signer);
-            properties.setProperty("gpg.keyFilePath", new File("src/test/resources/signing-key.asc").getAbsolutePath());
+            arguments.add("-Dgpg.signer=" + signer);
+            arguments.add("-Dgpg.keyFilePath=" + new File("src/test/resources/signing-key.asc").getAbsolutePath());
         }
-        properties.setProperty("gpg.homedir", gpgHome.getAbsolutePath());
+        arguments.add("-Dgpg.homedir=" + gpgHome.getAbsolutePath());
+
+        arguments.add("clean");
+        arguments.add("install");
+
+        final ExecutorRequest.Builder request = ExecutorRequest.mavenBuilder()
+                .cwd(pomFile.getParentFile().toPath())
+                .arguments(arguments)
+                .executionTimeout(Duration.ofSeconds(60)); // safeguard against GPG freezes
+
+        if (providePassphraseEnv) {
+            request.environmentVariable("MAVEN_GPG_PASSPHRASE", "TEST");
+        }
 
         return request;
     }
 
+    public static ExecutorRequest.Builder createRequest(
+            File pomFile, File mavenUserSettings, File gpgHome, String signer, boolean providePassphraseEnv) {
+        return createRequest(pomFile, mavenUserSettings, gpgHome, signer, providePassphraseEnv, false);
+    }
+
+    /**
+     * Runs the request with the given Maven installation and local repository; Maven's output goes to
+     * {@code build.log} next to the IT project's POM.
+     */
     public static BuildResult executeRequest(
-            final InvocationRequest request, final File mavenHome, final File localRepository)
-            throws FileNotFoundException, MavenInvocationException {
-        final InvocationResult result;
-
-        final File buildLog =
-                new File(request.getBaseDirectory(request.getPomFile().getParentFile()), "build.log");
-        try (PrintStream buildLogStream = new PrintStream(buildLog)) {
-            final InvocationOutputHandler buildLogOutputHandler = new PrintStreamHandler(buildLogStream, false);
-            final InvokerLogger logger = new PrintStreamLogger(buildLogStream, InvokerLogger.DEBUG);
-
-            final Invoker invoker = new DefaultInvoker();
-            invoker.setMavenHome(mavenHome);
-            invoker.setLocalRepositoryDirectory(localRepository);
-            invoker.setLogger(logger);
-
-            request.setInputStream(new NullInputStream(0));
-            request.setOutputHandler(buildLogOutputHandler);
-            request.setErrorHandler(buildLogOutputHandler);
-
-            result = invoker.execute(request);
+            final ExecutorRequest.Builder request, final File mavenHome, final File localRepository)
+            throws IOException {
+        final File buildLog = new File(request.build().cwd().toFile(), "build.log");
+        try (OutputStream buildLogStream = Files.newOutputStream(buildLog.toPath());
+                ForkedMavenExecutor executor = new ForkedMavenExecutor(mavenHome.toPath())) {
+            final ExecutorResult result =
+                    executor.execute(request.argument("-Dmaven.repo.local=" + localRepository.getAbsolutePath())
+                            .stdOut(buildLogStream)
+                            .stdErr(buildLogStream)
+                            .build());
+            return new BuildResult(buildLog, result);
         }
-
-        return new BuildResult(buildLog, result);
     }
 
     public static File getTestResource(final String path) throws URISyntaxException, FileNotFoundException {

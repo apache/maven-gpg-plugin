@@ -20,23 +20,23 @@ package org.apache.maven.plugins.gpg.it;
 
 import java.io.File;
 
-import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.executor.ExecutorResult;
 
 public class BuildResult {
 
     private final File buildLog;
-    private final InvocationResult invocationResult;
+    private final ExecutorResult executorResult;
 
-    public BuildResult(final File buildLog, final InvocationResult invocationResult) {
+    public BuildResult(final File buildLog, final ExecutorResult executorResult) {
         this.buildLog = buildLog;
-        this.invocationResult = invocationResult;
+        this.executorResult = executorResult;
     }
 
     public File getBuildLog() {
         return buildLog;
     }
 
-    public InvocationResult getInvocationResult() {
-        return invocationResult;
+    public ExecutorResult getExecutorResult() {
+        return executorResult;
     }
 }

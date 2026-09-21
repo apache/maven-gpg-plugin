@@ -22,7 +22,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.executor.ExecutorRequest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -62,7 +62,7 @@ public class BcSignArtifactIT extends ITSupport {
             throws Exception {
         // given
         final File pomFile = InvokerTestUtils.getTestResource(pomPath);
-        final InvocationRequest request =
+        final ExecutorRequest.Builder request =
                 InvokerTestUtils.createRequest(pomFile, mavenUserSettings, gpgHome, "bc", true);
         final File integrationTestRootDirectory = new File(pomFile.getParent());
         final File expectedOutputDirectory = new File(integrationTestRootDirectory + expectedFileLocation);
