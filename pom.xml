@@ -23,7 +23,7 @@ under the License.
   <parent>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-plugins</artifactId>
-    <version>48</version>
+    <version>50</version>
     <relativePath />
   </parent>
 
@@ -215,6 +215,18 @@ under the License.
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+          <configuration>
+            <inputExcludes combine.children="append">
+
+              <!-- rat is too cheeky, ignore these resources -->
+              <exclude>src/test/resources/**</exclude>
+
+            </inputExcludes>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
@@ -222,16 +234,7 @@ under the License.
             <showDeprecation>true</showDeprecation>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.apache.rat</groupId>
-          <artifactId>apache-rat-plugin</artifactId>
-          <configuration>
-            <excludes combine.children="append">
-              <!-- rat is too cheeky, ignore these resources -->
-              <exclude>src/test/resources/**</exclude>
-            </excludes>
-          </configuration>
-        </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-invoker-plugin</artifactId>
@@ -262,6 +265,7 @@ under the License.
   </build>
 
   <profiles>
+
     <profile>
       <id>run-its</id>
       <build>
