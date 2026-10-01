@@ -310,7 +310,10 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
      * Current user system settings for use in Maven.
      *
      * @since 1.6
+     * @deprecated Use {@code session.getSettings()} instead (the Maven 4 API equivalent is
+     *             {@code org.apache.maven.api.Session#getSettings()}). Will be removed in the Maven 4 API line.
      */
+    @Deprecated
     @Parameter(defaultValue = "${settings}", readonly = true, required = true)
     protected Settings settings;
 
@@ -372,7 +375,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
         AbstractGpgSigner signer = createSigner(this.signer);
 
         signer.setLog(getLog());
-        signer.setInteractive(settings.isInteractiveMode());
+        signer.setInteractive(session.getSettings().isInteractiveMode());
         signer.setKeyName(keyname);
         signer.setUseAgent(useAgent);
         signer.setHomeDirectory(homedir);
@@ -445,7 +448,7 @@ public abstract class AbstractGpgMojo extends AbstractMojo {
     @Deprecated
     private String loadGpgPassphrase() throws MojoFailureException {
         if (isNotBlank(passphraseServerId)) {
-            Server server = settings.getServer(passphraseServerId);
+            Server server = session.getSettings().getServer(passphraseServerId);
             if (server != null) {
                 if (isNotBlank(server.getPassphrase())) {
                     SettingsDecryptionResult result =
