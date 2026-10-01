@@ -234,7 +234,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
 
     @Override
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
-        if (settings.isOffline()) {
+        if (session.getSettings().isOffline()) {
             throw new MojoFailureException("Cannot deploy artifacts when Maven is in offline mode");
         }
 
