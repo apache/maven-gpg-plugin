@@ -239,6 +239,7 @@ under the License.
           <version>1.19.1</version>
           <configuration>
             <keysMapLocation>${project.basedir}/pgp-keys-map.list</keysMapLocation>
+            <suppressSignatureOkLogging>true</suppressSignatureOkLogging>
           </configuration>
         </plugin>
       </plugins>
