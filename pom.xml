@@ -49,8 +49,8 @@ under the License.
     <url>https://github.com/apache/maven-gpg-plugin/issues</url>
   </issueManagement>
   <ciManagement>
-    <system>Jenkins</system>
-    <url>https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-gpg-plugin/</url>
+    <system>GitHub</system>
+    <url>https://github.com/apache/maven-gpg-plugin/actions</url>
   </ciManagement>
   <distributionManagement>
     <site>
