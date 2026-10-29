@@ -152,15 +152,15 @@ under the License.
       <version>${bouncycastleVersion}</version>
     </dependency>
     <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcutil-jdk18on</artifactId>
-      <version>${bouncycastleVersion}</version>
-    </dependency>
-    <dependency>
       <groupId>com.kohlschutter.junixsocket</groupId>
       <artifactId>junixsocket-core</artifactId>
       <version>2.11.1</version>
       <type>pom</type>
+    </dependency>
+    <dependency>
+      <groupId>com.kohlschutter.junixsocket</groupId>
+      <artifactId>junixsocket-common</artifactId>
+      <version>2.11.1</version>
     </dependency>
 
     <dependency>
@@ -177,12 +177,6 @@ under the License.
       <groupId>org.apache.maven.executor</groupId>
       <artifactId>maven-executor</artifactId>
       <version>1.0.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.22.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
