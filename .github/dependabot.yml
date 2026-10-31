@@ -23,6 +23,22 @@ updates:
     interval: daily
     time: '04:00'
   open-pull-requests-limit: 10
+  ignore:
+    # 3.x plugins build against the latest Maven 3.9.x
+    - dependency-name: org.apache.maven:maven-artifact
+      versions: [">= 3.10.0"]
+    - dependency-name: org.apache.maven:maven-core
+      versions: [">= 3.10.0"]
+    - dependency-name: org.apache.maven:maven-model
+      versions: [">= 3.10.0"]
+    - dependency-name: org.apache.maven:maven-model-builder
+      versions: [">= 3.10.0"]
+    - dependency-name: org.apache.maven:maven-plugin-api
+      versions: [">= 3.10.0"]
+    - dependency-name: org.apache.maven:maven-settings
+      versions: [">= 3.10.0"]
+    - dependency-name: org.apache.maven:maven-settings-builder
+      versions: [">= 3.10.0"]
 
 - package-ecosystem: "github-actions"
   directory: "/"
