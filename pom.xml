@@ -65,6 +65,7 @@ under the License.
     <bouncycastleVersion>1.86</bouncycastleVersion>
     <project.build.outputTimestamp>2025-06-28T08:53:44Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
+    <invoker.parallelThreads>0.75C</invoker.parallelThreads>
   </properties>
 
   <dependencies>
