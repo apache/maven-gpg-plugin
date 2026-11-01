@@ -65,7 +65,7 @@ read -s -p "Enter your GnuPG key passphrase: " MAVEN_GPG_PASSPHRASE; mvn release
 
 Instead of specifying the passphrase on the command line, you can place it in your local `settings.xml` either in clear or [encrypted](/guides/mini/guide-encryption.html) text.
 
-```unknown
+```xml
 <settings>
   [...]
   <servers>
@@ -82,7 +82,7 @@ Instead of specifying the passphrase on the command line, you can place it in yo
 
 To allow discovery of keyname and passphrase at build time, configure this plugin to map both _keyname_ and _passphraseServerId_ to a fixed property.
 
-```unknown
+```xml
 <project>
   ...
   <build>
@@ -113,7 +113,7 @@ To allow discovery of keyname and passphrase at build time, configure this plugi
 
 and use local `settings.xml` to discover the passphrase via the keyname
 
-```unknown
+```xml
 <settings>
   [...]
   <servers>

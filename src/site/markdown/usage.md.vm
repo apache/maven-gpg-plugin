@@ -38,7 +38,7 @@ This is agnostic of the signing mechanism
 
 Add the plugin to your `pom.xml` like this:
 
-```unknown
+```xml
 <project>
   ...
   <build>
