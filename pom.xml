@@ -62,7 +62,7 @@ under the License.
   <properties>
     <mavenVersion>3.9.16</mavenVersion>
     <resolverVersion>1.9.27</resolverVersion>
-    <bouncycastleVersion>1.86</bouncycastleVersion>
+    <bouncycastleVersion>1.87</bouncycastleVersion>
     <project.build.outputTimestamp>2025-06-28T08:53:44Z</project.build.outputTimestamp>
     <resource.delimiter>@</resource.delimiter>
     <invoker.parallelThreads>0.75C</invoker.parallelThreads>
