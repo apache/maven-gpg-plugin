@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * @author Robert Scholte
  * @since 3.0.0
  */
-public class GpgVersion implements Comparable<GpgVersion> {
+public final class GpgVersion implements Comparable<GpgVersion> {
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+\\.)+(\\d+)");
 
@@ -71,7 +71,7 @@ public class GpgVersion implements Comparable<GpgVersion> {
             }
         }
 
-        return (thisSegments.length - otherSegments.length);
+        return thisSegments.length - otherSegments.length;
     }
 
     /**

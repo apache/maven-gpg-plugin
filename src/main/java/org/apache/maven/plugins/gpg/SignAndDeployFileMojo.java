@@ -345,7 +345,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         signer.setBaseDirectory(new File("").getAbsoluteFile());
 
         getLog().info("Signer '" + signer.signerName() + "' is signing " + artifacts.size() + " file"
-                + ((artifacts.size() > 1) ? "s" : "") + " with key " + signer.getKeyInfo());
+                + (artifacts.size() > 1 ? "s" : "") + " with key " + signer.getKeyInfo());
 
         ArrayList<Artifact> signatures = new ArrayList<>();
         for (Artifact a : artifacts) {
@@ -460,7 +460,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         if (!result.isEmpty()) {
             StringBuilder msg = new StringBuilder("The artifact information is incomplete or not valid:\n");
             for (String e : result) {
-                msg.append(" - " + e + '\n');
+                msg.append(" - ").append(e).append('\n');
             }
             throw new MojoFailureException(msg.toString());
         }
