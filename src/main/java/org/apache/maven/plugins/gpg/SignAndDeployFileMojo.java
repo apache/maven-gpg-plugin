@@ -533,6 +533,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
             this.result = result;
         }
 
+        @Override
         public void add(ModelProblemCollectorRequest req) {
             if (!ModelProblem.Severity.WARNING.equals(req.getSeverity())) {
                 result.add(req.getMessage());
