@@ -211,7 +211,7 @@ public class BcSigner extends AbstractGpgSigner {
                     String displayFingerprint = hexKeyFingerprint.toUpperCase(Locale.ROOT);
                     // https://unix.stackexchange.com/questions/71135/how-can-i-find-out-what-keys-gpg-agent-has-cached-like-how-ssh-add-l-shows-yo
                     String instruction = "GET_PASSPHRASE "
-                            + (!isInteractive ? "--no-ask " : "")
+                            + (isInteractive ? "" : "--no-ask ")
                             + hexKeyFingerprint
                             + " "
                             + "X "
@@ -219,7 +219,7 @@ public class BcSigner extends AbstractGpgSigner {
                             + "Please+enter+the+passphrase+to+unlock+the+OpenPGP+secret+key+with+fingerprint:+"
                             + displayFingerprint
                             + "+to+use+it+for+signing+Maven+Artifacts\n";
-                    os.write((instruction).getBytes());
+                    os.write(instruction.getBytes());
                     os.flush();
                     return mayExpectOK(in);
                 }

@@ -139,7 +139,7 @@ public class SignDeployedMojo extends AbstractGpgMojo {
             // get artifacts list
             getLog().debug("Collecting artifacts for signing...");
             artifacts.addAll(collectArtifacts(signingSession, deploymentRepository));
-            getLog().info("Collected " + artifacts.size() + " artifact" + ((artifacts.size() > 1) ? "s" : "")
+            getLog().info("Collected " + artifacts.size() + " artifact" + (artifacts.size() > 1 ? "s" : "")
                     + " for signing");
 
             // create additional ones if needed
@@ -160,7 +160,7 @@ public class SignDeployedMojo extends AbstractGpgMojo {
             }
 
             // resolve them all
-            getLog().info("Resolving " + artifacts.size() + " artifact" + ((artifacts.size() > 1) ? "s" : "")
+            getLog().info("Resolving " + artifacts.size() + " artifact" + (artifacts.size() > 1 ? "s" : "")
                     + " artifacts for signing...");
             List<ArtifactResult> results = repositorySystem.resolveArtifacts(
                     signingSession,
@@ -173,7 +173,7 @@ public class SignDeployedMojo extends AbstractGpgMojo {
             AbstractGpgSigner signer = newSigner(null);
             signer.setOutputDirectory(tempDirectory.toFile());
             getLog().info("Signer '" + signer.signerName() + "' is signing " + artifacts.size() + " file"
-                    + ((artifacts.size() > 1) ? "s" : "") + " with key " + signer.getKeyInfo());
+                    + (artifacts.size() > 1 ? "s" : "") + " with key " + signer.getKeyInfo());
 
             HashSet<Artifact> signatures = new HashSet<>();
             for (Artifact a : artifacts) {

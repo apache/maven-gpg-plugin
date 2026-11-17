@@ -46,7 +46,7 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  * @author Robert Scholte
  * @since 3.0.0
  */
-public class GpgVersionParser {
+public final class GpgVersionParser {
     private final GpgVersionConsumer consumer;
 
     private GpgVersionParser(GpgVersionConsumer consumer) {
