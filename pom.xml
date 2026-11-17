@@ -191,14 +191,14 @@ under the License.
     <testResources>
       <testResource>
         <filtering>true</filtering>
-        <directory>${project.basedir}/src/test/resources</directory>
+        <directory>${basedir}/src/test/resources</directory>
         <includes>
           <include>**/pom.xml</include>
           <include>**/settings.xml</include>
         </includes>
       </testResource>
       <testResource>
-        <directory>${project.basedir}/src/test/resources</directory>
+        <directory>${basedir}/src/test/resources</directory>
         <excludes>
           <exclude>**/pom.xml</exclude>
           <exclude>**/settings.xml</exclude>

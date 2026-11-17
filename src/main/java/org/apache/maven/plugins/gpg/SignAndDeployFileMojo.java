@@ -460,7 +460,7 @@ public class SignAndDeployFileMojo extends AbstractGpgMojo {
         if (!result.isEmpty()) {
             StringBuilder msg = new StringBuilder("The artifact information is incomplete or not valid:\n");
             for (String e : result) {
-                msg.append(" - ").append(e).append('\n');
+                msg.append(" - " + e + '\n');
             }
             throw new MojoFailureException(msg.toString());
         }
