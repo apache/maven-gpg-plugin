@@ -21,10 +21,13 @@ package org.apache.maven.plugins.gpg;
 import javax.inject.Inject;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +43,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -205,7 +207,7 @@ public class SignDeployedMojo extends AbstractGpgMojo {
             if (tempDirectory != null) {
                 getLog().info("Cleaning up...");
                 try {
-                    FileUtils.deleteDirectory(tempDirectory.toFile());
+                    SignDeployedMojo.deleteDirectory(tempDirectory.toFile().toPath());
                 } catch (IOException e) {
                     getLog().warn("Could not clean up temp directory " + tempDirectory);
                 }
@@ -251,5 +253,45 @@ public class SignDeployedMojo extends AbstractGpgMojo {
             throw new IllegalStateException("No source to collect from (set -Dartifacts=g:a:v... or add collector)");
         }
         return result;
+    }
+
+    static void deleteDirectory(final Path directory) throws IOException {
+        if (!Files.exists(directory)) {
+            return;
+        }
+        final IOException[] failure = new IOException[1];
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                try {
+                    Files.delete(file);
+                } catch (IOException e) {
+                    failure[0] = e;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                failure[0] = exc;
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                if (exc != null) {
+                    failure[0] = exc;
+                }
+                try {
+                    Files.delete(dir);
+                } catch (IOException e) {
+                    failure[0] = e;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        if (failure[0] != null) {
+            throw failure[0];
+        }
     }
 }
