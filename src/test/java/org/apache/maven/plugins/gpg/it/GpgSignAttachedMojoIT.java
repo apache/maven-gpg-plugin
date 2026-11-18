@@ -19,10 +19,11 @@
 package org.apache.maven.plugins.gpg.it;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import org.apache.maven.executor.ExecutorRequest;
 import org.apache.maven.executor.ExecutorResult;
-import org.codehaus.plexus.util.FileUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -42,7 +43,8 @@ class GpgSignAttachedMojoIT extends ITSupport {
         final BuildResult result = InvokerTestUtils.executeRequest(request, mavenHome, localRepository);
 
         final ExecutorResult executorResult = result.getExecutorResult();
-        final String buildLogContent = FileUtils.fileRead(result.getBuildLog());
+        final String buildLogContent =
+                new String(Files.readAllBytes(result.getBuildLog().toPath()), StandardCharsets.UTF_8);
 
         // then
         assertNotEquals(0, executorResult.exitCode().orElse(0), "Maven execution must fail");
