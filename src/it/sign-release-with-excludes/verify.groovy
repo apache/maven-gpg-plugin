@@ -36,7 +36,7 @@ for (File file : artifactDir.listFiles()) {
 
     println "Checking if file is expected: $file"
 
-    var expected = false;
+    var expected = false
     for (String expectedFile : expectedFiles) {
         if (expectedFile == fileName) {
             expected = true

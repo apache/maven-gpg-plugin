@@ -18,12 +18,7 @@
  */
 var artifactDir = new File(localRepositoryPath, "org/apache/maven/its/gpg/swpfmc/test/1.0")
 
-var expectedFiles = [
-    "test-1.0.pom",
-    "test-1.0.pom.asc",
-    "test-1.0-jdk15.jar",
-    "test-1.0-jdk15.jar.asc"
-]
+var expectedFiles = ["test-1.0.pom", "test-1.0.pom.asc", "test-1.0-jdk15.jar", "test-1.0-jdk15.jar.asc"]
 
 for (String expectedFile : expectedFiles) {
     var file = new File(artifactDir, expectedFile)

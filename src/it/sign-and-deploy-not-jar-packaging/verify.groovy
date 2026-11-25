@@ -18,10 +18,7 @@
  */
 var artifactDir = new File(basedir, "target/repo/org/apache/maven/its/gpg/sadnjp/test/1.0")
 
-var expectedFiles = [
-    "test-1.0-javadoc.jar",
-    "test-1.0-javadoc.jar.asc"
-]
+var expectedFiles = ["test-1.0-javadoc.jar", "test-1.0-javadoc.jar.asc"]
 
 for (String expectedFile : expectedFiles) {
     var file = new File(artifactDir, expectedFile)

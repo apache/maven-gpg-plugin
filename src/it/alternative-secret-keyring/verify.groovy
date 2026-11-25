@@ -18,12 +18,7 @@
  */
 def artifactDir = new File(localRepositoryPath, "org/apache/maven/its/gpg/nma/test/1.0")
 
-def expectedFiles = [
-        "test-1.0.pom",
-        "test-1.0.pom.asc",
-        "test-1.0-jdk15.jar",
-        "test-1.0-jdk15.jar.asc"
-]
+def expectedFiles = ["test-1.0.pom", "test-1.0.pom.asc", "test-1.0-jdk15.jar", "test-1.0-jdk15.jar.asc"]
 
 expectedFiles.each { expectedFile ->
     def file = new File(artifactDir, expectedFile)
