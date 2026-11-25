@@ -18,6 +18,4 @@
  */
 
 
-import org.codehaus.plexus.util.FileUtils
-
-FileUtils.deleteDirectory(new File(basedir, "target"))
+assert new File(basedir, "target").deleteDir()

@@ -18,18 +18,12 @@
  */
 
 
-import org.codehaus.plexus.util.FileUtils
-
 var buildLog = new File(basedir, "build.log")
-var logContent = FileUtils.fileRead(buildLog)
+var logContent = buildLog.getText('UTF-8')
 
 // assert that the Maven build properly failed and did not time out
-if (!logContent.contains("Total time: ") || !logContent.contains("Finished at: ")) {
-    throw new Exception("Maven build did not fail, but timed out")
-}
+assert logContent.contains("Total time: ") && logContent.contains("Finished at: ") : "Maven build did not fail, but timed out"
 
 // gpg: assert that the Maven build failed, because pinentry is not allowed in non-interactive mode
 // bc: assert that the Maven build failed, because key to sign is encrypted by no passphrase provided
-if (!logContent.contains("[GNUPG:] FAILURE sign 67108949") && !logContent.contains("Secret key is encrypted but no passphrase provided")) {
-    throw new Exception("Maven build did not fail in consequence of pinentry not being available to GPG")
-}
+assert logContent.contains("[GNUPG:] FAILURE sign 67108949") || logContent.contains("Secret key is encrypted but no passphrase provided") : "Maven build did not fail in consequence of pinentry not being available to GPG"

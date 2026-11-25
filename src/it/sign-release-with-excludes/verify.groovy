@@ -44,7 +44,5 @@ for (File file : artifactDir.listFiles()) {
         }
     }
 
-    if (!expected) {
-        throw new Exception("Unexpected file $file")
-    }
+    assert expected : "Unexpected file $file"
 }
