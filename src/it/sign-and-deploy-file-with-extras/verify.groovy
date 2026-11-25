@@ -20,14 +20,14 @@
 def artifactDir = new File(basedir, "target/repo/org/apache/maven/its/gpg/sadfwe/test/1.0")
 
 var expectedFiles = [
-        "test-1.0.jar",
-        "test-1.0.jar.asc",
-        "test-1.0-sources.jar",
-        "test-1.0-sources.jar.asc",
-        "test-1.0-javadoc.jar",
-        "test-1.0-javadoc.jar.asc",
-        "test-1.0.pom",
-        "test-1.0.pom.asc"
+    "test-1.0.jar",
+    "test-1.0.jar.asc",
+    "test-1.0-sources.jar",
+    "test-1.0-sources.jar.asc",
+    "test-1.0-javadoc.jar",
+    "test-1.0-javadoc.jar.asc",
+    "test-1.0.pom",
+    "test-1.0.pom.asc"
 ]
 
 for (String expectedFile : expectedFiles) {
